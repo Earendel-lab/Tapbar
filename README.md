@@ -1,4 +1,4 @@
-<img width="3668" height="2466" alt="Dotcal (1) (1)" src="https://github.com/user-attachments/assets/109bca91-38d2-446d-8a93-48f828e711c2" />
+<img width="3668" height="2466" alt="Tapbar" src="https://github.com/user-attachments/assets/5fd8caf1-bf54-403f-9bd3-f0db9834a921" />
 
 # Tapbar
 
@@ -53,6 +53,6 @@ It helps the project get more visibility and supports the development of the pro
 Clone the repository using Git:
 
 ```bash
-git clone https://github.com/Earendel-lab/Tapbar.git
+git clone https://github.com/Earendel-lab/Tapbar
 ```
 ## Contribution is always appreciated. Fork the project and start making it better.
