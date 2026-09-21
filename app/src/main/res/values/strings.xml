@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar is running</string>
+    <string name="notif_text">Tap zone active. Tap to open settings.</string>
+    <string name="action_stop">Stop</string>
+    <string name="accessibility_desc">Lets Tapbar place a small tap target on the status bar. It does not read screen content.</string>
+</resources>

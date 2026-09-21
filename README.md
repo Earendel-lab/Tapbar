@@ -1,0 +1,58 @@
+<img width="3668" height="2466" alt="Dotcal (1) (1)" src="https://github.com/user-attachments/assets/109bca91-38d2-446d-8a93-48f828e711c2" />
+
+# Tapbar
+
+Tapbar is a simple Android app that lets you create a tappable area on your screen and use it to open any app.
+
+The idea started with a simple feature request: tapping the clock in the status bar to open the Clock app.
+
+## Features
+
+- Open any app using a custom tap zone
+- Start automatically when the device boots
+- Works completely offline, No ads
+- No trackers, No analytics
+- Completely free & Open source
+
+## Why Tapbar?
+
+The idea came from a simple Android feature request:
+
+> Tap the clock in the status bar to open the Clock app.
+
+Many users have wanted this kind of shortcut because it makes the Clock app accessible with a single tap.
+
+Tapbar takes that idea further.
+
+You are not limited to the Clock app or even the status bar. You can choose any app and position the tappable area wherever you want on the screen.
+
+## Privacy
+
+Tapbar is designed to be simple and private.
+
+- No ads
+- No tracking
+- No analytics
+- No internet connection required
+- Your settings stay on your device
+
+Tapbar does not need your data to provide its main function.
+
+## Open Source
+
+Tapbar is completely open source.
+
+You can inspect the source code, report issues, suggest improvements, or contribute to the project.
+
+If you find Tapbar useful, consider giving the project a star ⭐
+It helps the project get more visibility and supports the development of the project.
+
+
+## Clone the Project
+
+Clone the repository using Git:
+
+```bash
+git clone https://github.com/Earendel-lab/Tapbar.git
+```
+## Contribution is always appreciated. Fork the project and start making it better.

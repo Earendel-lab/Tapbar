@@ -1,0 +1,8 @@
+﻿<resources>
+
+    <style name="Theme.StatusTap" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#000000</item>
+    </style>
+
+    <color name="splash_bg">#000000</color>
+</resources>
