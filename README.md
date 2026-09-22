@@ -56,6 +56,6 @@ It helps the project get more visibility and supports the development of the pro
 Clone the repository using Git:
 
 ```bash
-git clone https://github.com/Earendel-lab/Tapbar
+git clone https://github.com/Earendel-lab/Tapbar.git
 ```
 ## Contribution is always appreciated. Fork the project and start making it better.
