@@ -3,6 +3,7 @@ package com.earendel.tapbar
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.SystemClock
 import android.provider.AlarmClock
@@ -11,14 +12,24 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import java.lang.ref.WeakReference
 import kotlin.math.abs
 
 object TapZone {
     @Volatile
-    var active: TapZoneController? = null
+    private var activeRef: WeakReference<TapZoneController>? = null
+
+    var active: TapZoneController?
+        get() = activeRef?.get()
+        set(value) {
+            activeRef = value?.let { WeakReference(it) }
+        }
 
     @Volatile
     var previewRequested: Boolean = false
+
+    @Volatile
+    var currentForegroundApp: String? = null
 }
 
 class TapZoneController(
@@ -32,11 +43,32 @@ class TapZoneController(
     private var view: TapView? = null
     private var lp: WindowManager.LayoutParams? = null
     private var preview = false
+    private val density = context.resources.displayMetrics.density
 
-    val isAccessibilityHosted: Boolean
-        get() = windowType == WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+    private val previewDrawable by lazy {
+        GradientDrawable().apply {
+            setColor(0x553F8EF7)
+            setStroke(dp(2), 0xFF2E7DF6.toInt())
+            cornerRadius = dp(6).toFloat()
+        }
+    }
+
+    private val transparentDrawable by lazy {
+        ColorDrawable(0x01000000)
+    }
+
+    fun isBlocked(): Boolean {
+        if (preview) return false
+        if (!prefs.serviceEnabled) return true
+        val fg = TapZone.currentForegroundApp?.trim()?.lowercase() ?: return false
+        return prefs.blockedPackages.contains(fg)
+    }
 
     fun attach() {
+        if (isBlocked()) {
+            detach()
+            return
+        }
         val p = lp ?: buildParams().also { lp = it }
         applyGeometry(p)
         if (view == null) {
@@ -45,7 +77,7 @@ class TapZoneController(
             try {
                 wm.addView(v, p)
             } catch (t: Throwable) {
-                Log.e("Tapbar", "addView failed")
+                Log.e("Tapbar", "addView failed", t)
                 view = null
                 return
             }
@@ -53,7 +85,7 @@ class TapZoneController(
             try {
                 wm.updateViewLayout(view, p)
             } catch (t: Throwable) {
-                Log.e("Tapbar", "updateViewLayout failed")
+                Log.e("Tapbar", "updateViewLayout failed", t)
             }
         }
         refreshAppearance()
@@ -64,14 +96,27 @@ class TapZoneController(
         try {
             wm.removeView(v)
         } catch (t: Throwable) {
-            Log.e("Tapbar", "removeView failed")
+            Log.e("Tapbar", "removeView failed", t)
         }
         view = null
     }
 
     fun setPreview(on: Boolean) {
         preview = on
-        refreshAppearance()
+        attach()
+    }
+
+    fun updateGeometryLive(x: Int, y: Int, w: Int, h: Int) {
+        val v = view ?: return
+        val p = lp ?: return
+        p.width = dp(w)
+        p.height = dp(h)
+        p.x = dp(x)
+        p.y = dp(y) + yOffsetPx
+        try {
+            wm.updateViewLayout(v, p)
+        } catch (_: Throwable) {
+        }
     }
 
     fun updateGeometry(x: Int, y: Int, w: Int, h: Int) {
@@ -105,15 +150,11 @@ class TapZoneController(
     private fun refreshAppearance() {
         val v = view ?: return
         if (preview) {
-            v.background = GradientDrawable().apply {
-                setColor(0x553F8EF7)
-                setStroke(dp(2), 0xFF2E7DF6.toInt())
-                cornerRadius = dp(6).toFloat()
-            }
+            v.background = previewDrawable
             v.alpha = 1f
         } else {
-            v.background = null
-            v.alpha = 0f
+            v.background = transparentDrawable
+            v.alpha = 1f
         }
     }
 
@@ -124,7 +165,14 @@ class TapZoneController(
         private var consumed = false
         private val slop = dp(18).toFloat()
 
+        override fun performClick(): Boolean {
+            super.performClick()
+            return true
+        }
+
         override fun onTouchEvent(event: MotionEvent): Boolean {
+            if (isBlocked()) return false
+
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     downX = event.rawX
@@ -148,7 +196,10 @@ class TapZoneController(
                         val dx = abs(event.rawX - downX)
                         val dy = abs(event.rawY - downY)
                         val dt = SystemClock.uptimeMillis() - downAt
-                        if (dx < slop && dy < slop && dt < 600) launchTarget()
+                        if (dx < slop && dy < slop && dt < 600) {
+                            performClick()
+                            launchTarget()
+                        }
                     }
                     consumed = false
                     return true
@@ -163,21 +214,23 @@ class TapZoneController(
     }
 
     private fun launchTarget() {
+        if (isBlocked()) return
         val pkg = prefs.targetPackage
-        val launch = if (pkg != null) {
+        val launchIntent = if (pkg != null) {
             context.packageManager.getLaunchIntentForPackage(pkg)
         } else null
-        val go = launch ?: Intent(AlarmClock.ACTION_SHOW_ALARMS)
-        go.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val intentToRun = launchIntent ?: Intent(AlarmClock.ACTION_SHOW_ALARMS)
+        intentToRun.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+
         try {
-            context.startActivity(go)
+            context.startActivity(intentToRun)
         } catch (t: Throwable) {
-            Log.e("Tapbar", "Could not launch target app")
+            Log.e("Tapbar", "Could not launch target app", t)
         }
     }
 
-    private fun dp(value: Int): Int =
-        (value * context.resources.displayMetrics.density).toInt()
+    private fun dp(value: Int): Int = (value * density).toInt()
 
     companion object {
         fun statusBarHeightPx(context: Context): Int {

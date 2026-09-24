@@ -2,32 +2,33 @@ package com.earendel.tapbar
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.BrightnessAuto
+import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,15 +43,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                Color.TRANSPARENT,
+                Color.TRANSPARENT
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                Color.TRANSPARENT,
+                Color.TRANSPARENT
+            )
+        )
         val prefs = Prefs(this)
         setContent {
             SettingsRoot(prefs) { finish() }
@@ -70,7 +81,11 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                     title = { Text("Settings") },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 )
@@ -84,65 +99,68 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    "Appearance",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        "Appearance",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Theme", style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(16.dp))
-                        
-                        ThemePill(
+
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        ThemeRow(
+                            icon = Icons.Rounded.BrightnessAuto,
                             label = "Auto",
                             selected = themeMode == 0,
-                            onClick = { themeMode = 0; prefs.themeMode = 0 },
-                            modifier = Modifier.fillMaxWidth()
+                            index = 0,
+                            count = 3,
+                            onClick = {
+                                themeMode = 0
+                                prefs.themeMode = 0
+                            }
                         )
-                        
-                        Spacer(Modifier.height(8.dp))
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            ThemePill(
-                                label = "Light",
-                                selected = themeMode == 1,
-                                onClick = { themeMode = 1; prefs.themeMode = 1 },
-                                modifier = Modifier.weight(1f)
-                            )
-                            ThemePill(
-                                label = "Dark",
-                                selected = themeMode == 2,
-                                onClick = { themeMode = 2; prefs.themeMode = 2 },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                        ThemeRow(
+                            icon = Icons.Rounded.WbSunny,
+                            label = "Light",
+                            selected = themeMode == 1,
+                            index = 1,
+                            count = 3,
+                            onClick = {
+                                themeMode = 1
+                                prefs.themeMode = 1
+                            }
+                        )
+                        ThemeRow(
+                            icon = Icons.Rounded.DarkMode,
+                            label = "Dark",
+                            selected = themeMode == 2,
+                            index = 2,
+                            count = 3,
+                            onClick = {
+                                themeMode = 2
+                                prefs.themeMode = 2
+                            }
+                        )
                     }
                 }
 
-                Text(
-                    "About",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        "About",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-                AboutSection()
+                    AboutSection()
+                }
 
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "Made with ❤️",
+                        "Made with ♥️",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -153,42 +171,45 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
 }
 
 @Composable
-fun ThemePill(
+fun ThemeRow(
+    icon: ImageVector,
     label: String,
     selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    index: Int,
+    count: Int,
+    onClick: () -> Unit
 ) {
-    val bg = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceContainerHigh
-    val contentColor = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface
-    
-    Box(
-        modifier = modifier
-            .height(48.dp)
-            .clip(CircleShape)
-            .background(bg)
-            .clickable { onClick() }
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+    SegmentedCard(
+        index = index,
+        count = count,
+        onClick = onClick
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.width(16.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
-                color = contentColor
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
             )
             if (selected) {
-                Spacer(Modifier.size(8.dp))
                 Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = contentColor
+                    painter = painterResource(R.drawable.ic_check_bold),
+                    contentDescription = "Selected",
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -198,58 +219,87 @@ fun ThemePill(
 @Composable
 fun AboutSection() {
     val context = LocalContext.current
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AboutCard(
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        AboutRow(
+            icon = Icons.Rounded.Person,
             title = "Developer",
             value = "Earendel",
+            index = 0,
+            count = 4,
             onClick = { openUrl(context, "https://earendel.pages.dev/") }
         )
-        AboutCard(
+        AboutRow(
+            icon = Icons.Rounded.Code,
             title = "Source code",
             value = "GitHub",
+            index = 1,
+            count = 4,
             onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar") }
         )
-        AboutCard(
+        AboutRow(
+            icon = Icons.Rounded.Star,
             title = "Star the project",
             value = "GitHub",
+            index = 2,
+            count = 4,
             onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar") }
         )
-        AboutCard(
+        AboutRow(
+            icon = Icons.Rounded.Description,
             title = "License",
             value = "Open Source License",
+            index = 3,
+            count = 4,
             onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar/blob/main/LICENSE") }
         )
     }
 }
 
 @Composable
-fun AboutCard(title: String, value: String, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
+fun AboutRow(
+    icon: ImageVector,
+    title: String,
+    value: String,
+    index: Int,
+    count: Int,
+    onClick: () -> Unit
+) {
+    SegmentedCard(
+        index = index,
+        count = count,
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onClick() }
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.labelMedium)
+                Text(
+                    title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Text(
                     value,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                painter = painterResource(R.drawable.ic_arrow_up_right),
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }
