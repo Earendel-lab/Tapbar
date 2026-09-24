@@ -14,6 +14,9 @@ The idea started with a simple feature request: tapping the clock in the status 
 - No trackers, No analytics
 - Completely free & Open source
 
+<img width="720" height="1412" alt="ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/9214a68d-7ed3-4020-81d4-3e8df770c070" />
+
+
 ## Why Tapbar?
 
 The idea came from a simple Android feature request:
@@ -53,6 +56,6 @@ It helps the project get more visibility and supports the development of the pro
 Clone the repository using Git:
 
 ```bash
-git clone https://github.com/Earendel-lab/Tapbar
+git clone https://github.com/Earendel-lab/Tapbar.git
 ```
 ## Contribution is always appreciated. Fork the project and start making it better.
