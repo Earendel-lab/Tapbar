@@ -1,4 +1,5 @@
-<img width="3668" height="2466" alt="Tapbar" src="https://github.com/user-attachments/assets/5fd8caf1-bf54-403f-9bd3-f0db9834a921" />
+<img width="1182" height="745" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/215b595c-b3aa-4711-ae2c-26f6f8dc2185" />
+
 
 # Tapbar
 
@@ -21,8 +22,6 @@ The idea started with a simple feature request: tapping the clock in the status 
 - Works completely offline, No ads
 - No trackers, No analytics
 - Completely free & Open source
-
-<img width="720" height="1412" alt="ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/9214a68d-7ed3-4020-81d4-3e8df770c070" />
 
 ## What's New in v1.2
 
@@ -48,9 +47,13 @@ Since Tapbar isn't published on the Play Store, Android may block or flag it whe
 
 **1. If your phone shows "Restricted setting" when enabling permissions**
 Newer Android versions block permission toggles for sideloaded apps by default. To fix this:
-- Go to **Settings > Apps > Tapbar**
+- Go to **App info**
 - Tap the three-dot menu (top right) and select **Allow restricted settings**
 - Then enable the required Accessibility and Overlay permissions from Tapbar's settings screen
+
+<img width="2147" height="822" alt="Tapbar Guide" src="https://github.com/user-attachments/assets/0749c54b-53de-402b-844c-6374870b53b8" />
+
+---
 
 **2. If Play Protect blocks the install**
 Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions to work. To install anyway:
@@ -59,8 +62,9 @@ Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions
 - Turn off **Scan apps with Play Protect** and **Improve harmful app detection**
 - Install Tapbar, then you can turn these back on
 
+<img width="2147" height="822" alt="Tapbar Guide (1)" src="https://github.com/user-attachments/assets/592b2636-ebdc-48b0-b8c5-0b3d8a24075d" />
 
-Once these are set, Tapbar should install and run without issues.
+# Once these are set, Tapbar should install and run without issues.
 
 ## Privacy
 
