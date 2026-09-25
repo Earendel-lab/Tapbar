@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
-val GroupLargeCorner = 18.dp // outer corners of the group (smartly decreased from 28dp)
-val GroupSmallCorner = 4.dp  // inner corners (near neighbor, decreased from 6dp)
+val GroupLargeCorner = 18.dp
+val GroupSmallCorner = 4.dp
 
 fun segmentedShape(index: Int, count: Int): Shape =
     when {

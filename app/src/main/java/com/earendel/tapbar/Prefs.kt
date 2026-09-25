@@ -30,12 +30,18 @@ class Prefs(context: Context) {
         set(v) = sp.edit().putInt("zone_h", v).apply()
 
     var targetPackage: String?
-        get() = sp.getString("target_pkg", null)
-        set(v) = sp.edit().putString("target_pkg", v).apply()
+        get() = singleTapTargetPkg ?: sp.getString("target_pkg", null)
+        set(v) {
+            singleTapTargetPkg = v
+            sp.edit().putString("target_pkg", v).apply()
+        }
 
     var targetLabel: String?
-        get() = sp.getString("target_label", null)
-        set(v) = sp.edit().putString("target_label", v).apply()
+        get() = singleTapTargetLabel ?: sp.getString("target_label", null)
+        set(v) {
+            singleTapTargetLabel = v
+            sp.edit().putString("target_label", v).apply()
+        }
 
     var serviceEnabled: Boolean
         get() = cachedServiceEnabled ?: sp.getBoolean("service_enabled", true).also { cachedServiceEnabled = it }
@@ -60,6 +66,10 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("has_initial_pos", false)
         set(v) = sp.edit().putBoolean("has_initial_pos", v).apply()
 
+    var hasSeenPrivacyNotice: Boolean
+        get() = sp.getBoolean("has_seen_privacy_notice", false)
+        set(v) = sp.edit().putBoolean("has_seen_privacy_notice", v).apply()
+
     var blockedPackages: Set<String>
         get() {
             val raw = sp.getString("blocked_pkgs_str", "") ?: ""
@@ -72,10 +82,17 @@ class Prefs(context: Context) {
             sp.edit().putString("blocked_pkgs_str", str).apply()
         }
 
-    // Gesture preferences
     var singleTapType: Int
-        get() = sp.getInt("single_tap_type", 0) // 0 = App, 1 = Action
+        get() = sp.getInt("single_tap_type", 0)
         set(v) = sp.edit().putInt("single_tap_type", v).apply()
+
+    var singleTapTargetPkg: String?
+        get() = sp.getString("single_tap_target_pkg", sp.getString("target_pkg", null))
+        set(v) = sp.edit().putString("single_tap_target_pkg", v).apply()
+
+    var singleTapTargetLabel: String?
+        get() = sp.getString("single_tap_target_label", sp.getString("target_label", null))
+        set(v) = sp.edit().putString("single_tap_target_label", v).apply()
 
     var singleTapActionId: String?
         get() = sp.getString("single_tap_action_id", "screenshot")
@@ -94,7 +111,7 @@ class Prefs(context: Context) {
         set(v) = sp.edit().putInt("double_tap_speed_ms", v).apply()
 
     var doubleTapType: Int
-        get() = sp.getInt("double_tap_type", 1) // 0 = App, 1 = Action
+        get() = sp.getInt("double_tap_type", 1)
         set(v) = sp.edit().putInt("double_tap_type", v).apply()
 
     var doubleTapTargetPkg: String?

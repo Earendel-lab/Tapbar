@@ -28,6 +28,7 @@ import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -47,6 +49,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 class SettingsActivity : ComponentActivity() {
@@ -79,6 +82,10 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
             topBar = {
                 TopAppBar(
                     title = { Text("Settings") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                        scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
+                    ),
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
@@ -156,13 +163,28 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(top = 24.dp, bottom = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        "Made with ♥️",
+                        text = "Made with ♥️",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "100% Offline • Zero Trackers • Open Source",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Your data stays 100% on your device",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -221,35 +243,43 @@ fun AboutSection() {
     val context = LocalContext.current
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         AboutRow(
+            icon = Icons.Rounded.Update,
+            title = "Check for update",
+            value = "Current version v1.2",
+            index = 0,
+            count = 5,
+            onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar/releases") }
+        )
+        AboutRow(
             icon = Icons.Rounded.Person,
             title = "Developer",
             value = "Earendel",
-            index = 0,
-            count = 4,
+            index = 1,
+            count = 5,
             onClick = { openUrl(context, "https://earendel.pages.dev/") }
         )
         AboutRow(
             icon = Icons.Rounded.Code,
             title = "Source code",
             value = "GitHub",
-            index = 1,
-            count = 4,
+            index = 2,
+            count = 5,
             onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar") }
         )
         AboutRow(
             icon = Icons.Rounded.Star,
             title = "Star the project",
             value = "GitHub",
-            index = 2,
-            count = 4,
+            index = 3,
+            count = 5,
             onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar") }
         )
         AboutRow(
             icon = Icons.Rounded.Description,
             title = "License",
             value = "Open Source License",
-            index = 3,
-            count = 4,
+            index = 4,
+            count = 5,
             onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar/blob/main/LICENSE") }
         )
     }

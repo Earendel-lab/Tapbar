@@ -1,17 +1,21 @@
 ﻿package com.earendel.tapbar
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.core.view.WindowCompat
 import com.earendel.tapbar.R
 
 val provider = GoogleFont.Provider(
@@ -106,10 +110,21 @@ fun StatusTapTheme(
 
     val scheme = remember(dark) { if (dark) DarkScheme else LightScheme }
 
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window
+            if (window != null) {
+                val insetsController = WindowCompat.getInsetsController(window, view)
+                insetsController.isAppearanceLightStatusBars = !dark
+                insetsController.isAppearanceLightNavigationBars = !dark
+            }
+        }
+    }
+
     MaterialTheme(
         colorScheme = scheme,
         typography = GeistTypography,
         content = content
     )
 }
-

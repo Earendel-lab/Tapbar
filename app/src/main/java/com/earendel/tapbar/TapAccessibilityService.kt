@@ -9,6 +9,11 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 
+object TapAccessibilityServiceHolder {
+    @Volatile
+    var service: TapAccessibilityService? = null
+}
+
 class TapAccessibilityService : AccessibilityService() {
 
     private var controller: TapZoneController? = null
@@ -16,6 +21,7 @@ class TapAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        TapAccessibilityServiceHolder.service = this
         val c = TapZoneController(
             context = this,
             windowType = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
@@ -50,11 +56,13 @@ class TapAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {}
 
     override fun onUnbind(intent: Intent?): Boolean {
+        TapAccessibilityServiceHolder.service = null
         teardown()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
+        TapAccessibilityServiceHolder.service = null
         teardown()
         super.onDestroy()
     }
