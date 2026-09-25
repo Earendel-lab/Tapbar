@@ -9,19 +9,26 @@
   <img src="https://img.shields.io/github/stars/Earendel-lab/Tapbar.svg?style=for-the-badge&color=FFC700&labelColor=1e2327&logo=github&logoColor=white" alt="Stars" height="40">
 </p>
 
-Tapbar is a simple Android app that lets you create a tappable area on your screen and use it to open any app.
+Create a tappable area on your screen. Assign a single tap and double tap to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
 
-The idea started with a simple feature request: tapping the clock in the status bar to open the Clock app.
+The idea started with a simple feature request: tapping the clock in the status bar to open the Clock app. It's grown from there, and it keeps growing with help from people like you.
 
 ## Features
 
 - Open any app using a custom tap zone
+- **Single tap and double tap support** - assign a different app or action to each
 - Start automatically when the device boots
 - Works completely offline, No ads
 - No trackers, No analytics
 - Completely free & Open source
 
 <img width="720" height="1412" alt="ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/9214a68d-7ed3-4020-81d4-3e8df770c070" />
+
+## What's New in v1.2
+
+- **Double Tap Actions** - tap zones now recognize a single tap vs. a double tap, each configurable to launch a different app
+- Refined settings screen for assigning and managing tap actions
+- Various stability and UI improvements
 
 ## Why Tapbar?
 
@@ -35,6 +42,26 @@ Tapbar takes that idea further.
 
 You are not limited to the Clock app or even the status bar. You can choose any app and position the tappable area wherever you want on the screen.
 
+## Installation Guide
+
+Since Tapbar isn't published on the Play Store, Android may block or flag it when installing. Here's how to get it running:
+
+**1. If your phone shows "Restricted setting" when enabling permissions**
+Newer Android versions block permission toggles for sideloaded apps by default. To fix this:
+- Go to **Settings > Apps > Tapbar**
+- Tap the three-dot menu (top right) and select **Allow restricted settings**
+- Then enable the required Accessibility and Overlay permissions from Tapbar's settings screen
+
+**2. If Play Protect blocks the install**
+Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions to work. To install anyway:
+- Open the **Play Store**, tap your **profile icon** (top right)
+- Tap **Play Protect**, then tap the **Settings** gear icon
+- Turn off **Scan apps with Play Protect** and **Improve harmful app detection**
+- Install Tapbar, then you can turn these back on
+
+
+Once these are set, Tapbar should install and run without issues.
+
 ## Privacy
 
 Tapbar is designed to be simple and private.
@@ -47,21 +74,23 @@ Tapbar is designed to be simple and private.
 
 Tapbar does not need your data to provide its main function.
 
-## Open Source
+## Join the Community
 
-Tapbar is completely open source.
+Tapbar is built in the open, and it's better with you in it.
 
-You can inspect the source code, report issues, suggest improvements, or contribute to the project.
+- ⭐ **Star the repo** if Tapbar's useful to you, it helps others discover the project and keeps development going
+- Found a bug or have an idea? [Open an issue](https://github.com/Earendel-lab/Tapbar/issues), every report and suggestion genuinely shapes what comes next
+- Want to contribute code? Fork the project, dig in, and open a pull request, check out [CONTRIBUTING.md](./CONTRIBUTING.md) to get started
+- Have a feature request like the one that started this whole project? We'd love to hear it
 
-If you find Tapbar useful, consider giving the project a star ⭐
-It helps the project get more visibility and supports the development of the project.
+No idea is too small. Tapbar exists because someone asked for a way to tap a clock.
 
 ## Clone the Project
-
-Clone the repository using Git:
 
 ```bash
 git clone https://github.com/Earendel-lab/Tapbar.git
 ```
 
-## Contribution is always appreciated. Fork the project and start making it better.
+## License
+
+Tapbar is open source under the [MIT License](./LICENSE). Use it, learn from it, build on it.
