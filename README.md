@@ -10,6 +10,14 @@
   <img src="https://img.shields.io/github/stars/Earendel-lab/Tapbar.svg?style=for-the-badge&color=FFC700&labelColor=1e2327&logo=github&logoColor=white" alt="Stars" height="40">
 </p>
 
+<p align="center">
+  <a href="https://github.com/Earendel-lab/Tapbar/releases">
+    <img src="https://github.com/user-attachments/assets/db58790b-d254-4de9-b004-ad94ced46de1" alt="Download Tapbar" width="300">
+  </a>
+</p>
+
+
+
 Create a tappable area on your screen. Assign a single tap and double tap to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
 
 The idea started with a simple feature request: tapping the clock in the status bar to open the Clock app. It's grown from there, and it keeps growing with help from people like you.
