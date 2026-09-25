@@ -47,6 +47,9 @@ Tapbar takes that idea further.
 
 You are not limited to the Clock app or even the status bar. You can choose any app and position the tappable area wherever you want on the screen.
 
+<img width="400" height="780" alt="Tapbargif" src="https://github.com/user-attachments/assets/dbe1467c-8294-4bcd-81d6-2c5f59b736d6" />
+
+
 ## Installation Guide
 
 Since Tapbar isn't published on the Play Store, Android may block or flag it when installing. Here's how to get it running:
