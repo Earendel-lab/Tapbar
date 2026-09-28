@@ -1,4 +1,4 @@
-﻿package com.earendel.tapbar
+package com.earendel.tapbar
 
 import android.content.Context
 
@@ -6,12 +6,6 @@ class Prefs(context: Context) {
 
     private val sp = context.applicationContext
         .getSharedPreferences("statustap_prefs", Context.MODE_PRIVATE)
-
-    @Volatile
-    private var cachedBlockedPkgs: Set<String>? = null
-
-    @Volatile
-    private var cachedServiceEnabled: Boolean? = null
 
     var posX: Int
         get() = sp.getInt("pos_x", 12)
@@ -44,11 +38,8 @@ class Prefs(context: Context) {
         }
 
     var serviceEnabled: Boolean
-        get() = cachedServiceEnabled ?: sp.getBoolean("service_enabled", true).also { cachedServiceEnabled = it }
-        set(v) {
-            cachedServiceEnabled = v
-            sp.edit().putBoolean("service_enabled", v).apply()
-        }
+        get() = sp.getBoolean("service_enabled", true)
+        set(v) = sp.edit().putBoolean("service_enabled", v).apply()
 
     var autoStart: Boolean
         get() = sp.getBoolean("auto_start", true)
