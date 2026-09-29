@@ -1,6 +1,5 @@
-# <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Megaphone.webp" alt="Megaphone" width="30" height="30" />  Huge update arriving tomorrow <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Megaphone.webp" alt="Megaphone" width="30" height="30" />  
 
-<img width="1182" height="745" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/215b595c-b3aa-4711-ae2c-26f6f8dc2185" />
+<img width="3194" height="2000" alt="Tapbar Download" src="https://github.com/user-attachments/assets/81450e24-400d-436d-8a5f-313494bb23c2" />
 
 
 # Tapbar
@@ -13,29 +12,21 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Earendel-lab/Tapbar/releases/download/v1.2.1/Tapbar.apk">
+  <a href="https://github.com/Earendel-lab/Tapbar/releases/download/v1.3/Tapbar.apk">
     <img src="https://github.com/user-attachments/assets/f68cd3c6-950e-4f77-b8a9-f5338a246442" alt="Download Tapbar" width="300">
   </a>
 </p>
 
 Create a tappable area on your screen. Assign a single tap and double tap to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
 
-The idea started with a simple feature request: tapping the clock in the status bar to open the Clock app. It's grown from there, and it keeps growing with help from people like you.
-
 ## Features
 
 - Open any app using a custom tap zone
-- **Single tap and double tap support** - assign a different app or action to each
+- **Single tap and double tap support** - assign a different app, action or app shortcut to each
 - Start automatically when the device boots
-- Works completely offline, No ads
-- No trackers, No analytics
+- Works completely **offline**
+- No ads, trackers, analytics
 - Completely free & Open source
-
-## What's New in v1.2
-
-- **Double Tap Actions** - tap zones now recognize a single tap vs. a double tap, each configurable to launch a different app
-- Refined settings screen for assigning and managing tap actions
-- Various stability and UI improvements
 
 ## Why Tapbar?
 
@@ -81,9 +72,7 @@ Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions
 
 Tapbar is designed to be simple and private.
 
-- No ads
-- No tracking
-- No analytics
+- No ads, trackers & analytics
 - No internet connection required
 - Your settings stay on your device
 
