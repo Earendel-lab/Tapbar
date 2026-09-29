@@ -1,3 +1,5 @@
+# <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Megaphone.webp" alt="Megaphone" width="30" height="30" />  Huge update arriving tomorrow <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Megaphone.webp" alt="Megaphone" width="30" height="30" />  
+
 <img width="1182" height="745" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/215b595c-b3aa-4711-ae2c-26f6f8dc2185" />
 
 
