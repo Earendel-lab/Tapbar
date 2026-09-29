@@ -98,7 +98,7 @@ private val LightScheme = lightColorScheme(
 )
 
 @Composable
-fun StatusTapTheme(
+fun TapbarTheme(
     themeMode: Int,
     content: @Composable () -> Unit
 ) {

@@ -5,7 +5,7 @@ import android.content.Context
 class Prefs(context: Context) {
 
     private val sp = context.applicationContext
-        .getSharedPreferences("statustap_prefs", Context.MODE_PRIVATE)
+        .getSharedPreferences("tapbar_prefs", Context.MODE_PRIVATE)
 
     var posX: Int
         get() = sp.getInt("pos_x", 12)
@@ -120,4 +120,34 @@ class Prefs(context: Context) {
     var doubleTapActionLabel: String?
         get() = sp.getString("double_tap_action_label", "Turn off screen")
         set(v) = sp.edit().putString("double_tap_action_label", v).apply()
+
+    var singleTapShortcutUri: String?
+        get() = sp.getString("single_tap_shortcut_uri", null)
+        set(v) = sp.edit().putString("single_tap_shortcut_uri", v).apply()
+
+    var singleTapShortcutLabel: String?
+        get() = sp.getString("single_tap_shortcut_label", null)
+        set(v) = sp.edit().putString("single_tap_shortcut_label", v).apply()
+
+    var doubleTapShortcutUri: String?
+        get() = sp.getString("double_tap_shortcut_uri", null)
+        set(v) = sp.edit().putString("double_tap_shortcut_uri", v).apply()
+
+    var doubleTapShortcutLabel: String?
+        get() = sp.getString("double_tap_shortcut_label", null)
+        set(v) = sp.edit().putString("double_tap_shortcut_label", v).apply()
+
+    val singleTapShortcutDisplay: String?
+        get() {
+            val app = singleTapTargetLabel ?: targetLabel
+            val sc = singleTapShortcutLabel
+            return if (app != null && sc != null) "$app: $sc" else sc ?: app
+        }
+
+    val doubleTapShortcutDisplay: String?
+        get() {
+            val app = doubleTapTargetLabel
+            val sc = doubleTapShortcutLabel
+            return if (app != null && sc != null) "$app: $sc" else sc ?: app
+        }
 }

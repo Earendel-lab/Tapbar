@@ -7,3 +7,4 @@
 *.apk
 *.aab
 .DS_Store
+/app/release/

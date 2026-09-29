@@ -20,6 +20,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -63,24 +64,59 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Accessibility
+import androidx.compose.material.icons.rounded.AccessibilityNew
 import androidx.compose.material.icons.rounded.AirplanemodeActive
+import androidx.compose.material.icons.rounded.AppShortcut
+import androidx.compose.material.icons.rounded.AppSettingsAlt
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.BatterySaver
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bluetooth
+import androidx.compose.material.icons.rounded.Brightness4
+import androidx.compose.material.icons.rounded.Brightness7
 import androidx.compose.material.icons.rounded.Camera
+import androidx.compose.material.icons.rounded.Cast
+import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.DoNotDisturb
+import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.FlashOn
+import androidx.compose.material.icons.rounded.Headset
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.HomeWork
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Nfc
 import androidx.compose.material.icons.rounded.NightsStay
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.PersonAdd
+import androidx.compose.material.icons.rounded.PhotoCamera
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.PowerSettingsNew
+import androidx.compose.material.icons.rounded.PrivacyTip
+import androidx.compose.material.icons.rounded.RecordVoiceOver
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.ScreenRotation
+import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.SettingsAccessibility
+import androidx.compose.material.icons.rounded.Shortcut
 import androidx.compose.material.icons.rounded.SignalCellularAlt
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.TouchApp
+import androidx.compose.material.icons.rounded.VerticalSplit
+import androidx.compose.material.icons.rounded.VolumeDown
+import androidx.compose.material.icons.rounded.VolumeOff
 import androidx.compose.material.icons.rounded.VolumeUp
+import androidx.compose.material.icons.rounded.VpnKey
 import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material3.Button
@@ -176,7 +212,22 @@ val quickSettingActions = listOf(
     ActionEntry("battery_saver", "Battery saver", "Opens battery saver settings", Icons.Rounded.BatterySaver),
     ActionEntry("nfc", "NFC settings", "Opens NFC settings", Icons.Rounded.Nfc),
     ActionEntry("night_light", "Night light", "Opens night display settings", Icons.Rounded.NightsStay),
-    ActionEntry("airplane", "Airplane mode", "Opens airplane mode settings", Icons.Rounded.AirplanemodeActive)
+    ActionEntry("airplane", "Airplane mode", "Opens airplane mode settings", Icons.Rounded.AirplanemodeActive),
+    ActionEntry("ringer_mode", "Ringer mode", "Cycles Ring / Vibrate / Silent", Icons.Rounded.NotificationsActive)
+)
+
+val mediaActions = listOf(
+    ActionEntry("volume_up", "Volume up", "Raises media volume", Icons.Rounded.VolumeUp),
+    ActionEntry("volume_down", "Volume down", "Lowers media volume", Icons.Rounded.VolumeDown),
+    ActionEntry("mute", "Mute / unmute", "Toggles music volume mute", Icons.Rounded.VolumeOff),
+    ActionEntry("media_play_pause", "Play / pause media", "Toggles media playback", Icons.Rounded.PlayArrow),
+    ActionEntry("media_next", "Next track", "Skips to next track", Icons.Rounded.SkipNext),
+    ActionEntry("media_previous", "Previous track", "Rewinds to previous track", Icons.Rounded.SkipPrevious)
+)
+
+val displayActions = listOf(
+    ActionEntry("brightness_up", "Brightness up", "Increases screen brightness", Icons.Rounded.Brightness7),
+    ActionEntry("brightness_down", "Brightness down", "Decreases screen brightness", Icons.Rounded.Brightness4)
 )
 
 val navigationActions = listOf(
@@ -187,10 +238,42 @@ val navigationActions = listOf(
     ActionEntry("home", "Home", "Returns to home screen", Icons.Rounded.Home),
     ActionEntry("recents", "Recent apps", "Opens recent app switcher", Icons.Rounded.Menu),
     ActionEntry("notifications", "Expand notifications", "Opens notification shade", Icons.Rounded.Notifications),
-    ActionEntry("quick_settings", "Expand quick settings", "Opens quick settings panel", Icons.Rounded.Notifications)
+    ActionEntry("quick_settings", "Expand quick settings", "Opens quick settings panel", Icons.Rounded.Notifications),
+    ActionEntry("split_screen", "Split screen", "Toggles split screen (device-dependent)", Icons.Rounded.VerticalSplit),
+    ActionEntry("dismiss_shade", "Dismiss notifications", "Closes notification shade", Icons.Rounded.ExpandLess),
+    ActionEntry("all_apps", "All apps", "Opens application drawer", Icons.Rounded.Apps),
+    ActionEntry("accessibility_button", "Accessibility button", "Triggers accessibility action", Icons.Rounded.Accessibility),
+    ActionEntry("accessibility_shortcut", "Accessibility shortcut", "Toggles accessibility shortcut", Icons.Rounded.AccessibilityNew),
+    ActionEntry("headset_hook", "Headset hook", "Simulates headset button press", Icons.Rounded.Headset),
+    ActionEntry("assistant", "Voice assistant", "Launches default assistant", Icons.Rounded.Mic),
+    ActionEntry("camera", "Open camera", "Launches camera app", Icons.Rounded.PhotoCamera)
 )
 
-val systemActions = quickSettingActions + navigationActions
+val settingsActions = listOf(
+    ActionEntry("display_settings", "Display settings", "Opens display settings", Icons.Rounded.DisplaySettings),
+    ActionEntry("accessibility_settings", "Accessibility settings", "Opens accessibility settings", Icons.Rounded.SettingsAccessibility),
+    ActionEntry("default_apps", "Default apps", "Opens default apps settings", Icons.Rounded.AppShortcut),
+    ActionEntry("input_method", "Keyboard & input", "Opens keyboard settings", Icons.Rounded.Keyboard),
+    ActionEntry("cast", "Cast settings", "Opens cast settings", Icons.Rounded.Cast),
+    ActionEntry("vpn_settings", "VPN settings", "Opens VPN settings", Icons.Rounded.VpnKey),
+    ActionEntry("add_account", "Add account", "Opens add account dialog", Icons.Rounded.PersonAdd)
+)
+
+val advancedSettingsActions = listOf(
+    ActionEntry("date_time_settings", "Date & time", "Opens date & time settings", Icons.Rounded.Schedule),
+    ActionEntry("locale_settings", "Language & region", "Opens language settings", Icons.Rounded.Language),
+    ActionEntry("app_info_list", "All installed apps", "Opens application list settings", Icons.Rounded.AppSettingsAlt),
+    ActionEntry("developer_options", "Developer options", "Opens developer settings", Icons.Rounded.Code),
+    ActionEntry("security_settings", "Security & privacy", "Opens security settings", Icons.Rounded.Security),
+    ActionEntry("sync_settings", "Account sync", "Opens account sync settings", Icons.Rounded.Sync),
+    ActionEntry("voice_input_settings", "Voice input", "Opens voice input settings", Icons.Rounded.RecordVoiceOver),
+    ActionEntry("about_phone", "About phone", "Opens device info settings", Icons.Rounded.Info),
+    ActionEntry("default_home", "Default launcher", "Opens default home settings", Icons.Rounded.HomeWork),
+    ActionEntry("storage_settings", "Storage settings", "Opens storage settings", Icons.Rounded.Storage),
+    ActionEntry("privacy_dashboard", "Privacy dashboard", "Opens privacy controls", Icons.Rounded.PrivacyTip)
+)
+
+val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + settingsActions + advancedSettingsActions
 
 class MainActivity : ComponentActivity() {
 
@@ -259,11 +342,11 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState) {
     var screen by remember { mutableStateOf("home") }
     var activeGestureMode by remember { mutableIntStateOf(0) }
 
-    StatusTapTheme(themeMode = themeMode.intValue) {
+    TapbarTheme(themeMode = themeMode.intValue) {
         AnimatedContent(
             targetState = screen,
             transitionSpec = {
-                if (targetState == "picker" || targetState == "filter_picker" || targetState == "action_picker") {
+                if (targetState == "picker" || targetState == "filter_picker" || targetState == "action_picker" || targetState == "shortcut_picker") {
                     (slideInVertically(
                         initialOffsetY = { (it * 0.08f).toInt() },
                         animationSpec = tween(220, easing = FastOutSlowInEasing)
@@ -287,6 +370,7 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState) {
                 "picker" -> AppPickerScreen(prefs, isDoubleTap = (activeGestureMode == 1)) { screen = "home" }
                 "filter_picker" -> FilterPickerScreen(prefs) { screen = "home" }
                 "action_picker" -> ActionPickerScreen(prefs, isDoubleTap = (activeGestureMode == 1)) { screen = "home" }
+                "shortcut_picker" -> ShortcutPickerScreen(prefs, isDoubleTap = (activeGestureMode == 1)) { screen = "home" }
                 else -> HomeScreen(
                     prefs = prefs,
                     onOpenPicker = { isDouble ->
@@ -296,6 +380,10 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState) {
                     onOpenActionPicker = { isDouble ->
                         activeGestureMode = if (isDouble) 1 else 0
                         screen = "action_picker"
+                    },
+                    onOpenShortcutPicker = { isDouble ->
+                        activeGestureMode = if (isDouble) 1 else 0
+                        screen = "shortcut_picker"
                     },
                     onOpenFilterPicker = { screen = "filter_picker" }
                 )
@@ -310,6 +398,7 @@ fun HomeScreen(
     prefs: Prefs,
     onOpenPicker: (isDoubleTap: Boolean) -> Unit,
     onOpenActionPicker: (isDoubleTap: Boolean) -> Unit,
+    onOpenShortcutPicker: (isDoubleTap: Boolean) -> Unit,
     onOpenFilterPicker: () -> Unit
 ) {
     val context = LocalContext.current
@@ -325,14 +414,30 @@ fun HomeScreen(
 
     var singleTapType by remember { mutableIntStateOf(prefs.singleTapType) }
     var singleTapPkg by remember { mutableStateOf(prefs.singleTapTargetPkg ?: prefs.targetPackage) }
-    var singleTapLabel by remember { mutableStateOf(if (singleTapType == 1) prefs.singleTapActionLabel else prefs.singleTapTargetLabel ?: prefs.targetLabel ?: "Clock") }
+    var singleTapLabel by remember {
+        mutableStateOf(
+            when (singleTapType) {
+                1 -> prefs.singleTapActionLabel
+                2 -> prefs.singleTapShortcutDisplay
+                else -> prefs.singleTapTargetLabel ?: prefs.targetLabel ?: "Clock"
+            }
+        )
+    }
     var singleTapActionId by remember { mutableStateOf(prefs.singleTapActionId) }
 
     var doubleTapEnabled by remember { mutableStateOf(prefs.doubleTapEnabled) }
     var doubleTapType by remember { mutableIntStateOf(prefs.doubleTapType) }
     var doubleTapPkg by remember { mutableStateOf(prefs.doubleTapTargetPkg) }
     var doubleTapSpeedMs by remember { mutableIntStateOf(prefs.doubleTapSpeedMs) }
-    var doubleTapLabel by remember { mutableStateOf(if (doubleTapType == 1) prefs.doubleTapActionLabel else prefs.doubleTapTargetLabel ?: "Not set") }
+    var doubleTapLabel by remember {
+        mutableStateOf(
+            when (doubleTapType) {
+                1 -> prefs.doubleTapActionLabel
+                2 -> prefs.doubleTapShortcutDisplay
+                else -> prefs.doubleTapTargetLabel ?: "Not set"
+            }
+        )
+    }
     var doubleTapActionId by remember { mutableStateOf(prefs.doubleTapActionId) }
 
     var singleTapIcon by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -348,13 +453,21 @@ fun HomeScreen(
                 enabled = prefs.serviceEnabled
                 singleTapType = prefs.singleTapType
                 singleTapPkg = prefs.singleTapTargetPkg ?: prefs.targetPackage
-                singleTapLabel = if (singleTapType == 1) prefs.singleTapActionLabel else prefs.singleTapTargetLabel ?: prefs.targetLabel ?: "Clock"
+                singleTapLabel = when (singleTapType) {
+                    1 -> prefs.singleTapActionLabel
+                    2 -> prefs.singleTapShortcutDisplay
+                    else -> prefs.singleTapTargetLabel ?: prefs.targetLabel ?: "Clock"
+                }
                 singleTapActionId = prefs.singleTapActionId
 
                 doubleTapEnabled = prefs.doubleTapEnabled
                 doubleTapType = prefs.doubleTapType
                 doubleTapPkg = prefs.doubleTapTargetPkg
-                doubleTapLabel = if (doubleTapType == 1) prefs.doubleTapActionLabel else prefs.doubleTapTargetLabel ?: "Not set"
+                doubleTapLabel = when (doubleTapType) {
+                    1 -> prefs.doubleTapActionLabel
+                    2 -> prefs.doubleTapShortcutDisplay
+                    else -> prefs.doubleTapTargetLabel ?: "Not set"
+                }
                 doubleTapActionId = prefs.doubleTapActionId
             }
         }
@@ -634,7 +747,7 @@ fun HomeScreen(
                     GestureSquareCard(
                         title = "Single tap",
                         subtitle = singleTapLabel ?: "Clock",
-                        isAppType = (singleTapType == 0),
+                        isAppType = (singleTapType == 0 || singleTapType == 2),
                         appIcon = singleTapIcon,
                         actionIcon = singleTapAction.icon,
                         modifier = Modifier.weight(1f),
@@ -643,7 +756,7 @@ fun HomeScreen(
                     GestureSquareCard(
                         title = "Double tap",
                         subtitle = if (doubleTapEnabled) (doubleTapLabel ?: "Turn off screen") else "Disabled",
-                        isAppType = (doubleTapType == 0),
+                        isAppType = (doubleTapType == 0 || doubleTapType == 2),
                         appIcon = doubleTapIcon,
                         actionIcon = doubleTapAction.icon,
                         isEnabled = doubleTapEnabled,
@@ -726,18 +839,30 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 val blockedCount = prefs.blockedPackages.size
+                val shortcutForDouble = singleTapType != 2 && doubleTapType == 2
+                val shortcutIsSet = singleTapType == 2 || doubleTapType == 2
+                val shortcutRowLabel = when {
+                    singleTapType == 2 -> prefs.singleTapShortcutDisplay
+                    doubleTapType == 2 -> prefs.doubleTapShortcutDisplay
+                    else -> null
+                } ?: "No shortcut set"
+                val shortcutRowIcon = if (shortcutForDouble) doubleTapIcon else singleTapIcon
+
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     SegmentedCard(
                         index = 0,
-                        count = 3,
+                        count = 4,
                         onClick = { onOpenPicker(false) }
                     ) {
                         ListItem(
                             headlineContent = {
-                                Text(
-                                    singleTapLabel ?: "Clock",
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                AnimatedContent(
+                                    targetState = singleTapLabel ?: "Clock",
+                                    transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
+                                    label = "AppLabelAnim"
+                                ) { text ->
+                                    Text(text, color = MaterialTheme.colorScheme.onSurface)
+                                }
                             },
                             supportingContent = {
                                 Text(
@@ -746,35 +871,90 @@ fun HomeScreen(
                                 )
                             },
                             leadingContent = {
-                                if (singleTapIcon != null) {
-                                    Image(
-                                        bitmap = singleTapIcon!!,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                } else {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_single_tap),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(28.dp),
-                                        tint = MaterialTheme.colorScheme.onSurface
-                                    )
+                                AnimatedContent(
+                                    targetState = singleTapIcon,
+                                    transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
+                                    label = "AppIconAnim"
+                                ) { bitmap ->
+                                    if (bitmap != null) {
+                                        Image(
+                                            bitmap = bitmap,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(36.dp)
+                                        )
+                                    } else {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_single_tap),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(28.dp),
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
                                 }
                             },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                            modifier = Modifier.animateContentSize(tween(200, easing = FastOutSlowInEasing))
+                        )
+                    }
+                    SegmentedCard(index = 1, count = 4, onClick = { onOpenShortcutPicker(shortcutForDouble) }) {
+                        ListItem(
+                            headlineContent = {
+                                AnimatedContent(
+                                    targetState = shortcutRowLabel,
+                                    transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
+                                    label = "ShortcutRowLabelAnim"
+                                ) { text ->
+                                    Text(text, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                            },
+                            supportingContent = {
+                                Text(
+                                    "Tap to choose app shortcut",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            leadingContent = {
+                                AnimatedContent(
+                                    targetState = Pair(shortcutIsSet, shortcutRowIcon),
+                                    transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
+                                    label = "ShortcutRowIconAnim"
+                                ) { (isSet, bitmap) ->
+                                    if (isSet && bitmap != null) {
+                                        Image(
+                                            bitmap = bitmap,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(36.dp)
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Rounded.Shortcut,
+                                            null,
+                                            Modifier.size(28.dp),
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                            modifier = Modifier.animateContentSize(tween(200, easing = FastOutSlowInEasing))
                         )
                     }
                     SegmentedCard(
-                        index = 1,
-                        count = 3,
+                        index = 2,
+                        count = 4,
                         onClick = { onOpenActionPicker(singleTapType != 1) }
                     ) {
+                        val actionLabel = if (singleTapType == 1) prefs.singleTapActionLabel ?: "Take screenshot" else prefs.doubleTapActionLabel ?: "Turn off screen"
+                        val actionIconVector = if (singleTapType == 1) singleTapAction.icon else doubleTapAction.icon
                         ListItem(
                             headlineContent = {
-                                Text(
-                                    if (singleTapType == 1) prefs.singleTapActionLabel ?: "Take screenshot" else prefs.doubleTapActionLabel ?: "Turn off screen",
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                AnimatedContent(
+                                    targetState = actionLabel,
+                                    transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
+                                    label = "ActionRowLabelAnim"
+                                ) { text ->
+                                    Text(text, color = MaterialTheme.colorScheme.onSurface)
+                                }
                             },
                             supportingContent = {
                                 Text(
@@ -783,19 +963,26 @@ fun HomeScreen(
                                 )
                             },
                             leadingContent = {
-                                Icon(
-                                    imageVector = if (singleTapType == 1) singleTapAction.icon else doubleTapAction.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(28.dp),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
+                                AnimatedContent(
+                                    targetState = actionIconVector,
+                                    transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
+                                    label = "ActionRowIconAnim"
+                                ) { vector ->
+                                    Icon(
+                                        imageVector = vector,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(28.dp),
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
                             },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                            modifier = Modifier.animateContentSize(tween(200, easing = FastOutSlowInEasing))
                         )
                     }
                     SegmentedCard(
-                        index = 2,
-                        count = 3,
+                        index = 3,
+                        count = 4,
                         onClick = { onOpenFilterPicker() }
                     ) {
                         ListItem(
@@ -865,10 +1052,26 @@ fun HomeScreen(
 
                 val currentType = if (isDouble) doubleTapType else singleTapType
 
+                val radioScale0 by animateFloatAsState(
+                    targetValue = if (currentType == 0) 1.15f else 1.0f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                    label = "RadioScale0"
+                )
+                val radioScale1 by animateFloatAsState(
+                    targetValue = if (currentType == 1) 1.15f else 1.0f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                    label = "RadioScale1"
+                )
+                val radioScale2 by animateFloatAsState(
+                    targetValue = if (currentType == 2) 1.15f else 1.0f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                    label = "RadioScale2"
+                )
+
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     SegmentedCard(
                         index = 0,
-                        count = 2,
+                        count = 3,
                         onClick = {
                             if (isDouble) {
                                 doubleTapType = 0
@@ -899,7 +1102,9 @@ fun HomeScreen(
                                     if (currentType == 0) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
                                 ),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .graphicsLayer(scaleX = radioScale0, scaleY = radioScale0),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -907,7 +1112,7 @@ fun HomeScreen(
 
                     SegmentedCard(
                         index = 1,
-                        count = 2,
+                        count = 3,
                         onClick = {
                             if (isDouble) {
                                 doubleTapType = 1
@@ -938,7 +1143,43 @@ fun HomeScreen(
                                     if (currentType == 1) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
                                 ),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .graphicsLayer(scaleX = radioScale1, scaleY = radioScale1),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    SegmentedCard(
+                        index = 2,
+                        count = 3,
+                        onClick = {
+                            showGestureSheetFor = null
+                            onOpenShortcutPicker(isDouble)
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "App shortcut",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Icon(
+                                painter = painterResource(
+                                    if (currentType == 2) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .graphicsLayer(scaleX = radioScale2, scaleY = radioScale2),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -1051,9 +1292,51 @@ fun ActionPickerScreen(
     isDoubleTap: Boolean,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     BackHandler(onBack = onBack)
     val selectedActionId = if (isDoubleTap) prefs.doubleTapActionId else prefs.singleTapActionId
+    var searchQuery by remember { mutableStateOf("") }
+    val listState = rememberLazyListState()
+
+    val actionGroups = remember {
+        listOf(
+            "Quick settings & toggles" to quickSettingActions,
+            "Media & volume" to mediaActions,
+            "Display" to displayActions,
+            "Navigation & system" to navigationActions,
+            "Settings" to settingsActions,
+            "Advanced settings" to advancedSettingsActions
+        )
+    }
+
+    val filteredActionGroups = remember(actionGroups, searchQuery) {
+        val q = searchQuery.trim().lowercase()
+        if (q.isEmpty()) {
+            actionGroups
+        } else {
+            val terms = q.split(' ').filter { it.isNotEmpty() }
+            actionGroups.mapNotNull { (groupTitle, actions) ->
+                val matchingActions = actions.filter { action ->
+                    val title = action.title.lowercase()
+                    val desc = action.description.lowercase()
+                    terms.all { term -> title.contains(term) || desc.contains(term) }
+                }
+                if (matchingActions.isNotEmpty()) {
+                    groupTitle to matchingActions
+                } else null
+            }
+        }
+    }
+
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.isNotEmpty() && filteredActionGroups.isNotEmpty()) {
+            listState.animateScrollToItem(0)
+        }
+    }
+
+    val imePadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val bottomPadding = maxOf(imePadding, navBarPadding) + 16.dp
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -1077,72 +1360,106 @@ fun ActionPickerScreen(
             )
         }
     ) { pad ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = pad.calculateTopPadding()),
-            contentPadding = PaddingValues(
-                top = 8.dp,
-                bottom = navBarPadding + 16.dp,
-                start = 16.dp,
-                end = 16.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(top = pad.calculateTopPadding())
         ) {
-            item {
-                Text(
-                    "Quick settings",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    quickSettingActions.forEachIndexed { index, action ->
-                        ActionRow(
-                            action = action,
-                            index = index,
-                            totalCount = quickSettingActions.size,
-                            isSelected = (selectedActionId == action.id),
-                            onSelect = {
-                                if (isDoubleTap) {
-                                    prefs.doubleTapActionId = action.id
-                                    prefs.doubleTapActionLabel = action.title
-                                } else {
-                                    prefs.singleTapActionId = action.id
-                                    prefs.singleTapActionLabel = action.title
-                                }
-                                onBack()
-                            }
-                        )
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search actions...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Clear",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
-                }
-            }
+                },
+                singleLine = true,
+                shape = CircleShape,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            )
 
-            item {
-                Text(
-                    "Navigation & system",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    navigationActions.forEachIndexed { index, action ->
-                        ActionRow(
-                            action = action,
-                            index = index,
-                            totalCount = navigationActions.size,
-                            isSelected = (selectedActionId == action.id),
-                            onSelect = {
-                                if (isDoubleTap) {
-                                    prefs.doubleTapActionId = action.id
-                                    prefs.doubleTapActionLabel = action.title
-                                } else {
-                                    prefs.singleTapActionId = action.id
-                                    prefs.singleTapActionLabel = action.title
+            if (filteredActionGroups.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = bottomPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("No matching actions", color = MaterialTheme.colorScheme.onSurface)
+                }
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        top = 4.dp,
+                        bottom = bottomPadding,
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    filteredActionGroups.forEach { (groupTitle, actions) ->
+                        item(key = "header_$groupTitle") {
+                            Text(
+                                text = groupTitle,
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp)
+                            )
+                        }
+                        itemsIndexed(
+                            items = actions,
+                            key = { _, action -> action.id }
+                        ) { index, action ->
+                            ActionRow(
+                                action = action,
+                                index = index,
+                                totalCount = actions.size,
+                                isSelected = (selectedActionId == action.id),
+                                onSelect = {
+                                    if (isDoubleTap) {
+                                        prefs.doubleTapActionId = action.id
+                                        prefs.doubleTapActionLabel = action.title
+                                    } else {
+                                        prefs.singleTapActionId = action.id
+                                        prefs.singleTapActionLabel = action.title
+                                    }
+                                    if (action.id in listOf("dnd", "ringer_mode", "mute")) {
+                                        if (!hasNotificationPolicyAccess(context)) {
+                                            openNotificationPolicyAccessSettings(context)
+                                        }
+                                    }
+                                    onBack()
                                 }
-                                onBack()
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }

@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "StatusTap"
+rootProject.name = "Tapbar"
 include(":app")

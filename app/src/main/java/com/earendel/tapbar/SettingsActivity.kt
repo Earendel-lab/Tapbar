@@ -77,7 +77,7 @@ class SettingsActivity : ComponentActivity() {
 fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
     var themeMode by remember { mutableIntStateOf(prefs.themeMode) }
 
-    StatusTapTheme(themeMode = themeMode) {
+    TapbarTheme(themeMode = themeMode) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -245,7 +245,7 @@ fun AboutSection() {
         AboutRow(
             icon = Icons.Rounded.Update,
             title = "Check for update",
-            value = "Current version v1.2",
+            value = "Current version v1.3",
             index = 0,
             count = 5,
             onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar/releases") }
