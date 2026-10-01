@@ -1,4 +1,9 @@
+> [!TIP]
+> # v1.4 Coming Soon
+>
+> Bringing **triple tap · long press · haptics · 2 tap zones**
 
+  
 <img width="3194" height="2000" alt="Tapbar Download" src="https://github.com/user-attachments/assets/81450e24-400d-436d-8a5f-313494bb23c2" />
 
 
