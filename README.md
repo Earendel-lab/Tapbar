@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Earendel-lab/Tapbar/releases/download/v1.3/Tapbar.apk">
+  <a href="https://github.com/Earendel-lab/Tapbar/releases/download/v1.4/Tapbar.apk">
     <img src="https://github.com/user-attachments/assets/f68cd3c6-950e-4f77-b8a9-f5338a246442" alt="Download Tapbar" width="300">
   </a>
 </p>
@@ -57,17 +57,7 @@ https://github.com/user-attachments/assets/2a20046a-72c1-45b1-947f-506da4534f70
 
 Since Tapbar isn't published on the Play Store, Android may block or flag it when installing. Here's how to get it running:
 
-**1. If your phone shows "Restricted setting" when enabling permissions**
-Newer Android versions block permission toggles for sideloaded apps by default. To fix this:
-- Go to **App info**
-- Tap the three-dot menu (top right) and select **Allow restricted settings**
-- Then enable the required Accessibility and Overlay permissions from Tapbar's settings screen
-
-<img width="2147" height="822" alt="Tapbar Guide" src="https://github.com/user-attachments/assets/0749c54b-53de-402b-844c-6374870b53b8" />
-
----
-
-**2. If Play Protect blocks the install**
+**1. If Play Protect blocks the install**
 Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions to work. To install anyway:
 - Open the **Play Store**, tap your **profile icon** (top right)
 - Tap **Play Protect**, then tap the **Settings** gear icon
@@ -75,6 +65,16 @@ Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions
 - Install Tapbar, then you can turn these back on
 
 <img width="2147" height="822" alt="Tapbar Guide (1)" src="https://github.com/user-attachments/assets/592b2636-ebdc-48b0-b8c5-0b3d8a24075d" />
+
+---
+
+**2. If your phone shows "Restricted setting" when enabling permissions**
+Newer Android versions block permission toggles for sideloaded apps by default. To fix this:
+- Go to **App info**
+- Tap the three-dot menu (top right) and select **Allow restricted settings**
+- Then enable the required Accessibility and Overlay permissions from Tapbar's settings screen
+
+<img width="2147" height="822" alt="Tapbar Guide" src="https://github.com/user-attachments/assets/0749c54b-53de-402b-844c-6374870b53b8" />
 
 <p align="center">
   <font size="5"><b>Once these are set, Tapbar should install and run without issues.</b></font>
