@@ -1,11 +1,9 @@
-> [!TIP]
-> # v1.4 Coming Soon
->
-> Bringing **triple tap · long press · haptics · 2 tap zones**
 
-  
-<img width="3194" height="2000" alt="Tapbar Download" src="https://github.com/user-attachments/assets/81450e24-400d-436d-8a5f-313494bb23c2" />
+<img width="1256" height="1000" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/3657cc93-d36a-42b7-916b-d89a9715f626" />
 
+<p align="center">
+  <strong>Completely offline • Battery efficient • No ads • No trackers </strong>
+</p>
 
 # Tapbar
 
@@ -22,16 +20,18 @@
   </a>
 </p>
 
-Create a tappable area on your screen. Assign a single tap and double tap to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
+Create tappable areas on your screen. Assign single tap, double tap, triple tap, or long press to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
 
 ## Features
 
-- Open any app using a custom tap zone
-- **Single tap and double tap support** - assign a different app, action or app shortcut to each
-- Start automatically when the device boots
-- Works completely **offline**
-- No ads, trackers, analytics
-- Completely free & Open source
+* Create up to **2 custom tap zones** anywhere on your screen
+* **4 gestures:** single tap, double tap, triple tap, and long press
+* Assign a different app, action, or app shortcut to each gesture
+* Use both tap zones independently
+* Start automatically when the device boots
+* Works completely **offline**
+* No ads, trackers, or analytics
+* Completely free & open source
 
 ## Why Tapbar?
 
@@ -43,10 +43,15 @@ Many users have wanted this kind of shortcut because it makes the Clock app acce
 
 Tapbar takes that idea further.
 
-You are not limited to the Clock app or even the status bar. You can choose any app and position the tappable area wherever you want on the screen.
+You are not limited to the Clock app or even the status bar. You can create tappable areas anywhere on your screen and assign different actions to **single tap, double tap, triple tap, and long press**.
 
-<img width="320" height="400" alt="Tapbar" src="https://github.com/user-attachments/assets/e240db32-4f0f-4cbb-b445-e939a6141e03" />
 
+
+<div align="center">
+
+https://github.com/user-attachments/assets/2a20046a-72c1-45b1-947f-506da4534f70
+
+</div>
 
 ## Installation Guide
 
@@ -71,7 +76,9 @@ Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions
 
 <img width="2147" height="822" alt="Tapbar Guide (1)" src="https://github.com/user-attachments/assets/592b2636-ebdc-48b0-b8c5-0b3d8a24075d" />
 
-# Once these are set, Tapbar should install and run without issues.
+<p align="center">
+  <font size="5"><b>Once these are set, Tapbar should install and run without issues.</b></font>
+</p>
 
 ## Privacy
 
