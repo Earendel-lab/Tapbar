@@ -76,15 +76,35 @@ class TapZoneController(
 ) {
     private val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val prefs = Prefs(context)
-    private var view: TapView? = null
-    private var lp: WindowManager.LayoutParams? = null
+    private val haptics by lazy { HapticManager.create(context) }
+    private var view1: TapView? = null
+    private var view2: TapView? = null
+    private var lp1: WindowManager.LayoutParams? = null
+    private var lp2: WindowManager.LayoutParams? = null
     private var preview = false
+    private var selectedZone = 0
     private val density = context.resources.displayMetrics.density
 
-    private val previewDrawable by lazy {
+    private val previewDrawableActive by lazy {
         GradientDrawable().apply {
             setColor(0x553F8EF7)
             setStroke(dp(2), 0xFF2E7DF6.toInt())
+            cornerRadius = dp(6).toFloat()
+        }
+    }
+
+    private val previewDrawableInactive by lazy {
+        GradientDrawable().apply {
+            setColor(0x22888888.toInt())
+            setStroke(dp(1), 0x88888888.toInt())
+            cornerRadius = dp(6).toFloat()
+        }
+    }
+
+    private val previewDrawableDisabled by lazy {
+        GradientDrawable().apply {
+            setColor(0x33E53935.toInt())
+            setStroke(dp(2), 0xFFE53935.toInt())
             cornerRadius = dp(6).toFloat()
         }
     }
@@ -108,36 +128,74 @@ class TapZoneController(
             detach()
             return
         }
-        val p = lp ?: buildParams().also { lp = it }
-        applyGeometry(p)
-        if (view == null) {
-            val v = TapView(context)
-            view = v
+
+        val p1 = lp1 ?: buildParams().also { lp1 = it }
+        applyGeometry(p1, 0)
+        if (view1 == null) {
+            val v1 = TapView(context, 0)
+            view1 = v1
             try {
-                wm.addView(v, p)
+                wm.addView(v1, p1)
             } catch (t: Throwable) {
-                Log.e("Tapbar", "addView failed", t)
-                view = null
-                return
+                Log.e("Tapbar", "addView 1 failed", t)
+                view1 = null
             }
         } else {
             try {
-                wm.updateViewLayout(view, p)
+                wm.updateViewLayout(view1, p1)
             } catch (t: Throwable) {
-                Log.e("Tapbar", "updateViewLayout failed", t)
+                Log.e("Tapbar", "updateViewLayout 1 failed", t)
             }
         }
+
+        val z2Active = prefs.zone2Enabled || (preview && selectedZone == 1)
+        if (z2Active) {
+            val p2 = lp2 ?: buildParams().also { lp2 = it }
+            applyGeometry(p2, 1)
+            if (view2 == null) {
+                val v2 = TapView(context, 1)
+                view2 = v2
+                try {
+                    wm.addView(v2, p2)
+                } catch (t: Throwable) {
+                    Log.e("Tapbar", "addView 2 failed", t)
+                    view2 = null
+                }
+            } else {
+                try {
+                    wm.updateViewLayout(view2, p2)
+                } catch (t: Throwable) {
+                    Log.e("Tapbar", "updateViewLayout 2 failed", t)
+                }
+            }
+        } else {
+            detachZone2()
+        }
+
         refreshAppearance()
     }
 
     fun detach() {
-        val v = view ?: return
+        detachZone1()
+        detachZone2()
+    }
+
+    private fun detachZone1() {
+        val v = view1 ?: return
         try {
             wm.removeView(v)
-        } catch (t: Throwable) {
-            Log.e("Tapbar", "removeView failed", t)
+        } catch (_: Throwable) {
         }
-        view = null
+        view1 = null
+    }
+
+    private fun detachZone2() {
+        val v = view2 ?: return
+        try {
+            wm.removeView(v)
+        } catch (_: Throwable) {
+        }
+        view2 = null
     }
 
     fun setPreview(on: Boolean) {
@@ -145,24 +203,30 @@ class TapZoneController(
         attach()
     }
 
-    fun updateGeometryLive(x: Int, y: Int, w: Int, h: Int) {
-        val v = view ?: return
-        val p = lp ?: return
+    fun setSelectedZoneForPreview(zone: Int) {
+        selectedZone = zone
+        attach()
+    }
+
+    fun updateGeometryLive(zone: Int, x: Int, y: Int, w: Int, h: Int) {
+        val v = if (zone == 1) view2 else view1
+        val p = if (zone == 1) (lp2 ?: buildParams().also { lp2 = it }) else (lp1 ?: buildParams().also { lp1 = it })
         p.width = dp(w)
         p.height = dp(h)
         p.x = dp(x)
         p.y = dp(y) + yOffsetPx
+        val targetView = v ?: return
         try {
-            wm.updateViewLayout(v, p)
+            wm.updateViewLayout(targetView, p)
         } catch (_: Throwable) {
         }
     }
 
-    fun updateGeometry(x: Int, y: Int, w: Int, h: Int) {
-        prefs.posX = x
-        prefs.posY = y
-        prefs.zoneWidth = w
-        prefs.zoneHeight = h
+    fun updateGeometry(zone: Int, x: Int, y: Int, w: Int, h: Int) {
+        prefs.setPosX(zone, x)
+        prefs.setPosY(zone, y)
+        prefs.setZoneWidth(zone, w)
+        prefs.setZoneHeight(zone, h)
         attach()
     }
 
@@ -179,17 +243,29 @@ class TapZoneController(
             gravity = Gravity.TOP or Gravity.START
         }
 
-    private fun applyGeometry(p: WindowManager.LayoutParams) {
-        p.width = dp(prefs.zoneWidth)
-        p.height = dp(prefs.zoneHeight)
-        p.x = dp(prefs.posX)
-        p.y = dp(prefs.posY) + yOffsetPx
+    private fun applyGeometry(p: WindowManager.LayoutParams, zone: Int) {
+        p.width = dp(prefs.getZoneWidth(zone))
+        p.height = dp(prefs.getZoneHeight(zone))
+        p.x = dp(prefs.getPosX(zone))
+        p.y = dp(prefs.getPosY(zone)) + yOffsetPx
     }
 
     private fun refreshAppearance() {
-        val v = view ?: return
+        refreshViewAppearance(view1, 0)
+        refreshViewAppearance(view2, 1)
+    }
+
+    private fun refreshViewAppearance(v: View?, zone: Int) {
+        if (v == null) return
         if (preview) {
-            v.background = previewDrawable
+            val isSelected = selectedZone == zone
+            if (zone == 1 && !prefs.zone2Enabled) {
+                v.background = previewDrawableDisabled
+            } else if (isSelected) {
+                v.background = previewDrawableActive
+            } else {
+                v.background = previewDrawableInactive
+            }
             v.alpha = 1f
         } else {
             v.background = transparentDrawable
@@ -197,24 +273,37 @@ class TapZoneController(
         }
     }
 
-    private inner class TapView(ctx: Context) : View(ctx) {
+    private inner class TapView(ctx: Context, private val zone: Int) : View(ctx) {
         private var downX = 0f
         private var downY = 0f
         private var downAt = 0L
         private var consumed = false
+        private var longPressTriggered = false
         private val slop = dp(18).toFloat()
 
-        private var lastTapTime = 0L
-        private val singleTapHandler = Handler(Looper.getMainLooper())
-        private var pendingSingleTapRunnable: Runnable? = null
+        private var tapCount = 0
+        private val gestureHandler = Handler(Looper.getMainLooper())
+        private var pendingMultiTapRunnable: Runnable? = null
+        private var longPressRunnable: Runnable? = null
 
         override fun performClick(): Boolean {
             super.performClick()
             return true
         }
 
+        private fun cancelLongPressTimer() {
+            longPressRunnable?.let { gestureHandler.removeCallbacks(it) }
+            longPressRunnable = null
+        }
+
+        private fun cancelMultiTapTimer() {
+            pendingMultiTapRunnable?.let { gestureHandler.removeCallbacks(it) }
+            pendingMultiTapRunnable = null
+        }
+
         override fun onTouchEvent(event: MotionEvent): Boolean {
             if (isBlocked()) return false
+            if (zone == 1 && !prefs.zone2Enabled && !preview) return false
 
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -222,34 +311,60 @@ class TapZoneController(
                     downY = event.rawY
                     downAt = SystemClock.uptimeMillis()
                     consumed = false
+                    longPressTriggered = false
+
+                    cancelLongPressTimer()
+                    if (prefs.getLongPressEnabled(zone)) {
+                        val lpRunnable = Runnable {
+                            if (!consumed && !longPressTriggered) {
+                                longPressTriggered = true
+                                cancelMultiTapTimer()
+                                tapCount = 0
+                                executeLongPress(zone)
+                            }
+                        }
+                        longPressRunnable = lpRunnable
+                        gestureHandler.postDelayed(lpRunnable, 400L)
+                    }
                     return true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (consumed || preview) return true
                     val dy = event.rawY - downY
                     val dx = abs(event.rawX - downX)
+
+                    if (dx > slop || abs(dy) > slop) {
+                        cancelLongPressTimer()
+                    }
+
                     if (dy > slop && dy > dx) {
                         consumed = true
-                        pendingSingleTapRunnable?.let { singleTapHandler.removeCallbacks(it) }
-                        pendingSingleTapRunnable = null
+                        cancelLongPressTimer()
+                        cancelMultiTapTimer()
+                        tapCount = 0
+                        haptics.performGesture(this)
                         onSwipeDown()
                     }
                     return true
                 }
                 MotionEvent.ACTION_UP -> {
-                    if (!consumed && !preview) {
-                        val dx = abs(event.rawX - downX)
-                        val dy = abs(event.rawY - downY)
-                        val dt = SystemClock.uptimeMillis() - downAt
-                        if (dx < slop && dy < slop && dt < 600) {
-                            performClick()
-                            handleTapGesture()
-                        }
+                    cancelLongPressTimer()
+                    if (consumed || preview || longPressTriggered) {
+                        consumed = false
+                        return true
+                    }
+                    val dx = abs(event.rawX - downX)
+                    val dy = abs(event.rawY - downY)
+                    val dt = SystemClock.uptimeMillis() - downAt
+                    if (dx < slop && dy < slop && dt < 600) {
+                        performClick()
+                        handleTapGesture()
                     }
                     consumed = false
                     return true
                 }
                 MotionEvent.ACTION_CANCEL -> {
+                    cancelLongPressTimer()
                     consumed = false
                     return true
                 }
@@ -258,47 +373,81 @@ class TapZoneController(
         }
 
         private fun handleTapGesture() {
-            val doubleTapEnabled = prefs.doubleTapEnabled
-            val speedMs = prefs.doubleTapSpeedMs.toLong()
-            val now = SystemClock.uptimeMillis()
+            cancelMultiTapTimer()
+            tapCount++
 
-            if (doubleTapEnabled && (now - lastTapTime) < speedMs) {
-                pendingSingleTapRunnable?.let { singleTapHandler.removeCallbacks(it) }
-                pendingSingleTapRunnable = null
-                lastTapTime = 0L
-                executeDoubleTap()
+            val doubleEnabled = prefs.getDoubleTapEnabled(zone)
+            val tripleEnabled = prefs.getTripleTapEnabled(zone)
+            val speedMs = prefs.tapSpeedMs.toLong()
+
+            if (tapCount == 3 && tripleEnabled) {
+                tapCount = 0
+                executeTripleTap(zone)
             } else {
-                lastTapTime = now
-                if (doubleTapEnabled) {
-                    pendingSingleTapRunnable?.let { singleTapHandler.removeCallbacks(it) }
-                    val runnable = Runnable {
-                        executeSingleTap()
-                        pendingSingleTapRunnable = null
+                val runnable = Runnable {
+                    val count = tapCount
+                    tapCount = 0
+                    pendingMultiTapRunnable = null
+                    when (count) {
+                        3 -> executeTripleTap(zone)
+                        2 -> {
+                            if (doubleEnabled) executeDoubleTap(zone)
+                            else executeSingleTap(zone)
+                        }
+                        1 -> executeSingleTap(zone)
                     }
-                    pendingSingleTapRunnable = runnable
-                    singleTapHandler.postDelayed(runnable, speedMs)
-                } else {
-                    executeSingleTap()
                 }
+                pendingMultiTapRunnable = runnable
+                gestureHandler.postDelayed(runnable, speedMs)
             }
         }
     }
 
-    private fun executeSingleTap() {
+    private fun executeSingleTap(zone: Int) {
         if (isBlocked()) return
-        when (prefs.singleTapType) {
-            1 -> executeAction(prefs.singleTapActionId)
-            2 -> launchShortcut(prefs.singleTapShortcutUri, prefs.singleTapTargetPkg ?: prefs.targetPackage)
-            else -> launchPackage(prefs.singleTapTargetPkg ?: prefs.targetPackage)
+        if (zone == 1 && !prefs.zone2Enabled) return
+        val view = if (zone == 1) view2 else view1
+        haptics.performGesture(view)
+        when (prefs.getSingleTapType(zone)) {
+            1 -> executeAction(prefs.getSingleTapActionId(zone))
+            2 -> launchShortcut(prefs.getSingleTapShortcutUri(zone), prefs.getSingleTapTargetPkg(zone, context) ?: if (zone == 0) prefs.targetPackage else null)
+            else -> launchPackage(prefs.getSingleTapTargetPkg(zone, context) ?: if (zone == 0) prefs.targetPackage else null)
         }
     }
 
-    private fun executeDoubleTap() {
-        if (isBlocked()) return
-        when (prefs.doubleTapType) {
-            1 -> executeAction(prefs.doubleTapActionId)
-            2 -> launchShortcut(prefs.doubleTapShortcutUri, prefs.doubleTapTargetPkg ?: prefs.targetPackage)
-            else -> launchPackage(prefs.doubleTapTargetPkg ?: prefs.targetPackage)
+    private fun executeDoubleTap(zone: Int) {
+        if (isBlocked() || !prefs.getDoubleTapEnabled(zone)) return
+        if (zone == 1 && !prefs.zone2Enabled) return
+        val view = if (zone == 1) view2 else view1
+        haptics.performConfirm(view)
+        when (prefs.getDoubleTapType(zone)) {
+            1 -> executeAction(prefs.getDoubleTapActionId(zone))
+            2 -> launchShortcut(prefs.getDoubleTapShortcutUri(zone), prefs.getDoubleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
+            else -> launchPackage(prefs.getDoubleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
+        }
+    }
+
+    private fun executeTripleTap(zone: Int) {
+        if (isBlocked() || !prefs.getTripleTapEnabled(zone)) return
+        if (zone == 1 && !prefs.zone2Enabled) return
+        val view = if (zone == 1) view2 else view1
+        haptics.performConfirm(view)
+        when (prefs.getTripleTapType(zone)) {
+            1 -> executeAction(prefs.getTripleTapActionId(zone))
+            2 -> launchShortcut(prefs.getTripleTapShortcutUri(zone), prefs.getTripleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
+            else -> launchPackage(prefs.getTripleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
+        }
+    }
+
+    private fun executeLongPress(zone: Int) {
+        if (isBlocked() || !prefs.getLongPressEnabled(zone)) return
+        if (zone == 1 && !prefs.zone2Enabled) return
+        val view = if (zone == 1) view2 else view1
+        haptics.performConfirm(view)
+        when (prefs.getLongPressType(zone)) {
+            1 -> executeAction(prefs.getLongPressActionId(zone))
+            2 -> launchShortcut(prefs.getLongPressShortcutUri(zone), prefs.getLongPressTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
+            else -> launchPackage(prefs.getLongPressTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
         }
     }
 
@@ -370,6 +519,7 @@ class TapZoneController(
             "ringer_mode" -> cycleRingerMode(context)
             "brightness_up" -> adjustBrightness(context, 25)
             "brightness_down" -> adjustBrightness(context, -25)
+            "auto_brightness" -> toggleAutoBrightness(context)
             "camera" -> openCamera(context)
             "assistant" -> openAssistant(context)
             "display_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_DISPLAY_SETTINGS))
@@ -467,6 +617,27 @@ class TapZoneController(
             Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS, newBrightness)
         } catch (t: Throwable) {
             Log.e("Tapbar", "Could not adjust brightness", t)
+        }
+    }
+
+    private fun toggleAutoBrightness(context: Context) {
+        try {
+            if (!Settings.System.canWrite(context)) {
+                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:${context.packageName}"))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+                return
+            }
+            val cr = context.contentResolver
+            val mode = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC)
+            val newMode = if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+            } else {
+                Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+            }
+            Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, newMode)
+        } catch (t: Throwable) {
+            Log.e("Tapbar", "Could not toggle auto brightness", t)
         }
     }
 

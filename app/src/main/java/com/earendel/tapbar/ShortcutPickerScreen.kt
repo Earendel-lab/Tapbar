@@ -65,6 +65,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -78,10 +79,16 @@ private val shortcutIconCache = LruCache<String, ImageBitmap>(100)
 @Composable
 fun ShortcutPickerScreen(
     prefs: Prefs,
-    isDoubleTap: Boolean = false,
+    gestureMode: Int = 0,
+    zone: Int = 0,
     onBack: () -> Unit
 ) {
-    BackHandler(onBack = onBack)
+    val haptics = LocalHapticManager.current
+    val view = LocalView.current
+    BackHandler(onBack = {
+        haptics.performLightTap(view)
+        onBack()
+    })
     val context = LocalContext.current
     var appsWithShortcuts by remember { mutableStateOf<List<AppWithShortcuts>>(AppShortcuts.cached() ?: emptyList()) }
     var isLoading by remember { mutableStateOf(appsWithShortcuts.isEmpty()) }
@@ -89,8 +96,18 @@ fun ShortcutPickerScreen(
     var expandedAppPkg by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
 
-    val selectedUri = if (isDoubleTap) prefs.doubleTapShortcutUri else prefs.singleTapShortcutUri
-    val selectedType = if (isDoubleTap) prefs.doubleTapType else prefs.singleTapType
+    val selectedUri = when (gestureMode) {
+        1 -> prefs.getDoubleTapShortcutUri(zone)
+        2 -> prefs.getTripleTapShortcutUri(zone)
+        3 -> prefs.getLongPressShortcutUri(zone)
+        else -> prefs.getSingleTapShortcutUri(zone)
+    }
+    val selectedType = when (gestureMode) {
+        1 -> prefs.getDoubleTapType(zone)
+        2 -> prefs.getTripleTapType(zone)
+        3 -> prefs.getLongPressType(zone)
+        else -> prefs.getSingleTapType(zone)
+    }
 
     LaunchedEffect(Unit) {
         val loaded = withContext(Dispatchers.IO) {
@@ -125,18 +142,28 @@ fun ShortcutPickerScreen(
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val bottomPadding = maxOf(imePadding, navBarPadding) + 16.dp
 
+    val screenTitle = when (gestureMode) {
+        1 -> "Double tap shortcut"
+        2 -> "Triple tap shortcut"
+        3 -> "Long press shortcut"
+        else -> "Choose app shortcut"
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text(if (isDoubleTap) "Double tap shortcut" else "Choose app shortcut") },
+                title = { Text(screenTitle) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     scrolledContainerColor = Color.Transparent
                 ),
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        haptics.performLightTap(view)
+                        onBack()
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -165,7 +192,10 @@ fun ShortcutPickerScreen(
                 },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
+                        IconButton(onClick = {
+                            haptics.performLightTap(view)
+                            searchQuery = ""
+                        }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Clear",
@@ -266,6 +296,7 @@ fun ShortcutPickerScreen(
                                         .fillMaxWidth()
                                         .clickable {
                                             if (searchQuery.isEmpty()) {
+                                                haptics.performExpandCollapse(view)
                                                 expandedAppPkg = if (isExpanded) null else appItem.packageName
                                             }
                                         }
@@ -341,20 +372,40 @@ fun ShortcutPickerScreen(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .clickable {
-                                                            if (isDoubleTap) {
-                                                                prefs.doubleTapType = 2
-                                                                prefs.doubleTapShortcutUri = shortcut.intentUri
-                                                                prefs.doubleTapShortcutLabel = shortcut.label
-                                                                prefs.doubleTapTargetPkg = shortcut.packageName
-                                                                prefs.doubleTapTargetLabel = appItem.appLabel
-                                                            } else {
-                                                                prefs.singleTapType = 2
-                                                                prefs.singleTapShortcutUri = shortcut.intentUri
-                                                                prefs.singleTapShortcutLabel = shortcut.label
-                                                                prefs.singleTapTargetPkg = shortcut.packageName
-                                                                prefs.singleTapTargetLabel = appItem.appLabel
-                                                                prefs.targetPackage = shortcut.packageName
-                                                                prefs.targetLabel = appItem.appLabel
+                                                            haptics.performSelection(view)
+                                                            when (gestureMode) {
+                                                                1 -> {
+                                                                prefs.setDoubleTapType(zone, 2)
+                                                                prefs.setDoubleTapShortcutUri(zone, shortcut.intentUri)
+                                                                prefs.setDoubleTapShortcutLabel(zone, shortcut.label)
+                                                                prefs.setDoubleTapTargetPkg(zone, shortcut.packageName)
+                                                                prefs.setDoubleTapTargetLabel(zone, appItem.appLabel)
+                                                                }
+                                                                2 -> {
+                                                                prefs.setTripleTapType(zone, 2)
+                                                                prefs.setTripleTapShortcutUri(zone, shortcut.intentUri)
+                                                                prefs.setTripleTapShortcutLabel(zone, shortcut.label)
+                                                                prefs.setTripleTapTargetPkg(zone, shortcut.packageName)
+                                                                prefs.setTripleTapTargetLabel(zone, appItem.appLabel)
+                                                                }
+                                                                3 -> {
+                                                                prefs.setLongPressType(zone, 2)
+                                                                prefs.setLongPressShortcutUri(zone, shortcut.intentUri)
+                                                                prefs.setLongPressShortcutLabel(zone, shortcut.label)
+                                                                prefs.setLongPressTargetPkg(zone, shortcut.packageName)
+                                                                prefs.setLongPressTargetLabel(zone, appItem.appLabel)
+                                                                }
+                                                                else -> {
+                                                                prefs.setSingleTapType(zone, 2)
+                                                                prefs.setSingleTapShortcutUri(zone, shortcut.intentUri)
+                                                                prefs.setSingleTapShortcutLabel(zone, shortcut.label)
+                                                                prefs.setSingleTapTargetPkg(zone, shortcut.packageName)
+                                                                prefs.setSingleTapTargetLabel(zone, appItem.appLabel)
+                                                                    if (zone == 0) {
+                                                                        prefs.targetPackage = shortcut.packageName
+                                                                        prefs.targetLabel = appItem.appLabel
+                                                                    }
+                                                                }
                                                             }
                                                             onBack()
                                                         }

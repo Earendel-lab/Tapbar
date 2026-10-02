@@ -29,24 +29,29 @@ import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Update
+import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,7 +72,9 @@ class SettingsActivity : ComponentActivity() {
         )
         val prefs = Prefs(this)
         setContent {
-            SettingsRoot(prefs) { finish() }
+            ProvideHapticManager(prefs) {
+                SettingsRoot(prefs) { finish() }
+            }
         }
     }
 }
@@ -76,6 +83,9 @@ class SettingsActivity : ComponentActivity() {
 @Composable
 fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
     var themeMode by remember { mutableIntStateOf(prefs.themeMode) }
+    var hapticsEnabled by remember { mutableStateOf(prefs.hapticFeedbackEnabled) }
+    val haptics = LocalHapticManager.current
+    val view = LocalView.current
 
     TapbarTheme(themeMode = themeMode) {
         Scaffold(
@@ -87,7 +97,10 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                         scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
                     ),
                     navigationIcon = {
-                        IconButton(onClick = onBack) {
+                        IconButton(onClick = {
+                            haptics.performLightTap(view)
+                            onBack()
+                        }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                                 contentDescription = "Back",
@@ -121,8 +134,11 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                             index = 0,
                             count = 3,
                             onClick = {
-                                themeMode = 0
-                                prefs.themeMode = 0
+                                if (themeMode != 0) {
+                                    haptics.performSelection(view)
+                                    themeMode = 0
+                                    prefs.themeMode = 0
+                                }
                             }
                         )
                         ThemeRow(
@@ -132,8 +148,11 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                             index = 1,
                             count = 3,
                             onClick = {
-                                themeMode = 1
-                                prefs.themeMode = 1
+                                if (themeMode != 1) {
+                                    haptics.performSelection(view)
+                                    themeMode = 1
+                                    prefs.themeMode = 1
+                                }
                             }
                         )
                         ThemeRow(
@@ -143,8 +162,35 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                             index = 2,
                             count = 3,
                             onClick = {
-                                themeMode = 2
-                                prefs.themeMode = 2
+                                if (themeMode != 2) {
+                                    haptics.performSelection(view)
+                                    themeMode = 2
+                                    prefs.themeMode = 2
+                                }
+                            }
+                        )
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        "Haptic Feedback",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    SegmentedCard(index = 0, count = 1) {
+                        HapticToggleRow(
+                            checked = hapticsEnabled,
+                            onCheckedChange = { enabled ->
+                                if (enabled) {
+                                    prefs.hapticFeedbackEnabled = true
+                                    hapticsEnabled = true
+                                    haptics.performToggle(view, true)
+                                } else {
+                                    prefs.hapticFeedbackEnabled = false
+                                    hapticsEnabled = false
+                                }
                             }
                         )
                     }
@@ -189,6 +235,45 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun HapticToggleRow(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Vibration,
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = "Haptic Feedback",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(Modifier.width(12.dp))
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.surface,
+                checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            )
+        )
     }
 }
 
@@ -241,14 +326,28 @@ fun ThemeRow(
 @Composable
 fun AboutSection() {
     val context = LocalContext.current
+    val haptics = LocalHapticManager.current
+    val view = LocalView.current
+
+    val currentVersionName = remember(context) {
+        try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.4"
+        } catch (_: Throwable) {
+            "1.4"
+        }
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         AboutRow(
             icon = Icons.Rounded.Update,
             title = "Check for update",
-            value = "Current version v1.3",
+            value = "Current version v$currentVersionName",
             index = 0,
             count = 5,
-            onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar/releases") }
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, "https://github.com/Earendel-lab/Tapbar/releases")
+            }
         )
         AboutRow(
             icon = Icons.Rounded.Person,
@@ -256,7 +355,10 @@ fun AboutSection() {
             value = "Earendel",
             index = 1,
             count = 5,
-            onClick = { openUrl(context, "https://earendel.pages.dev/") }
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, "https://earendel.pages.dev/")
+            }
         )
         AboutRow(
             icon = Icons.Rounded.Code,
@@ -264,7 +366,10 @@ fun AboutSection() {
             value = "GitHub",
             index = 2,
             count = 5,
-            onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar") }
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, "https://github.com/Earendel-lab/Tapbar")
+            }
         )
         AboutRow(
             icon = Icons.Rounded.Star,
@@ -272,7 +377,10 @@ fun AboutSection() {
             value = "GitHub",
             index = 3,
             count = 5,
-            onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar") }
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, "https://github.com/Earendel-lab/Tapbar")
+            }
         )
         AboutRow(
             icon = Icons.Rounded.Description,
@@ -280,7 +388,10 @@ fun AboutSection() {
             value = "Open Source License",
             index = 4,
             count = 5,
-            onClick = { openUrl(context, "https://github.com/Earendel-lab/Tapbar/blob/main/LICENSE") }
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, "https://github.com/Earendel-lab/Tapbar/blob/main/LICENSE")
+            }
         )
     }
 }
