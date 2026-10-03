@@ -1,0 +1,5 @@
+New actions: battery, sound, location, data usage, Wi-Fi settings, wallpaper
+Option to disable single tap gesture
+New haptic option: buzz on every tap, or when the action runs
+Geist font now bundled in the app, no Google services
+Smoother animation when switching to Zone 2

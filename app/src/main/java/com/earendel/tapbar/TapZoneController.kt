@@ -405,7 +405,7 @@ class TapZoneController(
     }
 
     private fun executeSingleTap(zone: Int) {
-        if (isBlocked()) return
+        if (isBlocked() || !prefs.getSingleTapEnabled(zone)) return
         if (zone == 1 && !prefs.zone2Enabled) return
         if (prefs.tapHapticMode == 1) {
             val view = if (zone == 1) view2 else view1

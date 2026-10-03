@@ -237,6 +237,15 @@ class Prefs(context: Context) {
         if (zone == 1) sp.edit().putString("z2_single_tap_shortcut_label", v).apply() else singleTapShortcutLabel = v
     }
 
+    var singleTapEnabled: Boolean
+        get() = sp.getBoolean("single_tap_enabled", true)
+        set(v) = sp.edit().putBoolean("single_tap_enabled", v).apply()
+
+    fun getSingleTapEnabled(zone: Int): Boolean = if (zone == 1) sp.getBoolean("z2_single_tap_enabled", true) else singleTapEnabled
+    fun setSingleTapEnabled(zone: Int, v: Boolean) {
+        if (zone == 1) sp.edit().putBoolean("z2_single_tap_enabled", v).apply() else singleTapEnabled = v
+    }
+
     var doubleTapEnabled: Boolean
         get() = sp.getBoolean("double_tap_enabled", true)
         set(v) = sp.edit().putBoolean("double_tap_enabled", v).apply()

@@ -466,6 +466,7 @@ fun HomeScreen(
     var disableInLandscape by remember { mutableStateOf(prefs.disableInLandscape) }
     var autoStart by remember { mutableStateOf(prefs.autoStart) }
 
+    var singleTapEnabled by remember { mutableStateOf(prefs.getSingleTapEnabled(selectedZone)) }
     var singleTapType by remember { mutableIntStateOf(prefs.getSingleTapType(selectedZone)) }
     var singleTapPkg by remember { mutableStateOf(prefs.getSingleTapTargetPkg(selectedZone, context)) }
     var singleTapLabel by remember {
@@ -1055,11 +1056,11 @@ fun HomeScreen(
                         ) {
                             GestureSquareCard(
                                 title = "Single tap",
-                                subtitle = singleTapLabel ?: "Clock",
+                                subtitle = if (singleTapEnabled) (singleTapLabel ?: "Clock") else "Disabled",
                                 isAppType = (singleTapType == 0 || singleTapType == 2),
                                 appIcon = singleTapIcon,
                                 actionIcon = singleTapAction.icon,
-                                isEnabled = isZoneControlsEnabled,
+                                isEnabled = isZoneControlsEnabled && singleTapEnabled,
                                 clickable = isZoneControlsEnabled,
                                 modifier = Modifier.weight(1f),
                                 onClick = {
@@ -1335,7 +1336,16 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                if (gestureMode == 1) {
+                if (gestureMode == 0) {
+                    SwitchRow(
+                        label = "Enable single tap",
+                        checked = singleTapEnabled,
+                        onChange = {
+                            singleTapEnabled = it
+                            prefs.setSingleTapEnabled(selectedZone, it)
+                        }
+                    )
+                } else if (gestureMode == 1) {
                     SwitchRow(
                         label = "Enable double tap",
                         checked = doubleTapEnabled,
