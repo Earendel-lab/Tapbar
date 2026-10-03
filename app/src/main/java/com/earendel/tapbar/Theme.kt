@@ -13,24 +13,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontVariation
 import androidx.core.view.WindowCompat
 import com.earendel.tapbar.R
 
-val provider = GoogleFont.Provider(
-    providerAuthority = "com.google.android.gms.fonts",
-    providerPackage = "com.google.android.gms",
-    certificates = R.array.com_google_android_gms_fonts_certs
-)
-
-val GeistFontName = GoogleFont("Geist")
-
+@OptIn(ExperimentalTextApi::class)
 val GeistFontFamily = FontFamily(
-    Font(googleFont = GeistFontName, fontProvider = provider, weight = FontWeight.Normal),
-    Font(googleFont = GeistFontName, fontProvider = provider, weight = FontWeight.Medium),
-    Font(googleFont = GeistFontName, fontProvider = provider, weight = FontWeight.SemiBold),
-    Font(googleFont = GeistFontName, fontProvider = provider, weight = FontWeight.Bold)
+    Font(
+        resId = R.font.geist_variable,
+        weight = FontWeight.Normal,
+        variationSettings = FontVariation.Settings(FontVariation.weight(400))
+    ),
+    Font(
+        resId = R.font.geist_variable,
+        weight = FontWeight.Medium,
+        variationSettings = FontVariation.Settings(FontVariation.weight(500))
+    ),
+    Font(
+        resId = R.font.geist_variable,
+        weight = FontWeight.SemiBold,
+        variationSettings = FontVariation.Settings(FontVariation.weight(600))
+    ),
+    Font(
+        resId = R.font.geist_variable,
+        weight = FontWeight.Bold,
+        variationSettings = FontVariation.Settings(FontVariation.weight(700))
+    )
 )
 
 private val GeistTypography by lazy {

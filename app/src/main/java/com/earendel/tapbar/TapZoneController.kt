@@ -236,8 +236,8 @@ class TapZoneController(
             0,
             windowType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
@@ -357,6 +357,7 @@ class TapZoneController(
                     val dy = abs(event.rawY - downY)
                     val dt = SystemClock.uptimeMillis() - downAt
                     if (dx < slop && dy < slop && dt < 600) {
+                        if (prefs.tapHapticMode == 0) haptics.performLightTap(this)
                         performClick()
                         handleTapGesture()
                     }
@@ -406,8 +407,10 @@ class TapZoneController(
     private fun executeSingleTap(zone: Int) {
         if (isBlocked()) return
         if (zone == 1 && !prefs.zone2Enabled) return
-        val view = if (zone == 1) view2 else view1
-        haptics.performGesture(view)
+        if (prefs.tapHapticMode == 1) {
+            val view = if (zone == 1) view2 else view1
+            haptics.performGesture(view)
+        }
         when (prefs.getSingleTapType(zone)) {
             1 -> executeAction(prefs.getSingleTapActionId(zone))
             2 -> launchShortcut(prefs.getSingleTapShortcutUri(zone), prefs.getSingleTapTargetPkg(zone, context) ?: if (zone == 0) prefs.targetPackage else null)
@@ -540,6 +543,13 @@ class TapZoneController(
             "default_home" -> openSettingsIntent(context, Intent(Settings.ACTION_HOME_SETTINGS))
             "storage_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
             "privacy_dashboard" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) openSettingsIntent(context, Intent("android.settings.PRIVACY_CONTROLS"))
+            "battery_usage" -> openSettingsIntent(context, Intent(Intent.ACTION_POWER_USAGE_SUMMARY))
+            "battery_optimization" -> openSettingsIntent(context, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+            "sound_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_SOUND_SETTINGS))
+            "location_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            "data_usage" -> openSettingsIntent(context, Intent("android.settings.DATA_USAGE_SETTINGS"))
+            "wifi_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_WIFI_SETTINGS))
+            "wallpaper" -> openSettingsIntent(context, Intent(Intent.ACTION_SET_WALLPAPER))
         }
     }
 

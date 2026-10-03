@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BrightnessAuto
@@ -27,7 +28,9 @@ import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.WbSunny
@@ -84,6 +87,7 @@ class SettingsActivity : ComponentActivity() {
 fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
     var themeMode by remember { mutableIntStateOf(prefs.themeMode) }
     var hapticsEnabled by remember { mutableStateOf(prefs.hapticFeedbackEnabled) }
+    var tapHapticMode by remember { mutableIntStateOf(prefs.tapHapticMode) }
     val haptics = LocalHapticManager.current
     val view = LocalView.current
 
@@ -179,20 +183,55 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    SegmentedCard(index = 0, count = 1) {
-                        HapticToggleRow(
-                            checked = hapticsEnabled,
-                            onCheckedChange = { enabled ->
-                                if (enabled) {
-                                    prefs.hapticFeedbackEnabled = true
-                                    hapticsEnabled = true
-                                    haptics.performToggle(view, true)
-                                } else {
-                                    prefs.hapticFeedbackEnabled = false
-                                    hapticsEnabled = false
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        SegmentedCard(index = 0, count = if (hapticsEnabled) 3 else 1) {
+                            HapticToggleRow(
+                                checked = hapticsEnabled,
+                                onCheckedChange = { enabled ->
+                                    if (enabled) {
+                                        prefs.hapticFeedbackEnabled = true
+                                        hapticsEnabled = true
+                                        haptics.performToggle(view, true)
+                                    } else {
+                                        prefs.hapticFeedbackEnabled = false
+                                        hapticsEnabled = false
+                                    }
                                 }
+                            )
+                        }
+
+                        AnimatedVisibility(visible = hapticsEnabled) {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                ThemeRow(
+                                    icon = Icons.Rounded.TouchApp,
+                                    label = "Buzz on every tap",
+                                    selected = tapHapticMode == 0,
+                                    index = 1,
+                                    count = 3,
+                                    onClick = {
+                                        if (tapHapticMode != 0) {
+                                            haptics.performSelection(view)
+                                            tapHapticMode = 0
+                                            prefs.tapHapticMode = 0
+                                        }
+                                    }
+                                )
+                                ThemeRow(
+                                    icon = Icons.Rounded.PlayArrow,
+                                    label = "Buzz when action runs",
+                                    selected = tapHapticMode == 1,
+                                    index = 2,
+                                    count = 3,
+                                    onClick = {
+                                        if (tapHapticMode != 1) {
+                                            haptics.performSelection(view)
+                                            tapHapticMode = 1
+                                            prefs.tapHapticMode = 1
+                                        }
+                                    }
+                                )
                             }
-                        )
+                        }
                     }
                 }
 
@@ -331,9 +370,9 @@ fun AboutSection() {
 
     val currentVersionName = remember(context) {
         try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.4"
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.5"
         } catch (_: Throwable) {
-            "1.4"
+            "1.5"
         }
     }
 

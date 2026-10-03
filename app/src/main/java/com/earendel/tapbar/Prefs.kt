@@ -114,6 +114,10 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("haptic_feedback_enabled", true)
         set(v) = sp.edit().putBoolean("haptic_feedback_enabled", v).apply()
 
+    var tapHapticMode: Int
+        get() = sp.getInt("tap_haptic_mode", 0)
+        set(v) = sp.edit().putInt("tap_haptic_mode", v).apply()
+
     var hasSetInitialPosition: Boolean
         get() = sp.getBoolean("has_initial_pos", false)
         set(v) = sp.edit().putBoolean("has_initial_pos", v).apply()

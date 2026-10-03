@@ -21,9 +21,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -72,7 +76,14 @@ import androidx.compose.material.icons.rounded.AirplanemodeActive
 import androidx.compose.material.icons.rounded.AppShortcut
 import androidx.compose.material.icons.rounded.AppSettingsAlt
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.BatteryAlert
+import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.BatterySaver
+import androidx.compose.material.icons.rounded.DataUsage
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Router
+import androidx.compose.material.icons.rounded.Vibration
+import androidx.compose.material.icons.rounded.Wallpaper
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.Brightness4
@@ -185,6 +196,20 @@ import kotlinx.coroutines.yield
 
 private var cachedApps: List<AppEntry>? = null
 private val iconCache = LruCache<String, ImageBitmap>(250)
+
+fun invalidateAppCache(packageName: String? = null) {
+    cachedApps = null
+    if (packageName != null) iconCache.remove(packageName)
+    AppShortcuts.invalidate()
+}
+
+private suspend fun validCachedApps(context: Context): List<AppEntry>? = withContext(Dispatchers.IO) {
+    val cached = cachedApps ?: return@withContext null
+    val pm = context.packageManager
+    val valid = cached.filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+    if (valid.size != cached.size) cachedApps = valid
+    valid
+}
 private val iconDispatcher = Dispatchers.IO.limitedParallelism(2)
 
 object DeviceCapability {
@@ -215,6 +240,7 @@ val quickSettingActions = listOf(
     ActionEntry("volume", "Volume controls", "Opens volume control panel", Icons.Rounded.VolumeUp),
     ActionEntry("hotspot", "Hotspot & tethering", "Opens hotspot settings", Icons.Rounded.WifiTethering),
     ActionEntry("battery_saver", "Battery saver", "Opens battery saver settings", Icons.Rounded.BatterySaver),
+    ActionEntry("battery_usage", "Battery", "Opens battery usage page", Icons.Rounded.BatteryChargingFull),
     ActionEntry("nfc", "NFC settings", "Opens NFC settings", Icons.Rounded.Nfc),
     ActionEntry("night_light", "Night light", "Opens night display settings", Icons.Rounded.NightsStay),
     ActionEntry("airplane", "Airplane mode", "Opens airplane mode settings", Icons.Rounded.AirplanemodeActive),
@@ -233,7 +259,8 @@ val mediaActions = listOf(
 val displayActions = listOf(
     ActionEntry("auto_brightness", "Auto brightness", "Toggles automatic brightness", Icons.Rounded.BrightnessAuto),
     ActionEntry("brightness_up", "Brightness up", "Increases screen brightness", Icons.Rounded.Brightness7),
-    ActionEntry("brightness_down", "Brightness down", "Decreases screen brightness", Icons.Rounded.Brightness4)
+    ActionEntry("brightness_down", "Brightness down", "Decreases screen brightness", Icons.Rounded.Brightness4),
+    ActionEntry("wallpaper", "Wallpaper", "Opens wallpaper picker", Icons.Rounded.Wallpaper)
 )
 
 val navigationActions = listOf(
@@ -262,7 +289,12 @@ val settingsActions = listOf(
     ActionEntry("input_method", "Keyboard & input", "Opens keyboard settings", Icons.Rounded.Keyboard),
     ActionEntry("cast", "Cast settings", "Opens cast settings", Icons.Rounded.Cast),
     ActionEntry("vpn_settings", "VPN settings", "Opens VPN settings", Icons.Rounded.VpnKey),
-    ActionEntry("add_account", "Add account", "Opens add account dialog", Icons.Rounded.PersonAdd)
+    ActionEntry("add_account", "Add account", "Opens add account dialog", Icons.Rounded.PersonAdd),
+    ActionEntry("battery_optimization", "Battery optimization", "Opens battery optimization list", Icons.Rounded.BatteryAlert),
+    ActionEntry("sound_settings", "Sound & vibration", "Opens sound settings", Icons.Rounded.Vibration),
+    ActionEntry("location_settings", "Location", "Opens location settings", Icons.Rounded.LocationOn),
+    ActionEntry("data_usage", "Data usage", "Opens data usage settings", Icons.Rounded.DataUsage),
+    ActionEntry("wifi_settings", "Wi-Fi settings", "Opens full Wi-Fi settings page", Icons.Rounded.Router)
 )
 
 val advancedSettingsActions = listOf(
@@ -726,8 +758,8 @@ fun HomeScreen(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 "Without the accessibility service, Android forces the zone underneath "
-                                    + "the status bar and the system takes those taps. Turn the service "
-                                    + "on to put the zone on the clock itself.",
+                                        + "the status bar and the system takes those taps. Turn the service "
+                                        + "on to put the zone on the clock itself.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -768,7 +800,7 @@ fun HomeScreen(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 "Tapbar needs the \"Display over other apps\" permission to place " +
-                                    "its tap zone on screen.",
+                                        "its tap zone on screen.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -850,22 +882,22 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                val zone1Shape = if (selectedZone == 0) {
-                    RoundedCornerShape(topStart = 18.dp, topEnd = 4.dp, bottomEnd = 4.dp, bottomStart = 18.dp)
-                } else {
-                    RoundedCornerShape(topStart = 18.dp, topEnd = 4.dp, bottomEnd = 4.dp, bottomStart = 4.dp)
-                }
-
-                val zone2Shape = if (selectedZone == 0) {
-                    RoundedCornerShape(topStart = 4.dp, topEnd = 18.dp, bottomEnd = 18.dp, bottomStart = 4.dp)
-                } else {
-                    RoundedCornerShape(topStart = 4.dp, topEnd = 18.dp, bottomEnd = 4.dp, bottomStart = 4.dp)
-                }
+                val zone1BottomStart by animateDpAsState(
+                    targetValue = if (selectedZone == 0) 18.dp else 4.dp,
+                    animationSpec = tween(280, easing = FastOutSlowInEasing),
+                    label = "zone1Corner"
+                )
+                val zone2BottomEnd by animateDpAsState(
+                    targetValue = if (selectedZone == 0) 18.dp else 4.dp,
+                    animationSpec = tween(280, easing = FastOutSlowInEasing),
+                    label = "zone2Corner"
+                )
+                val zone1Shape = RoundedCornerShape(topStart = 18.dp, topEnd = 4.dp, bottomEnd = 4.dp, bottomStart = zone1BottomStart)
+                val zone2Shape = RoundedCornerShape(topStart = 4.dp, topEnd = 18.dp, bottomEnd = zone2BottomEnd, bottomStart = 4.dp)
 
                 val submenuShape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomEnd = 18.dp, bottomStart = 18.dp)
 
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -958,14 +990,30 @@ fun HomeScreen(
                         }
                     }
 
-                    if (selectedZone == 1) {
+                    AnimatedVisibility(
+                        visible = selectedZone == 1,
+                        enter = expandVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeIn(animationSpec = tween(240, delayMillis = 40)),
+                        exit = shrinkVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            )
+                        ) + fadeOut(animationSpec = tween(140))
+                    ) {
                         Card(
                             shape = submenuShape,
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                             ),
                             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 2.dp)
                         ) {
                             SwitchRow(
                                 label = if (zone2Enabled) "Zone 2 : Enabled" else "Zone 2 : Disabled",
@@ -981,10 +1029,16 @@ fun HomeScreen(
                 }
             }
 
+            val gestureAlpha by animateFloatAsState(
+                targetValue = if (isZoneControlsEnabled) 1.0f else 0.5f,
+                animationSpec = tween(260, easing = FastOutSlowInEasing),
+                label = "gestureAlpha"
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .graphicsLayer(alpha = if (isZoneControlsEnabled) 1.0f else 0.5f),
+                    .graphicsLayer { alpha = gestureAlpha },
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1951,10 +2005,13 @@ fun AppPickerScreen(
 
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        if (cachedApps == null || cachedApps!!.isEmpty()) {
+        val valid = validCachedApps(context)
+        if (valid.isNullOrEmpty()) {
             batchLoadApps(context) { newBatch ->
                 apps = newBatch
             }
+        } else if (valid.size != apps.size) {
+            apps = valid
         }
     }
 
@@ -2173,10 +2230,13 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
 
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        if (cachedApps == null || cachedApps!!.isEmpty()) {
+        val valid = validCachedApps(context)
+        if (valid.isNullOrEmpty()) {
             batchLoadApps(context) { newBatch ->
                 apps = newBatch
             }
+        } else if (valid.size != apps.size) {
+            apps = valid
         }
     }
 
@@ -2395,11 +2455,11 @@ private suspend fun batchLoadApps(
         val label = ri.loadLabel(pm).toString()
         AppEntry(pkg, label, clockPackages.contains(pkg))
     }
-    .distinctBy { it.packageName }
-    .sortedWith(
-        compareByDescending<AppEntry> { it.isClockApp }
-            .thenBy { it.label.lowercase() }
-    )
+        .distinctBy { it.packageName }
+        .sortedWith(
+            compareByDescending<AppEntry> { it.isClockApp }
+                .thenBy { it.label.lowercase() }
+        )
 
     if (prefs.targetPackage == null && rawList.isNotEmpty()) {
         val defaultClock = rawList.firstOrNull { it.isClockApp } ?: rawList.first()
