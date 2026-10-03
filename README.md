@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Earendel-lab/Tapbar/releases/download/v1.4/Tapbar.apk">
+  <a href="https://github.com/Earendel-lab/Tapbar/releases/download/v1.5/Tapbar.apk">
     <img src="https://github.com/user-attachments/assets/f68cd3c6-950e-4f77-b8a9-f5338a246442" alt="Download Tapbar" width="300">
   </a>
 </p>
