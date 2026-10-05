@@ -1,5 +1,5 @@
 
-<img width="1256" height="1000" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/3657cc93-d36a-42b7-916b-d89a9715f626" />
+<img width="1256" height="1000" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/f28a827f-3e39-41ed-9240-ce4cec94eefd" />
 
 <p align="center">
   <strong>Completely offline • Battery efficient • No ads • No trackers </strong>
