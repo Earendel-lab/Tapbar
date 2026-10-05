@@ -82,6 +82,18 @@ import androidx.compose.material.icons.rounded.BatterySaver
 import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Router
+import androidx.compose.material.icons.rounded.SimCard
+import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material.icons.rounded.Payment
+import androidx.compose.material.icons.rounded.Tv
+import androidx.compose.material.icons.rounded.ClosedCaption
+import androidx.compose.material.icons.rounded.Print
+import androidx.compose.material.icons.rounded.Book
+import androidx.compose.material.icons.rounded.SettingsApplications
+import androidx.compose.material.icons.rounded.QueryStats
+import androidx.compose.material.icons.rounded.DoNotDisturbOn
+import androidx.compose.material.icons.rounded.Layers
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.Wallpaper
 import androidx.compose.material.icons.rounded.Block
@@ -235,7 +247,7 @@ val quickSettingActions = listOf(
     ActionEntry("bluetooth", "Bluetooth settings", "Opens Bluetooth settings", Icons.Rounded.Bluetooth),
     ActionEntry("data", "Cellular data panel", "Opens Internet panel", Icons.Rounded.SignalCellularAlt),
     ActionEntry("flashlight", "Toggle flashlight", "Turns torch on or off", Icons.Rounded.FlashOn),
-    ActionEntry("auto_rotate", "Toggle auto-rotation", "Toggles screen orientation lock", Icons.Rounded.ScreenRotation),
+    ActionEntry("auto_rotate", "Toggle auto-rotation", "Toggles rotation lock", Icons.Rounded.ScreenRotation),
     ActionEntry("dnd", "Do Not Disturb (DND)", "Toggles Do Not Disturb mode", Icons.Rounded.DoNotDisturb),
     ActionEntry("volume", "Volume controls", "Opens volume control panel", Icons.Rounded.VolumeUp),
     ActionEntry("hotspot", "Hotspot & tethering", "Opens hotspot settings", Icons.Rounded.WifiTethering),
@@ -272,7 +284,7 @@ val navigationActions = listOf(
     ActionEntry("recents", "Recent apps", "Opens recent app switcher", Icons.Rounded.Menu),
     ActionEntry("notifications", "Expand notifications", "Opens notification shade", Icons.Rounded.Notifications),
     ActionEntry("quick_settings", "Expand quick settings", "Opens quick settings panel", Icons.Rounded.Notifications),
-    ActionEntry("split_screen", "Split screen", "Toggles split screen (device-dependent)", Icons.Rounded.VerticalSplit),
+    ActionEntry("split_screen", "Split screen", "May not work on all phones", Icons.Rounded.VerticalSplit),
     ActionEntry("dismiss_shade", "Dismiss notifications", "Closes notification shade", Icons.Rounded.ExpandLess),
     ActionEntry("all_apps", "All apps", "Opens application drawer", Icons.Rounded.Apps),
     ActionEntry("accessibility_button", "Accessibility button", "Triggers accessibility action", Icons.Rounded.Accessibility),
@@ -290,17 +302,26 @@ val settingsActions = listOf(
     ActionEntry("cast", "Cast settings", "Opens cast settings", Icons.Rounded.Cast),
     ActionEntry("vpn_settings", "VPN settings", "Opens VPN settings", Icons.Rounded.VpnKey),
     ActionEntry("add_account", "Add account", "Opens add account dialog", Icons.Rounded.PersonAdd),
-    ActionEntry("battery_optimization", "Battery optimization", "Opens battery optimization list", Icons.Rounded.BatteryAlert),
+    ActionEntry("battery_optimization", "Battery optimization", "Opens optimization list", Icons.Rounded.BatteryAlert),
     ActionEntry("sound_settings", "Sound & vibration", "Opens sound settings", Icons.Rounded.Vibration),
     ActionEntry("location_settings", "Location", "Opens location settings", Icons.Rounded.LocationOn),
     ActionEntry("data_usage", "Data usage", "Opens data usage settings", Icons.Rounded.DataUsage),
-    ActionEntry("wifi_settings", "Wi-Fi settings", "Opens full Wi-Fi settings page", Icons.Rounded.Router)
+    ActionEntry("wifi_settings", "Wi-Fi settings", "Opens full Wi-Fi settings page", Icons.Rounded.Router),
+    ActionEntry("sim_settings", "SIM settings", "Opens SIM & network type", Icons.Rounded.SimCard),
+    ActionEntry("mobile_network", "Mobile network", "Opens mobile network settings", Icons.Rounded.SignalCellularAlt),
+    ActionEntry("network_settings", "Network & internet", "Opens network & internet", Icons.Rounded.Public),
+    ActionEntry("nfc_payment", "Tap and pay", "Opens NFC payment settings", Icons.Rounded.Payment),
+    ActionEntry("screen_saver", "Screen saver", "Opens screen saver settings", Icons.Rounded.Tv),
+    ActionEntry("captioning_settings", "Captions", "Opens caption settings", Icons.Rounded.ClosedCaption),
+    ActionEntry("print_settings", "Printing", "Opens printing settings", Icons.Rounded.Print),
+    ActionEntry("user_dictionary", "Personal dictionary", "Opens personal dictionary", Icons.Rounded.Book),
+    ActionEntry("open_settings", "Settings app", "Opens the main Settings app", Icons.Rounded.SettingsApplications)
 )
 
 val advancedSettingsActions = listOf(
     ActionEntry("date_time_settings", "Date & time", "Opens date & time settings", Icons.Rounded.Schedule),
     ActionEntry("locale_settings", "Language & region", "Opens language settings", Icons.Rounded.Language),
-    ActionEntry("app_info_list", "All installed apps", "Opens application list settings", Icons.Rounded.AppSettingsAlt),
+    ActionEntry("app_info_list", "All installed apps", "Opens the app manager", Icons.Rounded.AppSettingsAlt),
     ActionEntry("developer_options", "Developer options", "Opens developer settings", Icons.Rounded.Code),
     ActionEntry("security_settings", "Security & privacy", "Opens security settings", Icons.Rounded.Security),
     ActionEntry("sync_settings", "Account sync", "Opens account sync settings", Icons.Rounded.Sync),
@@ -308,7 +329,12 @@ val advancedSettingsActions = listOf(
     ActionEntry("about_phone", "About phone", "Opens device info settings", Icons.Rounded.Info),
     ActionEntry("default_home", "Default launcher", "Opens default home settings", Icons.Rounded.HomeWork),
     ActionEntry("storage_settings", "Storage settings", "Opens storage settings", Icons.Rounded.Storage),
-    ActionEntry("privacy_dashboard", "Privacy dashboard", "Opens privacy controls", Icons.Rounded.PrivacyTip)
+    ActionEntry("privacy_dashboard", "Privacy dashboard", "Opens privacy controls", Icons.Rounded.PrivacyTip),
+    ActionEntry("usage_access", "Usage access", "Opens usage access list", Icons.Rounded.QueryStats),
+    ActionEntry("notification_access", "Notification access", "Opens notification access list", Icons.Rounded.Notifications),
+    ActionEntry("dnd_access", "Do Not Disturb access", "Opens DND access list", Icons.Rounded.DoNotDisturbOn),
+    ActionEntry("overlay_permission", "Display over other apps", "Opens overlay permission list", Icons.Rounded.Layers),
+    ActionEntry("write_settings", "Modify system settings", "Opens write settings list", Icons.Rounded.Tune)
 )
 
 val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + settingsActions + advancedSettingsActions
@@ -458,7 +484,7 @@ fun HomeScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var selectedZone by remember { mutableIntStateOf(initialZone) }
-    var zone2Enabled by remember { mutableStateOf(prefs.zone2Enabled) }
+    var zoneEnabledStates by remember { mutableStateOf(List(ZONE_COUNT) { prefs.isZoneEnabled(it) }) }
 
     var hasOverlay by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
     var a11yOn by remember { mutableStateOf(TapAccessibilityService.isEnabled(context)) }
@@ -595,7 +621,7 @@ fun HomeScreen(
                 a11yOn = TapAccessibilityService.isEnabled(context)
                 hasOverlay = Settings.canDrawOverlays(context)
                 enabled = prefs.serviceEnabled
-                zone2Enabled = prefs.zone2Enabled
+                zoneEnabledStates = List(ZONE_COUNT) { prefs.isZoneEnabled(it) }
                 tapSpeedMs = prefs.tapSpeedMs
                 blockedCount = prefs.blockedPackages.size
                 refreshZoneState()
@@ -708,7 +734,7 @@ fun HomeScreen(
     }
 
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val isZoneControlsEnabled = (selectedZone == 0) || zone2Enabled
+    val isZoneControlsEnabled = zoneEnabledStates.getOrElse(selectedZone) { true }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -883,150 +909,39 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                val zone1BottomStart by animateDpAsState(
-                    targetValue = if (selectedZone == 0) 18.dp else 4.dp,
-                    animationSpec = tween(280, easing = FastOutSlowInEasing),
-                    label = "zone1Corner"
-                )
-                val zone2BottomEnd by animateDpAsState(
-                    targetValue = if (selectedZone == 0) 18.dp else 4.dp,
-                    animationSpec = tween(280, easing = FastOutSlowInEasing),
-                    label = "zone2Corner"
-                )
-                val zone1Shape = RoundedCornerShape(topStart = 18.dp, topEnd = 4.dp, bottomEnd = 4.dp, bottomStart = zone1BottomStart)
-                val zone2Shape = RoundedCornerShape(topStart = 4.dp, topEnd = 18.dp, bottomEnd = zone2BottomEnd, bottomStart = 4.dp)
-
-                val submenuShape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomEnd = 18.dp, bottomStart = 18.dp)
-
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Card(
-                            shape = zone1Shape,
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    haptics.performSelection(view)
-                                    selectedZone = 0
-                                }
+                    for (rowStart in 0 until ZONE_COUNT step 2) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 18.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
-                            ) {
-                                Icon(
-                                    painter = painterResource(
-                                        if (selectedZone == 0) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
-                                    ),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(Modifier.width(10.dp))
-                                Text(
-                                    text = "Zone 1",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-
-                        Card(
-                            shape = zone2Shape,
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    haptics.performSelection(view)
-                                    selectedZone = 1
-                                }
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 18.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
-                            ) {
-                                if (!zone2Enabled) {
-                                    Image(
-                                        painter = painterResource(R.drawable.ic_block_red),
-                                        contentDescription = "Disabled",
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Spacer(Modifier.width(8.dp))
-                                } else {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (selectedZone == 1) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
-                                        ),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(Modifier.width(10.dp))
-                                }
-                                Text(
-                                    text = "Zone 2",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Medium,
-                                    color = if (!zone2Enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+                            for (zoneIndex in rowStart until minOf(rowStart + 2, ZONE_COUNT)) {
+                                ZoneSelectCard(
+                                    zone = zoneIndex,
+                                    selected = selectedZone == zoneIndex,
+                                    zoneOn = zoneEnabledStates[zoneIndex],
+                                    modifier = Modifier.weight(1f),
+                                    onClick = {
+                                        haptics.performSelection(view)
+                                        selectedZone = zoneIndex
+                                    }
                                 )
                             }
                         }
                     }
 
-                    AnimatedVisibility(
-                        visible = selectedZone == 1,
-                        enter = expandVertically(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                stiffness = Spring.StiffnessMediumLow
-                            )
-                        ) + fadeIn(animationSpec = tween(240, delayMillis = 40)),
-                        exit = shrinkVertically(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            )
-                        ) + fadeOut(animationSpec = tween(140))
-                    ) {
-                        Card(
-                            shape = submenuShape,
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 2.dp)
-                        ) {
-                            SwitchRow(
-                                label = if (zone2Enabled) "Zone 2 : Enabled" else "Zone 2 : Disabled",
-                                checked = zone2Enabled,
-                                onChange = { enabledState ->
-                                    zone2Enabled = enabledState
-                                    prefs.zone2Enabled = enabledState
-                                    TapZone.active?.attach()
-                                }
-                            )
+                    ZoneToggleCard(
+                        zone = selectedZone,
+                        zoneOn = zoneEnabledStates[selectedZone],
+                        onChange = { enabledState ->
+                            prefs.setZoneEnabled(selectedZone, enabledState)
+                            zoneEnabledStates = List(ZONE_COUNT) { prefs.isZoneEnabled(it) }
+                            TapZone.active?.attach()
                         }
-                    }
+                    )
                 }
             }
 
@@ -1288,7 +1203,7 @@ fun HomeScreen(
                     prefs.hasSetInitialPosition = true
 
                     selectedZone = 0
-                    zone2Enabled = prefs.zone2Enabled
+                    zoneEnabledStates = List(ZONE_COUNT) { prefs.isZoneEnabled(it) }
                     disableInLandscape = prefs.disableInLandscape
                     autoStart = prefs.autoStart
                     tapSpeedMs = prefs.tapSpeedMs
@@ -1862,13 +1777,17 @@ fun ActionRow(
                 Text(
                     action.title,
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             supportingContent = {
                 Text(
                     action.description,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             leadingContent = {

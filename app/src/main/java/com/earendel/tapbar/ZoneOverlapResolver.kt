@@ -18,34 +18,34 @@ object ZoneOverlapResolver {
         return overlapX && overlapY
     }
 
+    private fun geometryOf(prefs: Prefs, zone: Int): ZoneGeometry =
+        ZoneGeometry(
+            prefs.getPosX(zone),
+            prefs.getPosY(zone),
+            prefs.getZoneWidth(zone),
+            prefs.getZoneHeight(zone)
+        )
+
+    private fun othersOf(prefs: Prefs, editedZone: Int): List<ZoneGeometry> =
+        (0 until ZONE_COUNT).filter { it != editedZone }.map { geometryOf(prefs, it) }
+
     fun constrainX(
         editedZone: Int,
         targetX: Int,
         prefs: Prefs
     ): Int {
-        val otherZone = 1 - editedZone
-        val currentW = prefs.getZoneWidth(editedZone)
-        val currentY = prefs.getPosY(editedZone)
-        val currentH = prefs.getZoneHeight(editedZone)
-
-        val otherX = prefs.getPosX(otherZone)
-        val otherY = prefs.getPosY(otherZone)
-        val otherW = prefs.getZoneWidth(otherZone)
-        val otherH = prefs.getZoneHeight(otherZone)
-
-        val proposed = ZoneGeometry(targetX, currentY, currentW, currentH)
-        val other = ZoneGeometry(otherX, otherY, otherW, otherH)
-
-        if (!overlaps(proposed, other)) {
-            return targetX
+        val current = geometryOf(prefs, editedZone)
+        val others = othersOf(prefs, editedZone)
+        var x = targetX
+        repeat(others.size + 1) {
+            val hit = others.firstOrNull { overlaps(current.copy(x = x), it) } ?: return x
+            x = if (current.x < hit.x) {
+                (hit.x - current.w).coerceAtLeast(0)
+            } else {
+                (hit.x + hit.w).coerceAtMost(400)
+            }
         }
-
-        val oldX = prefs.getPosX(editedZone)
-        return if (oldX < otherX) {
-            (otherX - currentW).coerceAtLeast(0)
-        } else {
-            (otherX + otherW).coerceAtMost(400)
-        }
+        return if (others.any { overlaps(current.copy(x = x), it) }) current.x else x
     }
 
     fun constrainY(
@@ -53,29 +53,18 @@ object ZoneOverlapResolver {
         targetY: Int,
         prefs: Prefs
     ): Int {
-        val otherZone = 1 - editedZone
-        val currentX = prefs.getPosX(editedZone)
-        val currentW = prefs.getZoneWidth(editedZone)
-        val currentH = prefs.getZoneHeight(editedZone)
-
-        val otherX = prefs.getPosX(otherZone)
-        val otherY = prefs.getPosY(otherZone)
-        val otherW = prefs.getZoneWidth(otherZone)
-        val otherH = prefs.getZoneHeight(otherZone)
-
-        val proposed = ZoneGeometry(currentX, targetY, currentW, currentH)
-        val other = ZoneGeometry(otherX, otherY, otherW, otherH)
-
-        if (!overlaps(proposed, other)) {
-            return targetY
+        val current = geometryOf(prefs, editedZone)
+        val others = othersOf(prefs, editedZone)
+        var y = targetY
+        repeat(others.size + 1) {
+            val hit = others.firstOrNull { overlaps(current.copy(y = y), it) } ?: return y
+            y = if (current.y < hit.y) {
+                (hit.y - current.h).coerceAtLeast(0)
+            } else {
+                (hit.y + hit.h).coerceAtMost(800)
+            }
         }
-
-        val oldY = prefs.getPosY(editedZone)
-        return if (oldY < otherY) {
-            (otherY - currentH).coerceAtLeast(0)
-        } else {
-            (otherY + otherH).coerceAtMost(800)
-        }
+        return if (others.any { overlaps(current.copy(y = y), it) }) current.y else y
     }
 
     fun constrainWidth(
@@ -83,28 +72,14 @@ object ZoneOverlapResolver {
         targetW: Int,
         prefs: Prefs
     ): Int {
-        val otherZone = 1 - editedZone
-        val currentX = prefs.getPosX(editedZone)
-        val currentY = prefs.getPosY(editedZone)
-        val currentH = prefs.getZoneHeight(editedZone)
-
-        val otherX = prefs.getPosX(otherZone)
-        val otherY = prefs.getPosY(otherZone)
-        val otherW = prefs.getZoneWidth(otherZone)
-        val otherH = prefs.getZoneHeight(otherZone)
-
-        val proposed = ZoneGeometry(currentX, currentY, targetW, currentH)
-        val other = ZoneGeometry(otherX, otherY, otherW, otherH)
-
-        if (!overlaps(proposed, other)) {
-            return targetW
+        val current = geometryOf(prefs, editedZone)
+        var w = targetW
+        for (other in othersOf(prefs, editedZone)) {
+            if (overlaps(current.copy(w = w), other) && current.x < other.x) {
+                w = (other.x - current.x).coerceAtLeast(20)
+            }
         }
-
-        return if (currentX < otherX) {
-            (otherX - currentX).coerceAtLeast(20)
-        } else {
-            targetW
-        }
+        return w
     }
 
     fun constrainHeight(
@@ -112,37 +87,32 @@ object ZoneOverlapResolver {
         targetH: Int,
         prefs: Prefs
     ): Int {
-        val otherZone = 1 - editedZone
-        val currentX = prefs.getPosX(editedZone)
-        val currentY = prefs.getPosY(editedZone)
-        val currentW = prefs.getZoneWidth(editedZone)
-
-        val otherX = prefs.getPosX(otherZone)
-        val otherY = prefs.getPosY(otherZone)
-        val otherW = prefs.getZoneWidth(otherZone)
-        val otherH = prefs.getZoneHeight(otherZone)
-
-        val proposed = ZoneGeometry(currentX, currentY, currentW, targetH)
-        val other = ZoneGeometry(otherX, otherY, otherW, otherH)
-
-        if (!overlaps(proposed, other)) {
-            return targetH
+        val current = geometryOf(prefs, editedZone)
+        var h = targetH
+        for (other in othersOf(prefs, editedZone)) {
+            if (overlaps(current.copy(h = h), other) && current.y < other.y) {
+                h = (other.y - current.y).coerceAtLeast(16)
+            }
         }
-
-        return if (currentY < otherY) {
-            (otherY - currentY).coerceAtLeast(16)
-        } else {
-            targetH
-        }
+        return h
     }
 
     fun enforceNonOverlapOnLoad(prefs: Prefs) {
-        val z0 = ZoneGeometry(prefs.getPosX(0), prefs.getPosY(0), prefs.getZoneWidth(0), prefs.getZoneHeight(0))
-        val z1 = ZoneGeometry(prefs.getPosX(1), prefs.getPosY(1), prefs.getZoneWidth(1), prefs.getZoneHeight(1))
-
-        if (overlaps(z0, z1)) {
-            val resolvedX1 = (z0.x + z0.w + 12).coerceAtMost(400)
-            prefs.setPosX(1, resolvedX1)
+        for (zone in 1 until ZONE_COUNT) {
+            var attempts = 0
+            while (attempts < 8) {
+                val zoneGeometry = geometryOf(prefs, zone)
+                val hit = (0 until zone)
+                    .map { geometryOf(prefs, it) }
+                    .firstOrNull { overlaps(zoneGeometry, it) } ?: break
+                val shiftedX = hit.x + hit.w + 12
+                if (shiftedX + zoneGeometry.w <= 400) {
+                    prefs.setPosX(zone, shiftedX)
+                } else {
+                    prefs.setPosY(zone, (hit.y + hit.h + 12).coerceAtMost(800))
+                }
+                attempts++
+            }
         }
     }
 }

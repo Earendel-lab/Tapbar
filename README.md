@@ -24,7 +24,7 @@ Create tappable areas on your screen. Assign single tap, double tap, triple tap,
 
 ## Features
 
-* Create up to **2 custom tap zones** anywhere on your screen
+* Create up to **4 custom tap zones** anywhere on your screen
 * **4 gestures:** single tap, double tap, triple tap, and long press
 * Assign a different app, action, or app shortcut to each gesture
 * Use both tap zones independently

@@ -1,0 +1,4 @@
+4 configurable tap zones
+75+ actions to choose from
+More control over gestures
+R8 enabled for smaller release builds

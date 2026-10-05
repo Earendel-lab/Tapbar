@@ -50,10 +50,33 @@ fun getDefaultClockPackage(context: Context): Pair<String, String>? {
     return null
 }
 
+const val ZONE_COUNT = 4
+
 class Prefs(context: Context) {
 
     private val sp = context.applicationContext
         .getSharedPreferences("tapbar_prefs", Context.MODE_PRIVATE)
+
+    private fun zk(zone: Int, base: String): String = "z${zone + 1}_$base"
+
+    private fun defaultPosX(zone: Int): Int = when (zone) {
+        0 -> 12
+        1 -> 132
+        else -> 252
+    }
+
+    private fun defaultPosY(zone: Int): Int = when (zone) {
+        1 -> 40
+        3 -> 40
+        else -> 0
+    }
+
+    fun isZoneEnabled(zone: Int): Boolean =
+        sp.getBoolean("zone${zone + 1}_enabled", zone == 0)
+
+    fun setZoneEnabled(zone: Int, v: Boolean) {
+        sp.edit().putBoolean("zone${zone + 1}_enabled", v).apply()
+    }
 
     fun resetToDefaults() {
         val keep = setOf("service_enabled", "has_seen_privacy_notice")
@@ -142,24 +165,24 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("zone2_enabled", false)
         set(v) = sp.edit().putBoolean("zone2_enabled", v).apply()
 
-    fun getPosX(zone: Int): Int = if (zone == 1) sp.getInt("z2_pos_x", 132) else posX
+    fun getPosX(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "pos_x"), defaultPosX(zone)) else posX
     fun setPosX(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_pos_x", v).apply() else posX = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "pos_x"), v).apply() else posX = v
     }
 
-    fun getPosY(zone: Int): Int = if (zone == 1) sp.getInt("z2_pos_y", 40) else posY
+    fun getPosY(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "pos_y"), defaultPosY(zone)) else posY
     fun setPosY(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_pos_y", v).apply() else posY = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "pos_y"), v).apply() else posY = v
     }
 
-    fun getZoneWidth(zone: Int): Int = if (zone == 1) sp.getInt("z2_zone_w", 96) else zoneWidth
+    fun getZoneWidth(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "zone_w"), 96) else zoneWidth
     fun setZoneWidth(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_zone_w", v).apply() else zoneWidth = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "zone_w"), v).apply() else zoneWidth = v
     }
 
-    fun getZoneHeight(zone: Int): Int = if (zone == 1) sp.getInt("z2_zone_h", 28) else zoneHeight
+    fun getZoneHeight(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "zone_h"), 28) else zoneHeight
     fun setZoneHeight(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_zone_h", v).apply() else zoneHeight = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "zone_h"), v).apply() else zoneHeight = v
     }
 
     var singleTapType: Int
@@ -182,14 +205,14 @@ class Prefs(context: Context) {
         get() = sp.getString("single_tap_action_label", "Take screenshot")
         set(v) = sp.edit().putString("single_tap_action_label", v).apply()
 
-    fun getSingleTapType(zone: Int): Int = if (zone == 1) sp.getInt("z2_single_tap_type", 0) else singleTapType
+    fun getSingleTapType(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "single_tap_type"), 0) else singleTapType
     fun setSingleTapType(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_single_tap_type", v).apply() else singleTapType = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "single_tap_type"), v).apply() else singleTapType = v
     }
 
     fun getSingleTapTargetPkg(zone: Int, context: Context? = null): String? {
-        if (zone == 1) {
-            val saved = sp.getString("z2_single_tap_target_pkg", null)
+        if (zone >= 1) {
+            val saved = sp.getString(zk(zone, "single_tap_target_pkg"), null)
             if (saved != null) return saved
             return context?.let { getDefaultCameraPackage(it)?.first }
         }
@@ -199,12 +222,12 @@ class Prefs(context: Context) {
     }
 
     fun setSingleTapTargetPkg(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_single_tap_target_pkg", v).apply() else singleTapTargetPkg = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "single_tap_target_pkg"), v).apply() else singleTapTargetPkg = v
     }
 
     fun getSingleTapTargetLabel(zone: Int, context: Context? = null): String? {
-        if (zone == 1) {
-            val saved = sp.getString("z2_single_tap_target_label", null)
+        if (zone >= 1) {
+            val saved = sp.getString(zk(zone, "single_tap_target_label"), null)
             if (saved != null) return saved
             return context?.let { getDefaultCameraPackage(it)?.second } ?: "Camera"
         }
@@ -214,36 +237,36 @@ class Prefs(context: Context) {
     }
 
     fun setSingleTapTargetLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_single_tap_target_label", v).apply() else singleTapTargetLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "single_tap_target_label"), v).apply() else singleTapTargetLabel = v
     }
 
-    fun getSingleTapActionId(zone: Int): String? = if (zone == 1) sp.getString("z2_single_tap_action_id", "camera") else singleTapActionId
+    fun getSingleTapActionId(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "single_tap_action_id"), "camera") else singleTapActionId
     fun setSingleTapActionId(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_single_tap_action_id", v).apply() else singleTapActionId = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "single_tap_action_id"), v).apply() else singleTapActionId = v
     }
 
-    fun getSingleTapActionLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_single_tap_action_label", "Open camera") else singleTapActionLabel
+    fun getSingleTapActionLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "single_tap_action_label"), "Open camera") else singleTapActionLabel
     fun setSingleTapActionLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_single_tap_action_label", v).apply() else singleTapActionLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "single_tap_action_label"), v).apply() else singleTapActionLabel = v
     }
 
-    fun getSingleTapShortcutUri(zone: Int): String? = if (zone == 1) sp.getString("z2_single_tap_shortcut_uri", null) else singleTapShortcutUri
+    fun getSingleTapShortcutUri(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "single_tap_shortcut_uri"), null) else singleTapShortcutUri
     fun setSingleTapShortcutUri(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_single_tap_shortcut_uri", v).apply() else singleTapShortcutUri = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "single_tap_shortcut_uri"), v).apply() else singleTapShortcutUri = v
     }
 
-    fun getSingleTapShortcutLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_single_tap_shortcut_label", null) else singleTapShortcutLabel
+    fun getSingleTapShortcutLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "single_tap_shortcut_label"), null) else singleTapShortcutLabel
     fun setSingleTapShortcutLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_single_tap_shortcut_label", v).apply() else singleTapShortcutLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "single_tap_shortcut_label"), v).apply() else singleTapShortcutLabel = v
     }
 
     var singleTapEnabled: Boolean
         get() = sp.getBoolean("single_tap_enabled", true)
         set(v) = sp.edit().putBoolean("single_tap_enabled", v).apply()
 
-    fun getSingleTapEnabled(zone: Int): Boolean = if (zone == 1) sp.getBoolean("z2_single_tap_enabled", true) else singleTapEnabled
+    fun getSingleTapEnabled(zone: Int): Boolean = if (zone >= 1) sp.getBoolean(zk(zone, "single_tap_enabled"), true) else singleTapEnabled
     fun setSingleTapEnabled(zone: Int, v: Boolean) {
-        if (zone == 1) sp.edit().putBoolean("z2_single_tap_enabled", v).apply() else singleTapEnabled = v
+        if (zone >= 1) sp.edit().putBoolean(zk(zone, "single_tap_enabled"), v).apply() else singleTapEnabled = v
     }
 
     var doubleTapEnabled: Boolean
@@ -278,44 +301,44 @@ class Prefs(context: Context) {
         get() = sp.getString("double_tap_action_label", "Turn off screen")
         set(v) = sp.edit().putString("double_tap_action_label", v).apply()
 
-    fun getDoubleTapEnabled(zone: Int): Boolean = if (zone == 1) sp.getBoolean("z2_double_tap_enabled", true) else doubleTapEnabled
+    fun getDoubleTapEnabled(zone: Int): Boolean = if (zone >= 1) sp.getBoolean(zk(zone, "double_tap_enabled"), true) else doubleTapEnabled
     fun setDoubleTapEnabled(zone: Int, v: Boolean) {
-        if (zone == 1) sp.edit().putBoolean("z2_double_tap_enabled", v).apply() else doubleTapEnabled = v
+        if (zone >= 1) sp.edit().putBoolean(zk(zone, "double_tap_enabled"), v).apply() else doubleTapEnabled = v
     }
 
-    fun getDoubleTapType(zone: Int): Int = if (zone == 1) sp.getInt("z2_double_tap_type", 1) else doubleTapType
+    fun getDoubleTapType(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "double_tap_type"), 1) else doubleTapType
     fun setDoubleTapType(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_double_tap_type", v).apply() else doubleTapType = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "double_tap_type"), v).apply() else doubleTapType = v
     }
 
-    fun getDoubleTapTargetPkg(zone: Int): String? = if (zone == 1) sp.getString("z2_double_tap_target_pkg", null) else doubleTapTargetPkg
+    fun getDoubleTapTargetPkg(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "double_tap_target_pkg"), null) else doubleTapTargetPkg
     fun setDoubleTapTargetPkg(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_double_tap_target_pkg", v).apply() else doubleTapTargetPkg = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "double_tap_target_pkg"), v).apply() else doubleTapTargetPkg = v
     }
 
-    fun getDoubleTapTargetLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_double_tap_target_label", null) else doubleTapTargetLabel
+    fun getDoubleTapTargetLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "double_tap_target_label"), null) else doubleTapTargetLabel
     fun setDoubleTapTargetLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_double_tap_target_label", v).apply() else doubleTapTargetLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "double_tap_target_label"), v).apply() else doubleTapTargetLabel = v
     }
 
-    fun getDoubleTapActionId(zone: Int): String? = if (zone == 1) sp.getString("z2_double_tap_action_id", "flashlight") else doubleTapActionId
+    fun getDoubleTapActionId(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "double_tap_action_id"), "flashlight") else doubleTapActionId
     fun setDoubleTapActionId(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_double_tap_action_id", v).apply() else doubleTapActionId = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "double_tap_action_id"), v).apply() else doubleTapActionId = v
     }
 
-    fun getDoubleTapActionLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_double_tap_action_label", "Toggle flashlight") else doubleTapActionLabel
+    fun getDoubleTapActionLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "double_tap_action_label"), "Toggle flashlight") else doubleTapActionLabel
     fun setDoubleTapActionLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_double_tap_action_label", v).apply() else doubleTapActionLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "double_tap_action_label"), v).apply() else doubleTapActionLabel = v
     }
 
-    fun getDoubleTapShortcutUri(zone: Int): String? = if (zone == 1) sp.getString("z2_double_tap_shortcut_uri", null) else doubleTapShortcutUri
+    fun getDoubleTapShortcutUri(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "double_tap_shortcut_uri"), null) else doubleTapShortcutUri
     fun setDoubleTapShortcutUri(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_double_tap_shortcut_uri", v).apply() else doubleTapShortcutUri = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "double_tap_shortcut_uri"), v).apply() else doubleTapShortcutUri = v
     }
 
-    fun getDoubleTapShortcutLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_double_tap_shortcut_label", null) else doubleTapShortcutLabel
+    fun getDoubleTapShortcutLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "double_tap_shortcut_label"), null) else doubleTapShortcutLabel
     fun setDoubleTapShortcutLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_double_tap_shortcut_label", v).apply() else doubleTapShortcutLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "double_tap_shortcut_label"), v).apply() else doubleTapShortcutLabel = v
     }
 
     var singleTapShortcutUri: String?
@@ -366,44 +389,44 @@ class Prefs(context: Context) {
         get() = sp.getString("triple_tap_shortcut_label", null)
         set(v) = sp.edit().putString("triple_tap_shortcut_label", v).apply()
 
-    fun getTripleTapEnabled(zone: Int): Boolean = if (zone == 1) sp.getBoolean("z2_triple_tap_enabled", true) else tripleTapEnabled
+    fun getTripleTapEnabled(zone: Int): Boolean = if (zone >= 1) sp.getBoolean(zk(zone, "triple_tap_enabled"), true) else tripleTapEnabled
     fun setTripleTapEnabled(zone: Int, v: Boolean) {
-        if (zone == 1) sp.edit().putBoolean("z2_triple_tap_enabled", v).apply() else tripleTapEnabled = v
+        if (zone >= 1) sp.edit().putBoolean(zk(zone, "triple_tap_enabled"), v).apply() else tripleTapEnabled = v
     }
 
-    fun getTripleTapType(zone: Int): Int = if (zone == 1) sp.getInt("z2_triple_tap_type", 1) else tripleTapType
+    fun getTripleTapType(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "triple_tap_type"), 1) else tripleTapType
     fun setTripleTapType(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_triple_tap_type", v).apply() else tripleTapType = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "triple_tap_type"), v).apply() else tripleTapType = v
     }
 
-    fun getTripleTapTargetPkg(zone: Int): String? = if (zone == 1) sp.getString("z2_triple_tap_target_pkg", null) else tripleTapTargetPkg
+    fun getTripleTapTargetPkg(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "triple_tap_target_pkg"), null) else tripleTapTargetPkg
     fun setTripleTapTargetPkg(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_triple_tap_target_pkg", v).apply() else tripleTapTargetPkg = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "triple_tap_target_pkg"), v).apply() else tripleTapTargetPkg = v
     }
 
-    fun getTripleTapTargetLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_triple_tap_target_label", null) else tripleTapTargetLabel
+    fun getTripleTapTargetLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "triple_tap_target_label"), null) else tripleTapTargetLabel
     fun setTripleTapTargetLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_triple_tap_target_label", v).apply() else tripleTapTargetLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "triple_tap_target_label"), v).apply() else tripleTapTargetLabel = v
     }
 
-    fun getTripleTapActionId(zone: Int): String? = if (zone == 1) sp.getString("z2_triple_tap_action_id", "notifications") else tripleTapActionId
+    fun getTripleTapActionId(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "triple_tap_action_id"), "notifications") else tripleTapActionId
     fun setTripleTapActionId(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_triple_tap_action_id", v).apply() else tripleTapActionId = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "triple_tap_action_id"), v).apply() else tripleTapActionId = v
     }
 
-    fun getTripleTapActionLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_triple_tap_action_label", "Expand notifications") else tripleTapActionLabel
+    fun getTripleTapActionLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "triple_tap_action_label"), "Expand notifications") else tripleTapActionLabel
     fun setTripleTapActionLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_triple_tap_action_label", v).apply() else tripleTapActionLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "triple_tap_action_label"), v).apply() else tripleTapActionLabel = v
     }
 
-    fun getTripleTapShortcutUri(zone: Int): String? = if (zone == 1) sp.getString("z2_triple_tap_shortcut_uri", null) else tripleTapShortcutUri
+    fun getTripleTapShortcutUri(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "triple_tap_shortcut_uri"), null) else tripleTapShortcutUri
     fun setTripleTapShortcutUri(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_triple_tap_shortcut_uri", v).apply() else tripleTapShortcutUri = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "triple_tap_shortcut_uri"), v).apply() else tripleTapShortcutUri = v
     }
 
-    fun getTripleTapShortcutLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_triple_tap_shortcut_label", null) else tripleTapShortcutLabel
+    fun getTripleTapShortcutLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "triple_tap_shortcut_label"), null) else tripleTapShortcutLabel
     fun setTripleTapShortcutLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_triple_tap_shortcut_label", v).apply() else tripleTapShortcutLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "triple_tap_shortcut_label"), v).apply() else tripleTapShortcutLabel = v
     }
 
     var longPressEnabled: Boolean
@@ -438,44 +461,44 @@ class Prefs(context: Context) {
         get() = sp.getString("long_press_shortcut_label", null)
         set(v) = sp.edit().putString("long_press_shortcut_label", v).apply()
 
-    fun getLongPressEnabled(zone: Int): Boolean = if (zone == 1) sp.getBoolean("z2_long_press_enabled", true) else longPressEnabled
+    fun getLongPressEnabled(zone: Int): Boolean = if (zone >= 1) sp.getBoolean(zk(zone, "long_press_enabled"), true) else longPressEnabled
     fun setLongPressEnabled(zone: Int, v: Boolean) {
-        if (zone == 1) sp.edit().putBoolean("z2_long_press_enabled", v).apply() else longPressEnabled = v
+        if (zone >= 1) sp.edit().putBoolean(zk(zone, "long_press_enabled"), v).apply() else longPressEnabled = v
     }
 
-    fun getLongPressType(zone: Int): Int = if (zone == 1) sp.getInt("z2_long_press_type", 1) else longPressType
+    fun getLongPressType(zone: Int): Int = if (zone >= 1) sp.getInt(zk(zone, "long_press_type"), 1) else longPressType
     fun setLongPressType(zone: Int, v: Int) {
-        if (zone == 1) sp.edit().putInt("z2_long_press_type", v).apply() else longPressType = v
+        if (zone >= 1) sp.edit().putInt(zk(zone, "long_press_type"), v).apply() else longPressType = v
     }
 
-    fun getLongPressTargetPkg(zone: Int): String? = if (zone == 1) sp.getString("z2_long_press_target_pkg", null) else longPressTargetPkg
+    fun getLongPressTargetPkg(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "long_press_target_pkg"), null) else longPressTargetPkg
     fun setLongPressTargetPkg(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_long_press_target_pkg", v).apply() else longPressTargetPkg = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "long_press_target_pkg"), v).apply() else longPressTargetPkg = v
     }
 
-    fun getLongPressTargetLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_long_press_target_label", null) else longPressTargetLabel
+    fun getLongPressTargetLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "long_press_target_label"), null) else longPressTargetLabel
     fun setLongPressTargetLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_long_press_target_label", v).apply() else longPressTargetLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "long_press_target_label"), v).apply() else longPressTargetLabel = v
     }
 
-    fun getLongPressActionId(zone: Int): String? = if (zone == 1) sp.getString("z2_long_press_action_id", "power_menu") else longPressActionId
+    fun getLongPressActionId(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "long_press_action_id"), "power_menu") else longPressActionId
     fun setLongPressActionId(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_long_press_action_id", v).apply() else longPressActionId = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "long_press_action_id"), v).apply() else longPressActionId = v
     }
 
-    fun getLongPressActionLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_long_press_action_label", "Power menu") else longPressActionLabel
+    fun getLongPressActionLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "long_press_action_label"), "Power menu") else longPressActionLabel
     fun setLongPressActionLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_long_press_action_label", v).apply() else longPressActionLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "long_press_action_label"), v).apply() else longPressActionLabel = v
     }
 
-    fun getLongPressShortcutUri(zone: Int): String? = if (zone == 1) sp.getString("z2_long_press_shortcut_uri", null) else longPressShortcutUri
+    fun getLongPressShortcutUri(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "long_press_shortcut_uri"), null) else longPressShortcutUri
     fun setLongPressShortcutUri(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_long_press_shortcut_uri", v).apply() else longPressShortcutUri = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "long_press_shortcut_uri"), v).apply() else longPressShortcutUri = v
     }
 
-    fun getLongPressShortcutLabel(zone: Int): String? = if (zone == 1) sp.getString("z2_long_press_shortcut_label", null) else longPressShortcutLabel
+    fun getLongPressShortcutLabel(zone: Int): String? = if (zone >= 1) sp.getString(zk(zone, "long_press_shortcut_label"), null) else longPressShortcutLabel
     fun setLongPressShortcutLabel(zone: Int, v: String?) {
-        if (zone == 1) sp.edit().putString("z2_long_press_shortcut_label", v).apply() else longPressShortcutLabel = v
+        if (zone >= 1) sp.edit().putString(zk(zone, "long_press_shortcut_label"), v).apply() else longPressShortcutLabel = v
     }
 
     val singleTapShortcutDisplay: String?

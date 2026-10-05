@@ -2,11 +2,11 @@ Tapbar turns the area around the status bar clock into a tap zone you control. T
 
 GESTURES
 - Single tap, double tap, triple tap and long press, each with its own app, action or app shortcut
-- Two independent tap zones, each with its own position, size and gestures
+- Four independent tap zones, each with its own position, size and gestures
 
 ACTIONS
 - Open any installed app or app shortcut
-- 60+ quick actions: flashlight, Wi-Fi, Bluetooth, Do Not Disturb, battery, sound, location, data usage, screenshot, power menu and more
+- 75+ quick actions: flashlight, Wi-Fi, Bluetooth, Do Not Disturb, battery, sound, location, data usage, screenshot, power menu and more
 
 SMART BEHAVIOR
 - Pause Tapbar in the apps you choose, with a searchable filter list

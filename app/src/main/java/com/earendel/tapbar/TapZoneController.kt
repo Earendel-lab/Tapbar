@@ -77,10 +77,8 @@ class TapZoneController(
     private val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val prefs = Prefs(context)
     private val haptics by lazy { HapticManager.create(context) }
-    private var view1: TapView? = null
-    private var view2: TapView? = null
-    private var lp1: WindowManager.LayoutParams? = null
-    private var lp2: WindowManager.LayoutParams? = null
+    private val views = arrayOfNulls<TapView>(ZONE_COUNT)
+    private val params = arrayOfNulls<WindowManager.LayoutParams>(ZONE_COUNT)
     private var preview = false
     private var selectedZone = 0
     private val density = context.resources.displayMetrics.density
@@ -129,73 +127,47 @@ class TapZoneController(
             return
         }
 
-        val p1 = lp1 ?: buildParams().also { lp1 = it }
-        applyGeometry(p1, 0)
-        if (view1 == null) {
-            val v1 = TapView(context, 0)
-            view1 = v1
-            try {
-                wm.addView(v1, p1)
-            } catch (t: Throwable) {
-                Log.e("Tapbar", "addView 1 failed", t)
-                view1 = null
-            }
-        } else {
-            try {
-                wm.updateViewLayout(view1, p1)
-            } catch (t: Throwable) {
-                Log.e("Tapbar", "updateViewLayout 1 failed", t)
-            }
-        }
-
-        val z2Active = prefs.zone2Enabled || (preview && selectedZone == 1)
-        if (z2Active) {
-            val p2 = lp2 ?: buildParams().also { lp2 = it }
-            applyGeometry(p2, 1)
-            if (view2 == null) {
-                val v2 = TapView(context, 1)
-                view2 = v2
-                try {
-                    wm.addView(v2, p2)
-                } catch (t: Throwable) {
-                    Log.e("Tapbar", "addView 2 failed", t)
-                    view2 = null
-                }
-            } else {
-                try {
-                    wm.updateViewLayout(view2, p2)
-                } catch (t: Throwable) {
-                    Log.e("Tapbar", "updateViewLayout 2 failed", t)
-                }
-            }
-        } else {
-            detachZone2()
+        for (zone in 0 until ZONE_COUNT) {
+            val active = prefs.isZoneEnabled(zone) || (preview && selectedZone == zone)
+            if (active) attachZone(zone) else detachZone(zone)
         }
 
         refreshAppearance()
     }
 
+    private fun attachZone(zone: Int) {
+        val p = params[zone] ?: buildParams().also { params[zone] = it }
+        applyGeometry(p, zone)
+        val existing = views[zone]
+        if (existing == null) {
+            val v = TapView(context, zone)
+            views[zone] = v
+            try {
+                wm.addView(v, p)
+            } catch (t: Throwable) {
+                Log.e("Tapbar", "addView failed for zone $zone", t)
+                views[zone] = null
+            }
+        } else {
+            try {
+                wm.updateViewLayout(existing, p)
+            } catch (t: Throwable) {
+                Log.e("Tapbar", "updateViewLayout failed for zone $zone", t)
+            }
+        }
+    }
+
     fun detach() {
-        detachZone1()
-        detachZone2()
+        for (zone in 0 until ZONE_COUNT) detachZone(zone)
     }
 
-    private fun detachZone1() {
-        val v = view1 ?: return
+    private fun detachZone(zone: Int) {
+        val v = views[zone] ?: return
         try {
             wm.removeView(v)
         } catch (_: Throwable) {
         }
-        view1 = null
-    }
-
-    private fun detachZone2() {
-        val v = view2 ?: return
-        try {
-            wm.removeView(v)
-        } catch (_: Throwable) {
-        }
-        view2 = null
+        views[zone] = null
     }
 
     fun setPreview(on: Boolean) {
@@ -209,8 +181,8 @@ class TapZoneController(
     }
 
     fun updateGeometryLive(zone: Int, x: Int, y: Int, w: Int, h: Int) {
-        val v = if (zone == 1) view2 else view1
-        val p = if (zone == 1) (lp2 ?: buildParams().also { lp2 = it }) else (lp1 ?: buildParams().also { lp1 = it })
+        val v = views.getOrNull(zone)
+        val p = params.getOrNull(zone) ?: buildParams().also { if (zone in 0 until ZONE_COUNT) params[zone] = it }
         p.width = dp(w)
         p.height = dp(h)
         p.x = dp(x)
@@ -251,15 +223,14 @@ class TapZoneController(
     }
 
     private fun refreshAppearance() {
-        refreshViewAppearance(view1, 0)
-        refreshViewAppearance(view2, 1)
+        for (zone in 0 until ZONE_COUNT) refreshViewAppearance(views[zone], zone)
     }
 
     private fun refreshViewAppearance(v: View?, zone: Int) {
         if (v == null) return
         if (preview) {
             val isSelected = selectedZone == zone
-            if (zone == 1 && !prefs.zone2Enabled) {
+            if (!prefs.isZoneEnabled(zone)) {
                 v.background = previewDrawableDisabled
             } else if (isSelected) {
                 v.background = previewDrawableActive
@@ -303,7 +274,7 @@ class TapZoneController(
 
         override fun onTouchEvent(event: MotionEvent): Boolean {
             if (isBlocked()) return false
-            if (zone == 1 && !prefs.zone2Enabled && !preview) return false
+            if (!prefs.isZoneEnabled(zone) && !preview) return false
 
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -406,9 +377,9 @@ class TapZoneController(
 
     private fun executeSingleTap(zone: Int) {
         if (isBlocked() || !prefs.getSingleTapEnabled(zone)) return
-        if (zone == 1 && !prefs.zone2Enabled) return
+        if (!prefs.isZoneEnabled(zone)) return
         if (prefs.tapHapticMode == 1) {
-            val view = if (zone == 1) view2 else view1
+            val view = views[zone]
             haptics.performGesture(view)
         }
         when (prefs.getSingleTapType(zone)) {
@@ -420,8 +391,8 @@ class TapZoneController(
 
     private fun executeDoubleTap(zone: Int) {
         if (isBlocked() || !prefs.getDoubleTapEnabled(zone)) return
-        if (zone == 1 && !prefs.zone2Enabled) return
-        val view = if (zone == 1) view2 else view1
+        if (!prefs.isZoneEnabled(zone)) return
+        val view = views[zone]
         haptics.performConfirm(view)
         when (prefs.getDoubleTapType(zone)) {
             1 -> executeAction(prefs.getDoubleTapActionId(zone))
@@ -432,8 +403,8 @@ class TapZoneController(
 
     private fun executeTripleTap(zone: Int) {
         if (isBlocked() || !prefs.getTripleTapEnabled(zone)) return
-        if (zone == 1 && !prefs.zone2Enabled) return
-        val view = if (zone == 1) view2 else view1
+        if (!prefs.isZoneEnabled(zone)) return
+        val view = views[zone]
         haptics.performConfirm(view)
         when (prefs.getTripleTapType(zone)) {
             1 -> executeAction(prefs.getTripleTapActionId(zone))
@@ -444,8 +415,8 @@ class TapZoneController(
 
     private fun executeLongPress(zone: Int) {
         if (isBlocked() || !prefs.getLongPressEnabled(zone)) return
-        if (zone == 1 && !prefs.zone2Enabled) return
-        val view = if (zone == 1) view2 else view1
+        if (!prefs.isZoneEnabled(zone)) return
+        val view = views[zone]
         haptics.performConfirm(view)
         when (prefs.getLongPressType(zone)) {
             1 -> executeAction(prefs.getLongPressActionId(zone))
@@ -550,6 +521,40 @@ class TapZoneController(
             "data_usage" -> openSettingsIntent(context, Intent("android.settings.DATA_USAGE_SETTINGS"))
             "wifi_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_WIFI_SETTINGS))
             "wallpaper" -> openSettingsIntent(context, Intent(Intent.ACTION_SET_WALLPAPER))
+            "sim_settings" -> openFirstAvailable(
+                context,
+                listOf(
+                    Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS),
+                    Intent(Settings.ACTION_DATA_ROAMING_SETTINGS),
+                    Intent(Settings.ACTION_WIRELESS_SETTINGS)
+                )
+            )
+            "mobile_network" -> openFirstAvailable(
+                context,
+                listOf(
+                    Intent(Settings.ACTION_DATA_ROAMING_SETTINGS),
+                    Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS),
+                    Intent(Settings.ACTION_WIRELESS_SETTINGS)
+                )
+            )
+            "network_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_WIRELESS_SETTINGS))
+            "nfc_payment" -> openFirstAvailable(
+                context,
+                listOf(
+                    Intent("android.settings.NFC_PAYMENT_SETTINGS"),
+                    Intent(Settings.ACTION_NFC_SETTINGS)
+                )
+            )
+            "screen_saver" -> openSettingsIntent(context, Intent(Settings.ACTION_DREAM_SETTINGS))
+            "captioning_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_CAPTIONING_SETTINGS))
+            "print_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_PRINT_SETTINGS))
+            "user_dictionary" -> openSettingsIntent(context, Intent("android.settings.USER_DICTIONARY_SETTINGS"))
+            "open_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_SETTINGS))
+            "usage_access" -> openSettingsIntent(context, Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            "notification_access" -> openSettingsIntent(context, Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            "dnd_access" -> openSettingsIntent(context, Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+            "overlay_permission" -> openSettingsIntent(context, Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+            "write_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
         }
     }
 
@@ -745,6 +750,18 @@ class TapZoneController(
         } catch (t: Throwable) {
             Log.e("Tapbar", "Could not open settings intent", t)
         }
+    }
+
+    private fun openFirstAvailable(context: Context, intents: List<Intent>) {
+        for (intent in intents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+                return
+            } catch (_: Throwable) {
+            }
+        }
+        Log.e("Tapbar", "No matching settings screen found")
     }
 
     private fun dp(value: Int): Int = (value * density).toInt()
