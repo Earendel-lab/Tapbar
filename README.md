@@ -48,8 +48,8 @@ You are not limited to the Clock app or even the status bar. You can create tapp
 
 
 <div align="center">
-
-https://github.com/user-attachments/assets/2a20046a-72c1-45b1-947f-506da4534f70
+  
+https://github.com/user-attachments/assets/71c19fe2-eb8d-4c0d-aa89-427bf74fe84a
 
 </div>
 
