@@ -8,26 +8,39 @@ type: Bug
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Describe the bug
 
-**To Reproduce**
+A clear and concise description of what went wrong.
+
+## To Reproduce
+
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+1. Open Tapbar
+2. Go to `...`
+3. Set up `...`
+4. Perform `...`
+5. See the issue
 
-**Screenshots**
-Add screenshots to help explain your problem.
+## Expected behavior
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. Pixel 9]
- - OS: [e.g. Android 17]
- - Version [e.g. 22]
+What did you expect Tapbar to do?
 
-**Additional context**
-Add any other context about the problem here.
+## Actual behavior
+
+What happened instead?
+
+## Screenshots / Screen Recording
+
+If possible, add screenshots or a screen recording showing the issue.
+
+## Device information
+
+* **Device:** [e.g. Nothing Phone 1]
+* **Android version:** [e.g. Android 17]
+* **OS / ROM:** [e.g. OS 4.0]
+* **Tapbar version:** [e.g. v1.6]
+
+## Additional context
+
+Add anything else that might help reproduce or understand the issue.

@@ -1,20 +1,32 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
+title: "[FEAT]"
+labels: enhancement
+assignees: Earendel-lab
+type: Feature
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. Is it possible to add this feature?
+## What feature would you like?
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+Clearly describe the feature and how you expect it to work.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## Why do you need it?
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Required:** Explain your actual use case. Why would you use it in Tapbar? How often would you use it?
+
+## Where did you see this feature?
+
+If you saw it in another app, device, ROM or OS, mention where. A screenshot or link is helpful.
+
+## Additional context
+
+Add anything else that helps explain the request.
+
+> [!IMPORTANT]
+> Tapbar is focused on quick actions and gestures. Not every request will fit the app or be added.
+>
+> **Follow-up questions must be answered within 24 hours or the issue will be closed.**
+>
+> **Feature requests are considered based on the use case, feedback and discussion in the issue.**
