@@ -15,6 +15,12 @@
 </p>
 
 <p align="center">
+  <a href="https://trendshift.io/repositories/252614?utm_source=trendshift-badge&utm_medium=badge&utm_campaign=badge-trendshift-252614" target="_blank" rel="noopener noreferrer">
+    <img src="https://trendshift.io/api/badge/trendshift/repositories/252614/daily?language=Kotlin" alt="Earendel-lab/Tapbar | Trendshift" width="250" height="55"/>
+  </a>
+</p>
+
+<p align="center">
   <a href="https://github.com/Earendel-lab/Tapbar/releases">
     <img src="https://github.com/user-attachments/assets/f68cd3c6-950e-4f77-b8a9-f5338a246442" alt="Download Tapbar" width="300">
   </a>
@@ -100,6 +106,18 @@ Tapbar is built in the open, and it's better with you in it.
 - Have a feature request like the one that started this whole project? We'd love to hear it
 
 No idea is too small. Tapbar exists because someone asked for a way to tap a clock.
+
+## Star History
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=earendel-lab%2Ftapbar&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=earendel-lab/tapbar&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=earendel-lab/tapbar&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=earendel-lab/tapbar&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ## Clone the Project
 
