@@ -7,6 +7,8 @@
 
 # Tapbar
 
+Create tappable areas on your screen. Assign single tap, double tap, triple tap, or long press to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
+
 <p align="center">
   <img src="https://img.shields.io/github/downloads/Earendel-lab/Tapbar/total.svg?style=for-the-badge&color=FFC700&labelColor=1e2327&logo=github&logoColor=white" alt="Downloads" height="40">
   <img src="https://img.shields.io/github/v/release/Earendel-lab/Tapbar?style=for-the-badge&color=FFC700&labelColor=1e2327&logo=github&logoColor=white" alt="Latest Release" height="40">
@@ -23,10 +25,7 @@
 <p align="center">
   <a href="https://f-droid.org/packages/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/04579839-1b01-4576-ac49-b90fde4f7e76" width="220" height="65" alt="F-Droid Download"></a>&nbsp;&nbsp;<a href="https://github.com/Earendel-lab/Tapbar/releases"><img src="https://github.com/user-attachments/assets/bd12b430-f5bb-4216-8e99-e2b8d783f355" width="220" height="65" alt="Tapbar Download"></a>
 </p>
-  
 
-
-Create tappable areas on your screen. Assign single tap, double tap, triple tap, or long press to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
 
 ## Features
 
