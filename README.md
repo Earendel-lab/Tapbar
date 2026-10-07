@@ -23,7 +23,7 @@ Create tappable areas on your screen. Assign single tap, double tap, triple tap,
 </p>
 
 <p align="center">
-  <a href="https://f-droid.org/packages/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/f9e7cec7-f0d0-4329-af2c-589c8f4b9ef1" width="220" height="65" alt="F-Droid Download"></a>&nbsp;&nbsp;<a href="https://github.com/Earendel-lab/Tapbar/releases"><img src="https://github.com/user-attachments/assets/bc5ca23a-3f33-465a-b25e-aac8cdbc3d23" width="220" height="65" alt="Tapbar Download"></a>
+  <a href="https://f-droid.org/packages/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/f9e7cec7-f0d0-4329-af2c-589c8f4b9ef1" width="220" height="65" alt="F-Droid Download"></a>&nbsp;&nbsp;<a href="https://github.com/Earendel-lab/Tapbar/releases/latest"><img src="https://github.com/user-attachments/assets/bc5ca23a-3f33-465a-b25e-aac8cdbc3d23" width="220" height="65" alt="Tapbar Download"></a>
 </p>
 
 
