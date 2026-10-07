@@ -109,8 +109,6 @@ No idea is too small. Tapbar exists because someone asked for a way to tap a clo
 
 ## Star History
 
-## Star History
-
 <a href="https://www.star-history.com/?repos=earendel-lab%2Ftapbar&type=date&legend=top-left">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=earendel-lab/tapbar&type=date&theme=dark&legend=top-left" />
