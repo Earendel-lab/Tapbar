@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
@@ -48,8 +49,8 @@ class OverlayService : Service() {
             val c = TapZoneController(
                 context = this,
                 windowType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                yOffsetPx = TapZoneController.statusBarHeightPx(this),
-                onSwipeDown = { expandNotificationPanel() }
+                yOffsetProvider = { TapZoneController.statusBarHeightPx(this) },
+                onSwipeDown = { downX -> expandPanel(downX) }
             )
             controller = c
             c.attach()
@@ -59,6 +60,11 @@ class OverlayService : Service() {
         return START_STICKY
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        controller?.onConfigurationChanged()
+    }
+
     override fun onDestroy() {
         controller?.detach()
         if (TapZone.active === controller) TapZone.active = null
@@ -66,21 +72,24 @@ class OverlayService : Service() {
         super.onDestroy()
     }
 
-    private fun expandNotificationPanel() {
+    private fun expandPanel(downX: Float) {
+        val screenW = resources.displayMetrics.widthPixels
+        val method = if (downX > screenW / 2f) "expandSettingsPanel" else "expandNotificationsPanel"
         try {
             val statusBarService = getSystemService("statusbar")
             val cls = Class.forName("android.app.StatusBarManager")
-            cls.getMethod("expandNotificationsPanel").invoke(statusBarService)
+            cls.getMethod(method).invoke(statusBarService)
         } catch (t: Throwable) {
-            Log.e("Tapbar", "expandNotificationsPanel unavailable")
+            Log.e("Tapbar", "$method unavailable")
         }
     }
 
     private fun startForegroundSafely() {
+        val lc = LocaleHelper.wrap(this)
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(
             NotificationChannel(
-                CHANNEL_ID, "Tapbar overlay", NotificationManager.IMPORTANCE_MIN
+                CHANNEL_ID, lc.getString(R.string.notif_channel), NotificationManager.IMPORTANCE_MIN
             ).apply { setShowBadge(false) }
         )
         val openApp = PendingIntent.getActivity(
@@ -95,10 +104,10 @@ class OverlayService : Service() {
         )
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(this.resources.getIdentifier("ic_stat_tap", "drawable", this.packageName))
-            .setContentTitle(getString(this.resources.getIdentifier("notif_title", "string", this.packageName)))
-            .setContentText(getString(this.resources.getIdentifier("notif_text", "string", this.packageName)))
+            .setContentTitle(lc.getString(R.string.notif_title))
+            .setContentText(lc.getString(R.string.notif_text))
             .setContentIntent(openApp)
-            .addAction(0, getString(this.resources.getIdentifier("action_stop", "string", this.packageName)), stopIntent)
+            .addAction(0, lc.getString(R.string.action_stop), stopIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()

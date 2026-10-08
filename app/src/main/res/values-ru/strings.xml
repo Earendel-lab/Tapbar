@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar работает</string>
+    <string name="notif_text">Сенсорная зона активна. Нажмите, чтобы открыть настройки.</string>
+    <string name="notif_channel">Наложение Tapbar</string>
+    <string name="action_stop">Остановить</string>
+    <string name="accessibility_desc">Позволяет Tapbar размещать сенсорную зону в строке состояния. Он не считывает содержимое экрана.</string>
+
+    <string name="single_tap">Одиночное касание</string>
+    <string name="double_tap">Двойное касание</string>
+    <string name="triple_tap">Тройное касание</string>
+    <string name="long_press">Долгое нажатие</string>
+    <string name="swipe_gesture">Жест свайпа</string>
+    <string name="disabled">Отключено</string>
+
+    <string name="single_tap_mode">Режим одиночного касания</string>
+    <string name="double_tap_mode">Режим двойного касания</string>
+    <string name="triple_tap_mode">Режим тройного касания</string>
+    <string name="long_press_mode">Режим долгого нажатия</string>
+
+    <string name="enable_single_tap">Включить одиночное касание</string>
+    <string name="enable_double_tap">Включить двойное касание</string>
+    <string name="enable_triple_tap">Включить тройное касание</string>
+    <string name="enable_long_press">Включить долгое нажатие</string>
+    <string name="enable_swipe">Включить свайп</string>
+
+    <string name="open_app">Открыть приложение</string>
+    <string name="perform_action">Выполнить действие</string>
+    <string name="app_shortcut">Ярлык приложения</string>
+
+    <string name="volume">Громкость</string>
+    <string name="brightness">Яркость</string>
+
+    <string name="swipe_bright_horiz_desc">Свайп влево или вправо для изменения яркости.</string>
+    <string name="swipe_bright_vert_desc">Свайп вверх или вниз для изменения яркости.</string>
+    <string name="swipe_vol_horiz_desc">Свайп влево или вправо для изменения громкости.</string>
+    <string name="swipe_vol_vert_desc">Свайп вверх или вниз для изменения громкости.</string>
+
+    <string name="swipe_horiz_footnote">Вправо — увеличение, влево — уменьшение. Свайп вниз откроет шторку.</string>
+    <string name="swipe_vert_footnote">Вверх — увеличение, вниз — уменьшение. При включении свайп вниз не откроет шторку.</string>
+
+    <string name="swipe_control_volume">Свайп для настройки громкости</string>
+    <string name="swipe_control_brightness">Свайп для настройки яркости</string>
+
+    <string name="tap_speed">Скорость касания</string>
+    <string name="position_and_size">Положение и размер</string>
+    <string name="horizontal_position">Горизонтальное положение</string>
+    <string name="vertical_position">Вертикальное положение</string>
+    <string name="width">Ширина</string>
+    <string name="height">Высота</string>
+
+    <string name="tap_zones">Сенсорные зоны</string>
+    <string name="zone_name">Зона %1$d</string>
+    <string name="enable_zone">Включить Зону %1$d</string>
+
+    <string name="settings">Настройки</string>
+    <string name="appearance">Внешний вид</string>
+    <string name="theme_auto">Автоматически</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+
+    <string name="haptic_feedback">Виброотклик</string>
+    <string name="buzz_every_tap">Вибрация при каждом касании</string>
+    <string name="buzz_action_runs">Вибрация при выполнении действия</string>
+
+    <string name="language">Язык</string>
+    <string name="choose_language">Выбрать язык</string>
+    <string name="done">Готово</string>
+
+    <string name="about">О приложении</string>
+    <string name="check_update">Проверить обновления</string>
+    <string name="current_version">Текущая версия v%1$s</string>
+    <string name="developer">Разработчик</string>
+    <string name="source_code">Исходный код</string>
+    <string name="star_project">Поставить звезду на GitHub</string>
+    <string name="license">Лицензия</string>
+
+    <string name="made_with_love">Сделано с ♥️</string>
+    <string name="tagline_offline">100% Офлайн • Без трекеров • Открытый код</string>
+    <string name="data_stays_on_device">Ваши данные остаются 100% на устройстве</string>
+
+    <string name="search_apps">Поиск приложений</string>
+    <string name="search_actions">Поиск действий</string>
+    <string name="search_shortcuts">Поиск ярлыков</string>
+    <string name="no_apps_found">Приложения не найдены</string>
+    <string name="no_actions_found">Действия не найдены</string>
+    <string name="no_shortcuts_found">Ярлыки не найдены</string>
+</resources>

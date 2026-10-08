@@ -1,5 +1,6 @@
 package com.earendel.tapbar
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -61,11 +62,12 @@ private val ResetRed = Color(0xFFD71921)
 @Composable
 fun SlideToReset(
     modifier: Modifier = Modifier,
-    label: String = "Slide to reset settings",
+    label: String = stringResource(R.string.slide_to_reset),
     onReset: () -> Unit,
 ) {
     val haptics = LocalHapticManager.current
     val view = LocalView.current
+    val resetActionLabel = stringResource(R.string.reset_settings_action)
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
 
@@ -160,7 +162,7 @@ fun SlideToReset(
             .semantics {
                 contentDescription = label
                 customActions = listOf(
-                    CustomAccessibilityAction("Reset settings") {
+                    CustomAccessibilityAction(resetActionLabel) {
                         finish()
                         true
                     }

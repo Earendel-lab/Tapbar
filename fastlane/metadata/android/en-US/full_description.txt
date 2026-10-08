@@ -1,31 +1,47 @@
-Tapbar turns the area around the status bar clock into a tap zone you control. Tap it to open an app or run a quick action, without opening the app drawer.
+Tapbar lets you create tappable zones anywhere on your screen. Tap a zone to open an app, run a quick action, or use an app shortcut, without opening the app drawer.
 
 GESTURES
-- Single tap, double tap, triple tap and long press, each with its own app, action or app shortcut
-- Four independent tap zones, each with its own position, size and gestures
+
+* Single tap, double tap, triple tap and long press, each with its own app, action or app shortcut
+* Four independent tap zones, each with its own position, size and gestures
+* Swipe gestures for adjusting volume and brightness
 
 ACTIONS
-- Open any installed app or app shortcut
-- 75+ quick actions: flashlight, Wi-Fi, Bluetooth, Do Not Disturb, battery, sound, location, data usage, screenshot, power menu and more
+
+* Open any installed app or app shortcut
+* 75+ quick actions: flashlight, Wi-Fi, Bluetooth, Do Not Disturb, battery, sound, location, data usage, screenshot, power menu and more
+
+CUSTOMIZATION
+
+* Customize the position and size of each tap zone
+* Edit numeric values directly
+* Supports both portrait and landscape layouts
 
 SMART BEHAVIOR
-- Pause Tapbar in the apps you choose, with a searchable filter list
-- Optional start on boot
-- Haptic feedback: buzz on every tap, or when the action runs
-- Light and dark themes
-- Reset all settings with one slide
+
+* Pause Tapbar in the apps you choose, with a searchable filter list
+* Optional start on boot
+* Haptic feedback: buzz on every tap, or when the action runs
+* Light and dark themes
+* Reset all settings with one slide
+
+LANGUAGES
+
+* English, German, Spanish, French, Hindi, Japanese, Korean, Nepali, Portuguese, Russian and Chinese
 
 PRIVACY
-- Works completely offline. Tapbar has no internet permission, no ads, no trackers and no analytics.
-- The optional accessibility service is only used to place the tap zone over the status bar and to know which app is in front, so Tapbar can pause in apps you block. It does not read screen content.
-- Without the accessibility service, Tapbar uses the overlay permission instead.
+
+* Works completely offline. Tapbar has no internet permission, no ads, no trackers and no analytics.
+* The optional accessibility service is only used to place the tap zone over the status bar and to know which app is in front, so Tapbar can pause in apps you block. It does not read screen content.
+* Without the accessibility service, Tapbar uses the overlay permission instead.
 
 PERMISSIONS
-- Display over other apps: Draws the tap zone
-- Accessibility service: Places the zone on the status bar and detects the foreground app
-- Notifications: Shows the service notification
-- Do Not Disturb access and Modify system settings: Only for the actions that need them
-- See all apps: Lists your apps in the app picker
-- Start at boot: Optional auto start
+
+* Display over other apps: Draws the tap zone
+* Accessibility service: Places the zone on the status bar and detects the foreground app
+* Notifications: Shows the service notification
+* Do Not Disturb access and Modify system settings: Only for the actions that need them
+* See all apps: Lists your apps in the app picker
+* Start at boot: Optional auto start
 
 Tapbar is free and open source under the MIT license.

@@ -40,7 +40,15 @@ val GeistFontFamily = FontFamily(
         resId = R.font.geist_variable,
         weight = FontWeight.Bold,
         variationSettings = FontVariation.Settings(FontVariation.weight(700))
-    )
+    ),
+    Font(resId = R.font.noto_sans_devanagari, weight = FontWeight.Normal),
+    Font(resId = R.font.noto_sans_devanagari, weight = FontWeight.Bold),
+    Font(resId = R.font.noto_sans_sc, weight = FontWeight.Normal),
+    Font(resId = R.font.noto_sans_sc, weight = FontWeight.Bold),
+    Font(resId = R.font.noto_sans_jp, weight = FontWeight.Normal),
+    Font(resId = R.font.noto_sans_jp, weight = FontWeight.Bold),
+    Font(resId = R.font.noto_sans_kr, weight = FontWeight.Normal),
+    Font(resId = R.font.noto_sans_kr, weight = FontWeight.Bold)
 )
 
 private val GeistTypography by lazy {

@@ -71,17 +71,23 @@ fun openNotificationPolicyAccessSettings(context: Context) {
 class TapZoneController(
     private val context: Context,
     private val windowType: Int,
-    private val yOffsetPx: Int,
-    private val onSwipeDown: () -> Unit
+    private val yOffsetProvider: () -> Int,
+    private val onSwipeDown: (downX: Float) -> Unit
 ) {
     private val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val prefs = Prefs(context)
     private val haptics by lazy { HapticManager.create(context) }
+    private val hudHolder = lazy { SwipeHud(context, windowType) }
+    private val swipe by lazy { SwipeAdjuster(context, hudHolder.value, haptics) }
     private val views = arrayOfNulls<TapView>(ZONE_COUNT)
     private val params = arrayOfNulls<WindowManager.LayoutParams>(ZONE_COUNT)
     private var preview = false
     private var selectedZone = 0
     private val density = context.resources.displayMetrics.density
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val settleRunnable = Runnable { attach() }
+    private val yOffsetPx: Int
+        get() = yOffsetProvider()
 
     private val previewDrawableActive by lazy {
         GradientDrawable().apply {
@@ -114,7 +120,7 @@ class TapZoneController(
     fun isBlocked(): Boolean {
         if (preview) return false
         if (!prefs.serviceEnabled) return true
-        if (prefs.disableInLandscape && context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (prefs.disableInLandscape && ScreenMetrics.isLandscape(context)) {
             return true
         }
         val fg = TapZone.currentForegroundApp?.trim()?.lowercase() ?: return false
@@ -126,6 +132,8 @@ class TapZoneController(
             detach()
             return
         }
+
+        ZoneOverlapResolver.enforceNonOverlapOnLoad(prefs)
 
         for (zone in 0 until ZONE_COUNT) {
             val active = prefs.isZoneEnabled(zone) || (preview && selectedZone == zone)
@@ -158,7 +166,9 @@ class TapZoneController(
     }
 
     fun detach() {
+        mainHandler.removeCallbacks(settleRunnable)
         for (zone in 0 until ZONE_COUNT) detachZone(zone)
+        if (hudHolder.isInitialized()) hudHolder.value.dismissNow()
     }
 
     private fun detachZone(zone: Int) {
@@ -180,13 +190,33 @@ class TapZoneController(
         attach()
     }
 
+    fun onConfigurationChanged() {
+        if (hudHolder.isInitialized()) hudHolder.value.dismissNow()
+        attach()
+        mainHandler.removeCallbacks(settleRunnable)
+        mainHandler.postDelayed(settleRunnable, 300L)
+    }
+
+    private fun placedY(yPx: Int, heightPx: Int): Int {
+        val screenH = ScreenMetrics.sizePx(context).second
+        val maxY = (screenH - heightPx).coerceAtLeast(0)
+        return (yPx + yOffsetPx).coerceAtMost(maxY).coerceAtLeast(0)
+    }
+
+    private fun axisFor(zone: Int): SwipeAxis {
+        val p = params[zone] ?: return SwipeAxis.HORIZONTAL
+        val (screenW, screenH) = ScreenMetrics.sizePx(context)
+        val localY = (p.y - yOffsetPx).coerceAtLeast(0)
+        return SwipeAxisResolver.resolve(p.x, localY, p.width, p.height, screenW, screenH, dp(ZoneLayout.EDGE_DP))
+    }
+
     fun updateGeometryLive(zone: Int, x: Int, y: Int, w: Int, h: Int) {
         val v = views.getOrNull(zone)
         val p = params.getOrNull(zone) ?: buildParams().also { if (zone in 0 until ZONE_COUNT) params[zone] = it }
         p.width = dp(w)
         p.height = dp(h)
         p.x = dp(x)
-        p.y = dp(y) + yOffsetPx
+        p.y = placedY(dp(y), p.height)
         val targetView = v ?: return
         try {
             wm.updateViewLayout(targetView, p)
@@ -213,13 +243,20 @@ class TapZoneController(
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
         }
 
     private fun applyGeometry(p: WindowManager.LayoutParams, zone: Int) {
         p.width = dp(prefs.getZoneWidth(zone))
         p.height = dp(prefs.getZoneHeight(zone))
         p.x = dp(prefs.getPosX(zone))
-        p.y = dp(prefs.getPosY(zone)) + yOffsetPx
+        p.y = placedY(dp(prefs.getPosY(zone)), p.height)
     }
 
     private fun refreshAppearance() {
@@ -251,6 +288,14 @@ class TapZoneController(
         private var consumed = false
         private var longPressTriggered = false
         private val slop = dp(18).toFloat()
+        private val swipeSlop = dp(10).toFloat()
+        private var swipeArmed = false
+        private var swipeEngaged = false
+        private var swipeHorizontal = true
+        private var swipeTarget = SWIPE_TARGET_VOLUME
+        private var swipeLastX = 0f
+        private var swipeLastY = 0f
+        private var swipeLastT = 0L
 
         private var tapCount = 0
         private val gestureHandler = Handler(Looper.getMainLooper())
@@ -272,6 +317,39 @@ class TapZoneController(
             pendingMultiTapRunnable = null
         }
 
+        private fun engageSwipe(event: MotionEvent, horizontal: Boolean) {
+            cancelLongPressTimer()
+            cancelMultiTapTimer()
+            tapCount = 0
+            consumed = true
+            if (!swipe.begin(swipeTarget, horizontal, this)) return
+            swipeEngaged = true
+            swipeHorizontal = horizontal
+            swipeLastX = downX
+            swipeLastY = downY
+            swipeLastT = event.eventTime
+            haptics.performGesture(this)
+            swipeMove(event, true)
+        }
+
+        private fun swipeMove(event: MotionEvent, first: Boolean) {
+            val now = event.eventTime
+            val delta = if (swipeHorizontal) event.rawX - swipeLastX else swipeLastY - event.rawY
+            val dt = if (first) 0L else (now - swipeLastT).coerceAtLeast(1L)
+            swipeLastX = event.rawX
+            swipeLastY = event.rawY
+            swipeLastT = now
+            if (delta != 0f) swipe.move(delta, dt)
+        }
+
+        private fun endSwipe() {
+            if (swipeEngaged) {
+                swipeEngaged = false
+                swipe.end()
+            }
+            swipeArmed = false
+        }
+
         override fun onTouchEvent(event: MotionEvent): Boolean {
             if (isBlocked()) return false
             if (!prefs.isZoneEnabled(zone) && !preview) return false
@@ -283,6 +361,10 @@ class TapZoneController(
                     downAt = SystemClock.uptimeMillis()
                     consumed = false
                     longPressTriggered = false
+                    swipeEngaged = false
+                    swipeArmed = prefs.getSwipeEnabled(zone)
+                    swipeTarget = prefs.getSwipeTarget(zone)
+                    swipeHorizontal = axisFor(zone) == SwipeAxis.HORIZONTAL
 
                     cancelLongPressTimer()
                     if (prefs.getLongPressEnabled(zone)) {
@@ -300,12 +382,30 @@ class TapZoneController(
                     return true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (consumed || preview) return true
+                    if (preview) return true
+                    if (swipeEngaged) {
+                        swipeMove(event, false)
+                        return true
+                    }
+                    if (consumed) return true
                     val dy = event.rawY - downY
                     val dx = abs(event.rawX - downX)
 
                     if (dx > slop || abs(dy) > slop) {
                         cancelLongPressTimer()
+                    }
+
+                    if (swipeArmed) {
+                        val ady = abs(dy)
+                        val onAxis = if (swipeHorizontal) {
+                            dx > swipeSlop && dx >= ady
+                        } else {
+                            ady > swipeSlop && ady > dx
+                        }
+                        if (onAxis) {
+                            engageSwipe(event, swipeHorizontal)
+                            return true
+                        }
                     }
 
                     if (dy > slop && dy > dx) {
@@ -314,12 +414,13 @@ class TapZoneController(
                         cancelMultiTapTimer()
                         tapCount = 0
                         haptics.performGesture(this)
-                        onSwipeDown()
+                        onSwipeDown(downX)
                     }
                     return true
                 }
                 MotionEvent.ACTION_UP -> {
                     cancelLongPressTimer()
+                    endSwipe()
                     if (consumed || preview || longPressTriggered) {
                         consumed = false
                         return true
@@ -337,6 +438,7 @@ class TapZoneController(
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     cancelLongPressTimer()
+                    endSwipe()
                     consumed = false
                     return true
                 }
@@ -783,10 +885,12 @@ class TapZoneController(
         }
 
         fun statusBarHeightPx(context: Context): Int {
-            val id = context.resources
-                .getIdentifier("status_bar_height", "dimen", "android")
-            return if (id > 0) context.resources.getDimensionPixelSize(id)
-            else (24 * context.resources.displayMetrics.density).toInt()
+            val res = context.resources
+            val name = if (ScreenMetrics.isLandscape(context)) "status_bar_height_landscape" else "status_bar_height"
+            var id = res.getIdentifier(name, "dimen", "android")
+            if (id <= 0) id = res.getIdentifier("status_bar_height", "dimen", "android")
+            return if (id > 0) res.getDimensionPixelSize(id)
+            else (24 * res.displayMetrics.density).toInt()
         }
     }
 }

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar está ejecutándose</string>
+    <string name="notif_text">Zona táctil activa. Toca para abrir la configuración.</string>
+    <string name="notif_channel">Superposición de Tapbar</string>
+    <string name="action_stop">Detener</string>
+    <string name="accessibility_desc">Permite a Tapbar colocar un área táctil en la barra de estado. No lee el contenido de la pantalla.</string>
+
+    <string name="single_tap">Un toque</string>
+    <string name="double_tap">Doble toque</string>
+    <string name="triple_tap">Triple toque</string>
+    <string name="long_press">Pulsación larga</string>
+    <string name="swipe_gesture">Gesto de deslizamiento</string>
+    <string name="disabled">Desactivado</string>
+
+    <string name="single_tap_mode">Modo de un toque</string>
+    <string name="double_tap_mode">Modo de doble toque</string>
+    <string name="triple_tap_mode">Modo de triple toque</string>
+    <string name="long_press_mode">Modo de pulsación larga</string>
+
+    <string name="enable_single_tap">Activar un toque</string>
+    <string name="enable_double_tap">Activar doble toque</string>
+    <string name="enable_triple_tap">Activar triple toque</string>
+    <string name="enable_long_press">Activar pulsación larga</string>
+    <string name="enable_swipe">Activar deslizamiento</string>
+
+    <string name="open_app">Abrir aplicación</string>
+    <string name="perform_action">Ejecutar acción</string>
+    <string name="app_shortcut">Acceso directo</string>
+
+    <string name="volume">Volumen</string>
+    <string name="brightness">Brillo</string>
+
+    <string name="swipe_bright_horiz_desc">Desliza a la izquierda o derecha para cambiar el brillo.</string>
+    <string name="swipe_bright_vert_desc">Desliza hacia arriba o abajo para cambiar el brillo.</string>
+    <string name="swipe_vol_horiz_desc">Desliza a la izquierda o derecha para cambiar el volumen.</string>
+    <string name="swipe_vol_vert_desc">Desliza hacia arriba o abajo para cambiar el volumen.</string>
+
+    <string name="swipe_horiz_footnote">Derecha aumenta, izquierda disminuye. Deslizar hacia abajo aún abre las notificaciones.</string>
+    <string name="swipe_vert_footnote">Arriba aumenta, abajo disminuye. Al estar activo, deslizar abajo no abre notificaciones.</string>
+
+    <string name="swipe_control_volume">Desliza para ajustar el volumen</string>
+    <string name="swipe_control_brightness">Desliza para ajustar el brillo</string>
+
+    <string name="tap_speed">Velocidad de toque</string>
+    <string name="position_and_size">Posición y tamaño</string>
+    <string name="horizontal_position">Posición horizontal</string>
+    <string name="vertical_position">Posición vertical</string>
+    <string name="width">Ancho</string>
+    <string name="height">Alto</string>
+
+    <string name="tap_zones">Zonas táctiles</string>
+    <string name="zone_name">Zona %1$d</string>
+    <string name="enable_zone">Activar Zona %1$d</string>
+
+    <string name="settings">Ajustes</string>
+    <string name="appearance">Apariencia</string>
+    <string name="theme_auto">Automático</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+
+    <string name="haptic_feedback">Vibración háptica</string>
+    <string name="buzz_every_tap">Vibrar en cada toque</string>
+    <string name="buzz_action_runs">Vibrar al ejecutar acción</string>
+
+    <string name="language">Idioma</string>
+    <string name="choose_language">Elegir idioma</string>
+    <string name="done">Aceptar</string>
+
+    <string name="about">Acerca de</string>
+    <string name="check_update">Buscar actualizaciones</string>
+    <string name="current_version">Versión actual v%1$s</string>
+    <string name="developer">Desarrollador</string>
+    <string name="source_code">Código fuente</string>
+    <string name="star_project">Dar estrella en GitHub</string>
+    <string name="license">Licencia</string>
+
+    <string name="made_with_love">Hecho con ♥️</string>
+    <string name="tagline_offline">100% Sin conexión • Sin rastreadores • Código abierto</string>
+    <string name="data_stays_on_device">Tus datos permanecen 100% en tu dispositivo</string>
+
+    <string name="search_apps">Buscar aplicaciones</string>
+    <string name="search_actions">Buscar acciones</string>
+    <string name="search_shortcuts">Buscar accesos directos</string>
+    <string name="no_apps_found">No se encontraron aplicaciones</string>
+    <string name="no_actions_found">No se encontraron acciones</string>
+    <string name="no_shortcuts_found">No se encontraron accesos directos</string>
+</resources>

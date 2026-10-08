@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar चालू है</string>
+    <string name="notif_text">टैप ज़ोन सक्रिय है। सेटिंग्स खोलने के लिए टैप करें।</string>
+    <string name="notif_channel">Tapbar ओवरले</string>
+    <string name="action_stop">रोकें</string>
+    <string name="accessibility_desc">Tapbar को स्टेटस बार पर एक स्पर्श क्षेत्र रखने की अनुमति देता है। यह स्क्रीन की सामग्री नहीं पढ़ता।</string>
+
+    <string name="single_tap">एक बार टैप</string>
+    <string name="double_tap">दो बार टैप</string>
+    <string name="triple_tap">तीन बार टैप</string>
+    <string name="long_press">देर तक दबाएं</string>
+    <string name="swipe_gesture">स्वाइप जेस्चर</string>
+    <string name="disabled">अक्षम</string>
+
+    <string name="single_tap_mode">सिंगल टैप मोड</string>
+    <string name="double_tap_mode">डबल टैप मोड</string>
+    <string name="triple_tap_mode">ट्रिपल टैप मोड</string>
+    <string name="long_press_mode">लॉग प्रेस मोड</string>
+
+    <string name="enable_single_tap">सिंगल टैप सक्षम करें</string>
+    <string name="enable_double_tap">डबल टैप सक्षम करें</string>
+    <string name="enable_triple_tap">ट्रिपल टैप सक्षम करें</string>
+    <string name="enable_long_press">लॉन्ग प्रेस सक्षम करें</string>
+    <string name="enable_swipe">स्वाइप सक्षम करें</string>
+
+    <string name="open_app">ऐप खोलें</string>
+    <string name="perform_action">कार्रवाई करें</string>
+    <string name="app_shortcut">ऐप शॉर्टकट</string>
+
+    <string name="volume">आवाज़</string>
+    <string name="brightness">ब्राइटनेस</string>
+
+    <string name="swipe_bright_horiz_desc">ब्राइटनेस बदलने के लिए बाएं या दाएं स्वाइप करें।</string>
+    <string name="swipe_bright_vert_desc">ब्राइटनेस बदलने के लिए ऊपर या नीचे स्वाइप करें।</string>
+    <string name="swipe_vol_horiz_desc">आवाज़ बदलने के लिए बाएं या दाएं स्वाइप करें।</string>
+    <string name="swipe_vol_vert_desc">आवाज़ बदलने के लिए ऊपर या नीचे स्वाइप करें।</string>
+
+    <string name="swipe_horiz_footnote">दाएं से बढ़ता है, बाएं से घटता है। नीचे स्वाइप करने पर नोटिफिकेशन खुलेंगे।</string>
+    <string name="swipe_vert_footnote">ऊपर से बढ़ता है, नीचे से घटता है। चालू रहने पर नीचे स्वाइप करने पर नोटिफिकेशन नहीं खुलेंगे।</string>
+
+    <string name="swipe_control_volume">आवाज़ नियंत्रित करने के लिए स्वाइप करें</string>
+    <string name="swipe_control_brightness">ब्राइटनेस नियंत्रित करने के लिए स्वाइप करें</string>
+
+    <string name="tap_speed">टैप गति</string>
+    <string name="position_and_size">स्थिति और आकार</string>
+    <string name="horizontal_position">हॉरिजॉन्टल स्थिति</string>
+    <string name="vertical_position">वर्टिकल स्थिति</string>
+    <string name="width">चौड़ाई</string>
+    <string name="height">ऊंचाई</string>
+
+    <string name="tap_zones">टैप ज़ोन</string>
+    <string name="zone_name">ज़ोन %1$d</string>
+    <string name="enable_zone">ज़ोन %1$d सक्षम करें</string>
+
+    <string name="settings">सेटिंग्स</string>
+    <string name="appearance">दिखावट</string>
+    <string name="theme_auto">स्वचालित</string>
+    <string name="theme_light">लाइट</string>
+    <string name="theme_dark">डार्क</string>
+
+    <string name="haptic_feedback">कंपन फीडबैक</string>
+    <string name="buzz_every_tap">हर टैप पर वाइब्रेट करें</string>
+    <string name="buzz_action_runs">कार्रवाई होने पर वाइब्रेट करें</string>
+
+    <string name="language">भाषा</string>
+    <string name="choose_language">भाषा चुनें</string>
+    <string name="done">संपन्न</string>
+
+    <string name="about">के बारे में</string>
+    <string name="check_update">अपडेट जांचें</string>
+    <string name="current_version">वर्तमान संस्करण v%1$s</string>
+    <string name="developer">डेवलपर</string>
+    <string name="source_code">सोर्स कोड</string>
+    <string name="star_project">GitHub पर स्टार दें</string>
+    <string name="license">लाइसेंस</string>
+
+    <string name="made_with_love">♥️ के साथ बनाया गया</string>
+    <string name="tagline_offline">100% ऑफ़लाइन • कोई ट्रैकर नहीं • ओपन सोर्स</string>
+    <string name="data_stays_on_device">आपका डेटा 100% आपके डिवाइस पर रहता है</string>
+
+    <string name="search_apps">ऐप्स खोजें</string>
+    <string name="search_actions">कार्रवाई खोजें</string>
+    <string name="search_shortcuts">शॉर्टकट खोजें</string>
+    <string name="no_apps_found">कोई ऐप नहीं मिला</string>
+    <string name="no_actions_found">कोई कार्रवाई नहीं मिली</string>
+    <string name="no_shortcuts_found">कोई शॉर्टकट नहीं मिला</string>
+</resources>

@@ -1,0 +1,5 @@
+Swipe gestures for volume and brightness
+10 new languages
+Improved landscape handling
+Tap the values to edit them directly
+Improved zone controls and customization

@@ -74,6 +74,8 @@ object AppShortcuts {
 
         val resultMap = LinkedHashMap<String, MutableList<AppShortcut>>()
         val appLabelMap = HashMap<String, String>()
+        val stringResCache = HashMap<String, Resources>()
+        val locale = AppLabels.appLocale(context)
 
         for (ri in resolveInfos) {
             val activityInfo = ri.activityInfo ?: continue
@@ -97,13 +99,16 @@ object AppShortcuts {
 
             val appLabel = appLabelMap.getOrPut(pkg) {
                 try {
-                    ri.loadLabel(pm).toString()
+                    AppLabels.label(context, ri, locale)
                 } catch (_: Throwable) {
                     pkg
                 }
             }
 
-            val parsedShortcuts = parseShortcutsXml(context, pm, appRes, xml, pkg)
+            val stringRes = stringResCache.getOrPut(pkg) {
+                AppLabels.packageResources(context, pkg, locale) ?: appRes
+            }
+            val parsedShortcuts = parseShortcutsXml(context, pm, appRes, stringRes, xml, pkg)
             if (parsedShortcuts.isNotEmpty()) {
                 val list = resultMap.getOrPut(pkg) { mutableListOf() }
                 list.addAll(parsedShortcuts)
@@ -127,6 +132,7 @@ object AppShortcuts {
         context: Context,
         pm: PackageManager,
         appRes: Resources,
+        stringRes: Resources,
         xml: XmlResourceParser,
         packageName: String
     ): List<AppShortcut> {
@@ -171,8 +177,8 @@ object AppShortcuts {
                     }
                 } else if (eventType == XmlPullParser.END_TAG && xml.name == "shortcut") {
                     if (currentEnabled && !currentShortcutId.isNullOrEmpty()) {
-                        val label = resolveString(appRes, currentShortLabelRes, currentShortLabelStr)
-                            ?: resolveString(appRes, currentLongLabelRes, currentLongLabelStr)
+                        val label = resolveString(stringRes, currentShortLabelRes, currentShortLabelStr)
+                            ?: resolveString(stringRes, currentLongLabelRes, currentLongLabelStr)
                         if (!label.isNullOrEmpty()) {
                             val intent = Intent(currentIntentAction ?: Intent.ACTION_VIEW)
                             if (!currentTargetPkg.isNullOrEmpty() && !currentTargetClass.isNullOrEmpty()) {

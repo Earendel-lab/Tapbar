@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar läuft</string>
+    <string name="notif_text">Tipp-Zone aktiv. Tippen, um Einstellungen zu öffnen.</string>
+    <string name="notif_channel">Tapbar-Overlay</string>
+    <string name="action_stop">Stoppen</string>
+    <string name="accessibility_desc">Ermöglicht Tapbar das Platzieren eines Tipp-Bereichs auf der Statusleiste. Es liest keine Bildschirminhalte.</string>
+
+    <string name="single_tap">Einfaches Tippen</string>
+    <string name="double_tap">Doppeltippen</string>
+    <string name="triple_tap">Dreifachtippen</string>
+    <string name="long_press">Langes Drücken</string>
+    <string name="swipe_gesture">Wischgeste</string>
+    <string name="disabled">Deaktiviert</string>
+
+    <string name="single_tap_mode">Einfach-Tipp-Modus</string>
+    <string name="double_tap_mode">Doppel-Tipp-Modus</string>
+    <string name="triple_tap_mode">Dreifach-Tipp-Modus</string>
+    <string name="long_press_mode">Langes-Drücken-Modus</string>
+
+    <string name="enable_single_tap">Einfaches Tippen aktivieren</string>
+    <string name="enable_double_tap">Doppeltippen aktivieren</string>
+    <string name="enable_triple_tap">Dreifachtippen aktivieren</string>
+    <string name="enable_long_press">Langes Drücken aktivieren</string>
+    <string name="enable_swipe">Wischen aktivieren</string>
+
+    <string name="open_app">App öffnen</string>
+    <string name="perform_action">Aktion ausführen</string>
+    <string name="app_shortcut">App-Verknüpfung</string>
+
+    <string name="volume">Lautstärke</string>
+    <string name="brightness">Helligkeit</string>
+
+    <string name="swipe_bright_horiz_desc">Nach links oder rechts wischen, um die Helligkeit zu ändern.</string>
+    <string name="swipe_bright_vert_desc">Nach oben oder unten wischen, um die Helligkeit zu ändern.</string>
+    <string name="swipe_vol_horiz_desc">Nach links oder rechts wischen, um die Lautstärke zu ändern.</string>
+    <string name="swipe_vol_vert_desc">Nach oben oder unten wischen, um die Lautstärke zu ändern.</string>
+
+    <string name="swipe_horiz_footnote">Rechts erhöht, links verringert. Nach unten wischen öffnet weiterhin die Benachrichtigungen.</string>
+    <string name="swipe_vert_footnote">Oben erhöht, unten verringert. Aktiviert öffnet Wischen nach unten keine Benachrichtigungen mehr.</string>
+
+    <string name="swipe_control_volume">Wischen zur Lautstärkeregelung</string>
+    <string name="swipe_control_brightness">Wischen zur Helligkeitsregelung</string>
+
+    <string name="tap_speed">Tipp-Geschwindigkeit</string>
+    <string name="position_and_size">Position und Größe</string>
+    <string name="horizontal_position">Horizontale Position</string>
+    <string name="vertical_position">Vertikale Position</string>
+    <string name="width">Breite</string>
+    <string name="height">Höhe</string>
+
+    <string name="tap_zones">Tipp-Zonen</string>
+    <string name="zone_name">Zone %1$d</string>
+    <string name="enable_zone">Zone %1$d aktivieren</string>
+
+    <string name="settings">Einstellungen</string>
+    <string name="appearance">Erscheinungsbild</string>
+    <string name="theme_auto">Automatisch</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+
+    <string name="haptic_feedback">Haptisches Feedback</string>
+    <string name="buzz_every_tap">Vibration bei jedem Tippen</string>
+    <string name="buzz_action_runs">Vibration bei Aktionsausführung</string>
+
+    <string name="language">Sprache</string>
+    <string name="choose_language">Sprache wählen</string>
+    <string name="done">Fertig</string>
+
+    <string name="about">Über</string>
+    <string name="check_update">Auf Updates prüfen</string>
+    <string name="current_version">Aktuelle Version v%1$s</string>
+    <string name="developer">Entwickler</string>
+    <string name="source_code">Quellcode</string>
+    <string name="star_project">Auf GitHub bewerten</string>
+    <string name="license">Lizenz</string>
+
+    <string name="made_with_love">Mit ♥️ gemacht</string>
+    <string name="tagline_offline">100% Offline • Keine Tracker • Open Source</string>
+    <string name="data_stays_on_device">Deine Daten bleiben 100% auf deinem Gerät</string>
+
+    <string name="search_apps">Apps suchen</string>
+    <string name="search_actions">Aktionen suchen</string>
+    <string name="search_shortcuts">Verknüpfungen suchen</string>
+    <string name="no_apps_found">Keine Apps gefunden</string>
+    <string name="no_actions_found">Keine Aktionen gefunden</string>
+    <string name="no_shortcuts_found">Keine Verknüpfungen gefunden</string>
+</resources>

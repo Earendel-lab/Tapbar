@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar est en cours d\'exécution</string>
+    <string name="notif_text">Zone tactile active. Appuyez pour ouvrir les paramètres.</string>
+    <string name="notif_channel">Superposition Tapbar</string>
+    <string name="action_stop">Arrêter</string>
+    <string name="accessibility_desc">Permet à Tapbar de placer une zone tactile sur la barre d\'état. Elle ne lit pas le contenu de l\'écran.</string>
+
+    <string name="single_tap">Simple appui</string>
+    <string name="double_tap">Double appui</string>
+    <string name="triple_tap">Triple appui</string>
+    <string name="long_press">Appui long</string>
+    <string name="swipe_gesture">Geste de balayage</string>
+    <string name="disabled">Désactivé</string>
+
+    <string name="single_tap_mode">Mode simple appui</string>
+    <string name="double_tap_mode">Mode double appui</string>
+    <string name="triple_tap_mode">Mode triple appui</string>
+    <string name="long_press_mode">Mode appui long</string>
+
+    <string name="enable_single_tap">Activer le simple appui</string>
+    <string name="enable_double_tap">Activer le double appui</string>
+    <string name="enable_triple_tap">Activer le triple appui</string>
+    <string name="enable_long_press">Activer l\'appui long</string>
+    <string name="enable_swipe">Activer le balayage</string>
+
+    <string name="open_app">Ouvrir l\'application</string>
+    <string name="perform_action">Exécuter l\'action</string>
+    <string name="app_shortcut">Raccourci d\'application</string>
+
+    <string name="volume">Volume</string>
+    <string name="brightness">Luminosité</string>
+
+    <string name="swipe_bright_horiz_desc">Balayez vers la gauche ou la droite pour modifier la luminosité.</string>
+    <string name="swipe_bright_vert_desc">Balayez vers le haut ou le bas pour modifier la luminosité.</string>
+    <string name="swipe_vol_horiz_desc">Balayez vers la gauche ou la droite pour modifier le volume.</string>
+    <string name="swipe_vol_vert_desc">Balayez vers le haut ou le bas pour modifier le volume.</string>
+
+    <string name="swipe_horiz_footnote">Droite augmente, gauche diminue. Le balayage vers le bas ouvre toujours les notifications.</string>
+    <string name="swipe_vert_footnote">Haut augmente, bas diminue. Activé, le balayage vers le bas n\'ouvre plus les notifications.</string>
+
+    <string name="swipe_control_volume">Balayez pour régler le volume</string>
+    <string name="swipe_control_brightness">Balayez pour régler la luminosité</string>
+
+    <string name="tap_speed">Vitesse de pression</string>
+    <string name="position_and_size">Position et taille</string>
+    <string name="horizontal_position">Position horizontale</string>
+    <string name="vertical_position">Position verticale</string>
+    <string name="width">Largeur</string>
+    <string name="height">Hauteur</string>
+
+    <string name="tap_zones">Zones tactiles</string>
+    <string name="zone_name">Zone %1$d</string>
+    <string name="enable_zone">Activer la Zone %1$d</string>
+
+    <string name="settings">Paramètres</string>
+    <string name="appearance">Apparence</string>
+    <string name="theme_auto">Automatique</string>
+    <string name="theme_light">Clair</string>
+    <string name="theme_dark">Sombre</string>
+
+    <string name="haptic_feedback">Retour haptique</string>
+    <string name="buzz_every_tap">Vibration à chaque appui</string>
+    <string name="buzz_action_runs">Vibration lors de l\'action</string>
+
+    <string name="language">Langue</string>
+    <string name="choose_language">Choisir la langue</string>
+    <string name="done">Terminé</string>
+
+    <string name="about">À propos</string>
+    <string name="check_update">Rechercher des mises à jour</string>
+    <string name="current_version">Version actuelle v%1$s</string>
+    <string name="developer">Développeur</string>
+    <string name="source_code">Code source</string>
+    <string name="star_project">Ajouter une étoile sur GitHub</string>
+    <string name="license">Licence</string>
+
+    <string name="made_with_love">Fait avec ♥️</string>
+    <string name="tagline_offline">100% Hors ligne • Sans traqueur • Open Source</string>
+    <string name="data_stays_on_device">Vos données restent 100% sur votre appareil</string>
+
+    <string name="search_apps">Rechercher des applications</string>
+    <string name="search_actions">Rechercher des actions</string>
+    <string name="search_shortcuts">Rechercher des raccourcis</string>
+    <string name="no_apps_found">Aucune application trouvée</string>
+    <string name="no_actions_found">Aucune action trouvée</string>
+    <string name="no_shortcuts_found">Aucun raccourci trouvé</string>
+</resources>

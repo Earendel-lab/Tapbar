@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar 正在运行</string>
+    <string name="notif_text">触摸区域已激活。点击打开设置。</string>
+    <string name="notif_channel">Tapbar 悬浮层</string>
+    <string name="action_stop">停止</string>
+    <string name="accessibility_desc">允许 Tapbar 在状态栏上放置触摸区域。不会读取屏幕内容。</string>
+
+    <string name="single_tap">单击</string>
+    <string name="double_tap">双击</string>
+    <string name="triple_tap">三击</string>
+    <string name="long_press">长按</string>
+    <string name="swipe_gesture">滑动手势</string>
+    <string name="disabled">已禁用</string>
+
+    <string name="single_tap_mode">单击模式</string>
+    <string name="double_tap_mode">双击模式</string>
+    <string name="triple_tap_mode">三击模式</string>
+    <string name="long_press_mode">长按模式</string>
+
+    <string name="enable_single_tap">启用单击</string>
+    <string name="enable_double_tap">启用双击</string>
+    <string name="enable_triple_tap">启用三击</string>
+    <string name="enable_long_press">启用长按</string>
+    <string name="enable_swipe">启用滑动</string>
+
+    <string name="open_app">打开应用</string>
+    <string name="perform_action">执行动作</string>
+    <string name="app_shortcut">应用快捷方式</string>
+
+    <string name="volume">音量</string>
+    <string name="brightness">亮度</string>
+
+    <string name="swipe_bright_horiz_desc">向左或向右滑动以调节亮度。</string>
+    <string name="swipe_bright_vert_desc">向上或向下滑动以调节亮度。</string>
+    <string name="swipe_vol_horiz_desc">向左或向右滑动以调节音量。</string>
+    <string name="swipe_vol_vert_desc">向上或向下滑动以调节音量。</string>
+
+    <string name="swipe_horiz_footnote">向右增加，向左减少。在此区域向下滑动仍会打开通知栏。</string>
+    <string name="swipe_vert_footnote">向上增加，向下减少。启用后，在此区域向下滑动不再打开通知栏。</string>
+
+    <string name="swipe_control_volume">滑动调节音量</string>
+    <string name="swipe_control_brightness">滑动调节亮度</string>
+
+    <string name="tap_speed">点击速度</string>
+    <string name="position_and_size">位置与大小</string>
+    <string name="horizontal_position">水平位置</string>
+    <string name="vertical_position">垂直位置</string>
+    <string name="width">宽度</string>
+    <string name="height">高度</string>
+
+    <string name="tap_zones">触摸区域</string>
+    <string name="zone_name">区域 %1$d</string>
+    <string name="enable_zone">启用区域 %1$d</string>
+
+    <string name="settings">设置</string>
+    <string name="appearance">外观</string>
+    <string name="theme_auto">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+
+    <string name="haptic_feedback">触觉反馈</string>
+    <string name="buzz_every_tap">每次点击震动</string>
+    <string name="buzz_action_runs">执行动作时震动</string>
+
+    <string name="language">语言</string>
+    <string name="choose_language">选择语言</string>
+    <string name="done">完成</string>
+
+    <string name="about">关于</string>
+    <string name="check_update">检查更新</string>
+    <string name="current_version">当前版本 v%1$s</string>
+    <string name="developer">开发者</string>
+    <string name="source_code">源代码</string>
+    <string name="star_project">在 GitHub 上点赞</string>
+    <string name="license">开源许可证</string>
+
+    <string name="made_with_love">用 ♥️ 制作</string>
+    <string name="tagline_offline">100% 离线 • 无追踪器 • 开源</string>
+    <string name="data_stays_on_device">您的数据 100% 保存在您的设备上</string>
+
+    <string name="search_apps">搜索应用</string>
+    <string name="search_actions">搜索动作</string>
+    <string name="search_shortcuts">搜索快捷方式</string>
+    <string name="no_apps_found">未找到应用</string>
+    <string name="no_actions_found">未找到动作</string>
+    <string name="no_shortcuts_found">未找到快捷方式</string>
+</resources>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar가 실행 중입니다</string>
+    <string name="notif_text">탭 영역 활성화됨. 설정을 열려면 탭하세요.</string>
+    <string name="notif_channel">Tapbar 오버레이</string>
+    <string name="action_stop">중지</string>
+    <string name="accessibility_desc">Tapbar가 상태 표시줄에 터치 영역을 배치할 수 있도록 허용합니다. 화면 내용을 읽지 않습니다.</string>
+
+    <string name="single_tap">한 번 탭</string>
+    <string name="double_tap">두 번 탭</string>
+    <string name="triple_tap">세 번 탭</string>
+    <string name="long_press">길게 누르기</string>
+    <string name="swipe_gesture">스위프 제스처</string>
+    <string name="disabled">비활성화됨</string>
+
+    <string name="single_tap_mode">한 번 탭 모드</string>
+    <string name="double_tap_mode">두 번 탭 모드</string>
+    <string name="triple_tap_mode">세 번 탭 모드</string>
+    <string name="long_press_mode">길게 누르기 모드</string>
+
+    <string name="enable_single_tap">한 번 탭 활성화</string>
+    <string name="enable_double_tap">두 번 탭 활성화</string>
+    <string name="enable_triple_tap">세 번 탭 활성화</string>
+    <string name="enable_long_press">길게 누르기 활성화</string>
+    <string name="enable_swipe">스위프 활성화</string>
+
+    <string name="open_app">앱 열기</string>
+    <string name="perform_action">동작 실행</string>
+    <string name="app_shortcut">앱 바로가기</string>
+
+    <string name="volume">음량</string>
+    <string name="brightness">밝기</string>
+
+    <string name="swipe_bright_horiz_desc">좌우로 스위프하여 밝기를 조절합니다.</string>
+    <string name="swipe_bright_vert_desc">상하로 스위프하여 밝기를 조절합니다.</string>
+    <string name="swipe_vol_horiz_desc">좌우로 스위프하여 음량을 조절합니다.</string>
+    <string name="swipe_vol_vert_desc">상하로 스위프하여 음량을 조절합니다.</string>
+
+    <string name="swipe_horiz_footnote">오른쪽은 증가, 왼쪽은 감소입니다. 아래로 스위프하면 알림창이 열립니다.</string>
+    <string name="swipe_vert_footnote">위는 증가, 아래는 감소입니다. 활성화 시 아래로 스위프해도 알림창이 열리지 않습니다.</string>
+
+    <string name="swipe_control_volume">스위프하여 음량 조절</string>
+    <string name="swipe_control_brightness">스위프하여 밝기 조절</string>
+
+    <string name="tap_speed">탭 속도</string>
+    <string name="position_and_size">위치 및 크기</string>
+    <string name="horizontal_position">가로 위치</string>
+    <string name="vertical_position">세로 위치</string>
+    <string name="width">너비</string>
+    <string name="height">높이</string>
+
+    <string name="tap_zones">탭 영역</string>
+    <string name="zone_name">영역 %1$d</string>
+    <string name="enable_zone">영역 %1$d 활성화</string>
+
+    <string name="settings">설정</string>
+    <string name="appearance">화면 테마</string>
+    <string name="theme_auto">자동</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
+
+    <string name="haptic_feedback">진동 피드백</string>
+    <string name="buzz_every_tap">탭할 때마다 진동</string>
+    <string name="buzz_action_runs">동작 실행 시 진동</string>
+
+    <string name="language">언어</string>
+    <string name="choose_language">언어 선택</string>
+    <string name="done">완료</string>
+
+    <string name="about">정보</string>
+    <string name="check_update">업데이트 확인</string>
+    <string name="current_version">현재 버전 v%1$s</string>
+    <string name="developer">개발자</string>
+    <string name="source_code">소스 코드</string>
+    <string name="star_project">GitHub 스타 누르기</string>
+    <string name="license">라이선스</string>
+
+    <string name="made_with_love">♥️로 제작됨</string>
+    <string name="tagline_offline">100% 오프라인 • 추적기 없음 • 오픈 소스</string>
+    <string name="data_stays_on_device">모든 데이터는 기기에만 안전하게 저장됩니다</string>
+
+    <string name="search_apps">앱 검색</string>
+    <string name="search_actions">동작 검색</string>
+    <string name="search_shortcuts">바로가기 검색</string>
+    <string name="no_apps_found">앱을 찾을 수 없습니다</string>
+    <string name="no_actions_found">동작을 찾을 수 없습니다</string>
+    <string name="no_shortcuts_found">바로가기를 찾을 수 없습니다</string>
+</resources>

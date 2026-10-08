@@ -1,5 +1,6 @@
 package com.earendel.tapbar
 
+import androidx.compose.ui.res.stringResource
 import android.util.LruCache
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -143,10 +144,10 @@ fun ShortcutPickerScreen(
     val bottomPadding = maxOf(imePadding, navBarPadding) + 16.dp
 
     val screenTitle = when (gestureMode) {
-        1 -> "Double tap shortcut"
-        2 -> "Triple tap shortcut"
-        3 -> "Long press shortcut"
-        else -> "Choose app shortcut"
+        1 -> stringResource(R.string.double_tap_shortcut)
+        2 -> stringResource(R.string.triple_tap_shortcut)
+        3 -> stringResource(R.string.long_press_shortcut)
+        else -> stringResource(R.string.choose_app_shortcut)
     }
 
     Scaffold(
@@ -166,7 +167,7 @@ fun ShortcutPickerScreen(
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -182,11 +183,11 @@ fun ShortcutPickerScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search shortcuts...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                placeholder = { Text(stringResource(R.string.search_shortcuts), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.cd_search),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
@@ -198,7 +199,7 @@ fun ShortcutPickerScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Clear",
+                                contentDescription = stringResource(R.string.cd_clear),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -228,7 +229,7 @@ fun ShortcutPickerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("Loading shortcuts...", color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.loading_shortcuts), color = MaterialTheme.colorScheme.onSurface)
                 }
             } else if (filteredApps.isEmpty()) {
                 Column(
@@ -238,7 +239,7 @@ fun ShortcutPickerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("No shortcuts found", color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.no_shortcuts_found), color = MaterialTheme.colorScheme.onSurface)
                 }
             } else {
                 LazyColumn(
@@ -323,7 +324,7 @@ fun ShortcutPickerScreen(
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
-                                            text = "${appItem.shortcuts.size} shortcut${if (appItem.shortcuts.size > 1) "s" else ""}",
+                                            text = context.resources.getQuantityString(R.plurals.shortcut_count, appItem.shortcuts.size, appItem.shortcuts.size),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -331,7 +332,7 @@ fun ShortcutPickerScreen(
 
                                     Icon(
                                         imageVector = Icons.Rounded.ExpandMore,
-                                        contentDescription = if (isExpanded) "Collapse" else "Expand",
+                                        contentDescription = if (isExpanded) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                                         modifier = Modifier
                                             .size(24.dp)
                                             .rotate(chevronRotation),
@@ -434,7 +435,7 @@ fun ShortcutPickerScreen(
                                                         painter = painterResource(
                                                             if (isSelected) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
                                                         ),
-                                                        contentDescription = if (isSelected) "Selected" else "Not selected",
+                                                        contentDescription = if (isSelected) stringResource(R.string.cd_selected) else stringResource(R.string.cd_not_selected),
                                                         modifier = Modifier
                                                             .size(20.dp)
                                                             .graphicsLayer(scaleX = radioScale, scaleY = radioScale),

@@ -3,6 +3,7 @@
 package com.earendel.tapbar
 
 import android.Manifest
+import androidx.annotation.StringRes
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -42,7 +43,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -131,6 +144,7 @@ import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SettingsAccessibility
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Shortcut
 import androidx.compose.material.icons.rounded.SignalCellularAlt
 import androidx.compose.material.icons.rounded.SkipNext
@@ -171,6 +185,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -191,6 +206,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -237,104 +253,104 @@ object DeviceCapability {
 
 data class ActionEntry(
     val id: String,
-    val title: String,
-    val description: String,
+    @StringRes val titleRes: Int,
+    @StringRes val descRes: Int,
     val icon: ImageVector
 )
 
 val quickSettingActions = listOf(
-    ActionEntry("wifi", "Wi-Fi panel", "Opens Wi-Fi panel", Icons.Rounded.Wifi),
-    ActionEntry("bluetooth", "Bluetooth settings", "Opens Bluetooth settings", Icons.Rounded.Bluetooth),
-    ActionEntry("data", "Cellular data panel", "Opens Internet panel", Icons.Rounded.SignalCellularAlt),
-    ActionEntry("flashlight", "Toggle flashlight", "Turns torch on or off", Icons.Rounded.FlashOn),
-    ActionEntry("auto_rotate", "Toggle auto-rotation", "Toggles rotation lock", Icons.Rounded.ScreenRotation),
-    ActionEntry("dnd", "Do Not Disturb (DND)", "Toggles Do Not Disturb mode", Icons.Rounded.DoNotDisturb),
-    ActionEntry("volume", "Volume controls", "Opens volume control panel", Icons.Rounded.VolumeUp),
-    ActionEntry("hotspot", "Hotspot & tethering", "Opens hotspot settings", Icons.Rounded.WifiTethering),
-    ActionEntry("battery_saver", "Battery saver", "Opens battery saver settings", Icons.Rounded.BatterySaver),
-    ActionEntry("battery_usage", "Battery", "Opens battery usage page", Icons.Rounded.BatteryChargingFull),
-    ActionEntry("nfc", "NFC settings", "Opens NFC settings", Icons.Rounded.Nfc),
-    ActionEntry("night_light", "Night light", "Opens night display settings", Icons.Rounded.NightsStay),
-    ActionEntry("airplane", "Airplane mode", "Opens airplane mode settings", Icons.Rounded.AirplanemodeActive),
-    ActionEntry("ringer_mode", "Ringer mode", "Cycles Ring / Vibrate / Silent", Icons.Rounded.NotificationsActive)
+    ActionEntry("wifi", R.string.action_wifi, R.string.action_wifi_desc, Icons.Rounded.Wifi),
+    ActionEntry("bluetooth", R.string.action_bluetooth, R.string.action_bluetooth_desc, Icons.Rounded.Bluetooth),
+    ActionEntry("data", R.string.action_data, R.string.action_data_desc, Icons.Rounded.SignalCellularAlt),
+    ActionEntry("flashlight", R.string.action_flashlight, R.string.action_flashlight_desc, Icons.Rounded.FlashOn),
+    ActionEntry("auto_rotate", R.string.action_auto_rotate, R.string.action_auto_rotate_desc, Icons.Rounded.ScreenRotation),
+    ActionEntry("dnd", R.string.action_dnd, R.string.action_dnd_desc, Icons.Rounded.DoNotDisturb),
+    ActionEntry("volume", R.string.action_volume, R.string.action_volume_desc, Icons.Rounded.VolumeUp),
+    ActionEntry("hotspot", R.string.action_hotspot, R.string.action_hotspot_desc, Icons.Rounded.WifiTethering),
+    ActionEntry("battery_saver", R.string.action_battery_saver, R.string.action_battery_saver_desc, Icons.Rounded.BatterySaver),
+    ActionEntry("battery_usage", R.string.action_battery_usage, R.string.action_battery_usage_desc, Icons.Rounded.BatteryChargingFull),
+    ActionEntry("nfc", R.string.action_nfc, R.string.action_nfc_desc, Icons.Rounded.Nfc),
+    ActionEntry("night_light", R.string.action_night_light, R.string.action_night_light_desc, Icons.Rounded.NightsStay),
+    ActionEntry("airplane", R.string.action_airplane, R.string.action_airplane_desc, Icons.Rounded.AirplanemodeActive),
+    ActionEntry("ringer_mode", R.string.action_ringer_mode, R.string.action_ringer_mode_desc, Icons.Rounded.NotificationsActive)
 )
 
 val mediaActions = listOf(
-    ActionEntry("volume_up", "Volume up", "Raises media volume", Icons.Rounded.VolumeUp),
-    ActionEntry("volume_down", "Volume down", "Lowers media volume", Icons.Rounded.VolumeDown),
-    ActionEntry("mute", "Mute / unmute", "Toggles music volume mute", Icons.Rounded.VolumeOff),
-    ActionEntry("media_play_pause", "Play / pause media", "Toggles media playback", Icons.Rounded.PlayArrow),
-    ActionEntry("media_next", "Next track", "Skips to next track", Icons.Rounded.SkipNext),
-    ActionEntry("media_previous", "Previous track", "Rewinds to previous track", Icons.Rounded.SkipPrevious)
+    ActionEntry("volume_up", R.string.action_volume_up, R.string.action_volume_up_desc, Icons.Rounded.VolumeUp),
+    ActionEntry("volume_down", R.string.action_volume_down, R.string.action_volume_down_desc, Icons.Rounded.VolumeDown),
+    ActionEntry("mute", R.string.action_mute, R.string.action_mute_desc, Icons.Rounded.VolumeOff),
+    ActionEntry("media_play_pause", R.string.action_media_play_pause, R.string.action_media_play_pause_desc, Icons.Rounded.PlayArrow),
+    ActionEntry("media_next", R.string.action_media_next, R.string.action_media_next_desc, Icons.Rounded.SkipNext),
+    ActionEntry("media_previous", R.string.action_media_previous, R.string.action_media_previous_desc, Icons.Rounded.SkipPrevious)
 )
 
 val displayActions = listOf(
-    ActionEntry("auto_brightness", "Auto brightness", "Toggles automatic brightness", Icons.Rounded.BrightnessAuto),
-    ActionEntry("brightness_up", "Brightness up", "Increases screen brightness", Icons.Rounded.Brightness7),
-    ActionEntry("brightness_down", "Brightness down", "Decreases screen brightness", Icons.Rounded.Brightness4),
-    ActionEntry("wallpaper", "Wallpaper", "Opens wallpaper picker", Icons.Rounded.Wallpaper)
+    ActionEntry("auto_brightness", R.string.action_auto_brightness, R.string.action_auto_brightness_desc, Icons.Rounded.BrightnessAuto),
+    ActionEntry("brightness_up", R.string.action_brightness_up, R.string.action_brightness_up_desc, Icons.Rounded.Brightness7),
+    ActionEntry("brightness_down", R.string.action_brightness_down, R.string.action_brightness_down_desc, Icons.Rounded.Brightness4),
+    ActionEntry("wallpaper", R.string.action_wallpaper, R.string.action_wallpaper_desc, Icons.Rounded.Wallpaper)
 )
 
 val navigationActions = listOf(
-    ActionEntry("lock_screen", "Turn off screen", "Locks the device screen", Icons.Rounded.Lock),
-    ActionEntry("screenshot", "Take screenshot", "Captures current screen", Icons.Rounded.Camera),
-    ActionEntry("power_menu", "Power menu", "Opens system power dialog", Icons.Rounded.PowerSettingsNew),
-    ActionEntry("back", "Back", "Simulates back button", Icons.AutoMirrored.Rounded.ArrowBack),
-    ActionEntry("home", "Home", "Returns to home screen", Icons.Rounded.Home),
-    ActionEntry("recents", "Recent apps", "Opens recent app switcher", Icons.Rounded.Menu),
-    ActionEntry("notifications", "Expand notifications", "Opens notification shade", Icons.Rounded.Notifications),
-    ActionEntry("quick_settings", "Expand quick settings", "Opens quick settings panel", Icons.Rounded.Notifications),
-    ActionEntry("split_screen", "Split screen", "May not work on all phones", Icons.Rounded.VerticalSplit),
-    ActionEntry("dismiss_shade", "Dismiss notifications", "Closes notification shade", Icons.Rounded.ExpandLess),
-    ActionEntry("all_apps", "All apps", "Opens application drawer", Icons.Rounded.Apps),
-    ActionEntry("accessibility_button", "Accessibility button", "Triggers accessibility action", Icons.Rounded.Accessibility),
-    ActionEntry("accessibility_shortcut", "Accessibility shortcut", "Toggles accessibility shortcut", Icons.Rounded.AccessibilityNew),
-    ActionEntry("headset_hook", "Headset hook", "Simulates headset button press", Icons.Rounded.Headset),
-    ActionEntry("assistant", "Voice assistant", "Launches default assistant", Icons.Rounded.Mic),
-    ActionEntry("camera", "Open camera", "Launches camera app", Icons.Rounded.PhotoCamera)
+    ActionEntry("lock_screen", R.string.action_lock_screen, R.string.action_lock_screen_desc, Icons.Rounded.Lock),
+    ActionEntry("screenshot", R.string.action_screenshot, R.string.action_screenshot_desc, Icons.Rounded.Camera),
+    ActionEntry("power_menu", R.string.action_power_menu, R.string.action_power_menu_desc, Icons.Rounded.PowerSettingsNew),
+    ActionEntry("back", R.string.action_back, R.string.action_back_desc, Icons.AutoMirrored.Rounded.ArrowBack),
+    ActionEntry("home", R.string.action_home, R.string.action_home_desc, Icons.Rounded.Home),
+    ActionEntry("recents", R.string.action_recents, R.string.action_recents_desc, Icons.Rounded.Menu),
+    ActionEntry("notifications", R.string.action_notifications, R.string.action_notifications_desc, Icons.Rounded.Notifications),
+    ActionEntry("quick_settings", R.string.action_quick_settings, R.string.action_quick_settings_desc, Icons.Rounded.Notifications),
+    ActionEntry("split_screen", R.string.action_split_screen, R.string.action_split_screen_desc, Icons.Rounded.VerticalSplit),
+    ActionEntry("dismiss_shade", R.string.action_dismiss_shade, R.string.action_dismiss_shade_desc, Icons.Rounded.ExpandLess),
+    ActionEntry("all_apps", R.string.action_all_apps, R.string.action_all_apps_desc, Icons.Rounded.Apps),
+    ActionEntry("accessibility_button", R.string.action_accessibility_button, R.string.action_accessibility_button_desc, Icons.Rounded.Accessibility),
+    ActionEntry("accessibility_shortcut", R.string.action_accessibility_shortcut, R.string.action_accessibility_shortcut_desc, Icons.Rounded.AccessibilityNew),
+    ActionEntry("headset_hook", R.string.action_headset_hook, R.string.action_headset_hook_desc, Icons.Rounded.Headset),
+    ActionEntry("assistant", R.string.action_assistant, R.string.action_assistant_desc, Icons.Rounded.Mic),
+    ActionEntry("camera", R.string.action_camera, R.string.action_camera_desc, Icons.Rounded.PhotoCamera)
 )
 
 val settingsActions = listOf(
-    ActionEntry("display_settings", "Display settings", "Opens display settings", Icons.Rounded.DisplaySettings),
-    ActionEntry("accessibility_settings", "Accessibility settings", "Opens accessibility settings", Icons.Rounded.SettingsAccessibility),
-    ActionEntry("default_apps", "Default apps", "Opens default apps settings", Icons.Rounded.AppShortcut),
-    ActionEntry("input_method", "Keyboard & input", "Opens keyboard settings", Icons.Rounded.Keyboard),
-    ActionEntry("cast", "Cast settings", "Opens cast settings", Icons.Rounded.Cast),
-    ActionEntry("vpn_settings", "VPN settings", "Opens VPN settings", Icons.Rounded.VpnKey),
-    ActionEntry("add_account", "Add account", "Opens add account dialog", Icons.Rounded.PersonAdd),
-    ActionEntry("battery_optimization", "Battery optimization", "Opens optimization list", Icons.Rounded.BatteryAlert),
-    ActionEntry("sound_settings", "Sound & vibration", "Opens sound settings", Icons.Rounded.Vibration),
-    ActionEntry("location_settings", "Location", "Opens location settings", Icons.Rounded.LocationOn),
-    ActionEntry("data_usage", "Data usage", "Opens data usage settings", Icons.Rounded.DataUsage),
-    ActionEntry("wifi_settings", "Wi-Fi settings", "Opens full Wi-Fi settings page", Icons.Rounded.Router),
-    ActionEntry("sim_settings", "SIM settings", "Opens SIM & network type", Icons.Rounded.SimCard),
-    ActionEntry("mobile_network", "Mobile network", "Opens mobile network settings", Icons.Rounded.SignalCellularAlt),
-    ActionEntry("network_settings", "Network & internet", "Opens network & internet", Icons.Rounded.Public),
-    ActionEntry("nfc_payment", "Tap and pay", "Opens NFC payment settings", Icons.Rounded.Payment),
-    ActionEntry("screen_saver", "Screen saver", "Opens screen saver settings", Icons.Rounded.Tv),
-    ActionEntry("captioning_settings", "Captions", "Opens caption settings", Icons.Rounded.ClosedCaption),
-    ActionEntry("print_settings", "Printing", "Opens printing settings", Icons.Rounded.Print),
-    ActionEntry("user_dictionary", "Personal dictionary", "Opens personal dictionary", Icons.Rounded.Book),
-    ActionEntry("open_settings", "Settings app", "Opens the main Settings app", Icons.Rounded.SettingsApplications)
+    ActionEntry("display_settings", R.string.action_display_settings, R.string.action_display_settings_desc, Icons.Rounded.DisplaySettings),
+    ActionEntry("accessibility_settings", R.string.action_accessibility_settings, R.string.action_accessibility_settings_desc, Icons.Rounded.SettingsAccessibility),
+    ActionEntry("default_apps", R.string.action_default_apps, R.string.action_default_apps_desc, Icons.Rounded.AppShortcut),
+    ActionEntry("input_method", R.string.action_input_method, R.string.action_input_method_desc, Icons.Rounded.Keyboard),
+    ActionEntry("cast", R.string.action_cast, R.string.action_cast_desc, Icons.Rounded.Cast),
+    ActionEntry("vpn_settings", R.string.action_vpn_settings, R.string.action_vpn_settings_desc, Icons.Rounded.VpnKey),
+    ActionEntry("add_account", R.string.action_add_account, R.string.action_add_account_desc, Icons.Rounded.PersonAdd),
+    ActionEntry("battery_optimization", R.string.action_battery_optimization, R.string.action_battery_optimization_desc, Icons.Rounded.BatteryAlert),
+    ActionEntry("sound_settings", R.string.action_sound_settings, R.string.action_sound_settings_desc, Icons.Rounded.Vibration),
+    ActionEntry("location_settings", R.string.action_location_settings, R.string.action_location_settings_desc, Icons.Rounded.LocationOn),
+    ActionEntry("data_usage", R.string.action_data_usage, R.string.action_data_usage_desc, Icons.Rounded.DataUsage),
+    ActionEntry("wifi_settings", R.string.action_wifi_settings, R.string.action_wifi_settings_desc, Icons.Rounded.Router),
+    ActionEntry("sim_settings", R.string.action_sim_settings, R.string.action_sim_settings_desc, Icons.Rounded.SimCard),
+    ActionEntry("mobile_network", R.string.action_mobile_network, R.string.action_mobile_network_desc, Icons.Rounded.SignalCellularAlt),
+    ActionEntry("network_settings", R.string.action_network_settings, R.string.action_network_settings_desc, Icons.Rounded.Public),
+    ActionEntry("nfc_payment", R.string.action_nfc_payment, R.string.action_nfc_payment_desc, Icons.Rounded.Payment),
+    ActionEntry("screen_saver", R.string.action_screen_saver, R.string.action_screen_saver_desc, Icons.Rounded.Tv),
+    ActionEntry("captioning_settings", R.string.action_captioning_settings, R.string.action_captioning_settings_desc, Icons.Rounded.ClosedCaption),
+    ActionEntry("print_settings", R.string.action_print_settings, R.string.action_print_settings_desc, Icons.Rounded.Print),
+    ActionEntry("user_dictionary", R.string.action_user_dictionary, R.string.action_user_dictionary_desc, Icons.Rounded.Book),
+    ActionEntry("open_settings", R.string.action_open_settings, R.string.action_open_settings_desc, Icons.Rounded.SettingsApplications)
 )
 
 val advancedSettingsActions = listOf(
-    ActionEntry("date_time_settings", "Date & time", "Opens date & time settings", Icons.Rounded.Schedule),
-    ActionEntry("locale_settings", "Language & region", "Opens language settings", Icons.Rounded.Language),
-    ActionEntry("app_info_list", "All installed apps", "Opens the app manager", Icons.Rounded.AppSettingsAlt),
-    ActionEntry("developer_options", "Developer options", "Opens developer settings", Icons.Rounded.Code),
-    ActionEntry("security_settings", "Security & privacy", "Opens security settings", Icons.Rounded.Security),
-    ActionEntry("sync_settings", "Account sync", "Opens account sync settings", Icons.Rounded.Sync),
-    ActionEntry("voice_input_settings", "Voice input", "Opens voice input settings", Icons.Rounded.RecordVoiceOver),
-    ActionEntry("about_phone", "About phone", "Opens device info settings", Icons.Rounded.Info),
-    ActionEntry("default_home", "Default launcher", "Opens default home settings", Icons.Rounded.HomeWork),
-    ActionEntry("storage_settings", "Storage settings", "Opens storage settings", Icons.Rounded.Storage),
-    ActionEntry("privacy_dashboard", "Privacy dashboard", "Opens privacy controls", Icons.Rounded.PrivacyTip),
-    ActionEntry("usage_access", "Usage access", "Opens usage access list", Icons.Rounded.QueryStats),
-    ActionEntry("notification_access", "Notification access", "Opens notification access list", Icons.Rounded.Notifications),
-    ActionEntry("dnd_access", "Do Not Disturb access", "Opens DND access list", Icons.Rounded.DoNotDisturbOn),
-    ActionEntry("overlay_permission", "Display over other apps", "Opens overlay permission list", Icons.Rounded.Layers),
-    ActionEntry("write_settings", "Modify system settings", "Opens write settings list", Icons.Rounded.Tune)
+    ActionEntry("date_time_settings", R.string.action_date_time_settings, R.string.action_date_time_settings_desc, Icons.Rounded.Schedule),
+    ActionEntry("locale_settings", R.string.action_locale_settings, R.string.action_locale_settings_desc, Icons.Rounded.Language),
+    ActionEntry("app_info_list", R.string.action_app_info_list, R.string.action_app_info_list_desc, Icons.Rounded.AppSettingsAlt),
+    ActionEntry("developer_options", R.string.action_developer_options, R.string.action_developer_options_desc, Icons.Rounded.Code),
+    ActionEntry("security_settings", R.string.action_security_settings, R.string.action_security_settings_desc, Icons.Rounded.Security),
+    ActionEntry("sync_settings", R.string.action_sync_settings, R.string.action_sync_settings_desc, Icons.Rounded.Sync),
+    ActionEntry("voice_input_settings", R.string.action_voice_input_settings, R.string.action_voice_input_settings_desc, Icons.Rounded.RecordVoiceOver),
+    ActionEntry("about_phone", R.string.action_about_phone, R.string.action_about_phone_desc, Icons.Rounded.Info),
+    ActionEntry("default_home", R.string.action_default_home, R.string.action_default_home_desc, Icons.Rounded.HomeWork),
+    ActionEntry("storage_settings", R.string.action_storage_settings, R.string.action_storage_settings_desc, Icons.Rounded.Storage),
+    ActionEntry("privacy_dashboard", R.string.action_privacy_dashboard, R.string.action_privacy_dashboard_desc, Icons.Rounded.PrivacyTip),
+    ActionEntry("usage_access", R.string.action_usage_access, R.string.action_usage_access_desc, Icons.Rounded.QueryStats),
+    ActionEntry("notification_access", R.string.action_notification_access, R.string.action_notification_access_desc, Icons.Rounded.Notifications),
+    ActionEntry("dnd_access", R.string.action_dnd_access, R.string.action_dnd_access_desc, Icons.Rounded.DoNotDisturbOn),
+    ActionEntry("overlay_permission", R.string.action_overlay_permission, R.string.action_overlay_permission_desc, Icons.Rounded.Layers),
+    ActionEntry("write_settings", R.string.action_write_settings, R.string.action_write_settings_desc, Icons.Rounded.Tune)
 )
 
 val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + settingsActions + advancedSettingsActions
@@ -343,6 +359,10 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var prefs: Prefs
     private val themeMode = mutableIntStateOf(0)
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -357,10 +377,13 @@ class MainActivity : ComponentActivity() {
             )
         )
         prefs = Prefs(this)
+        LocaleHelper.syncFromSystem(this, prefs)
+        LabelRefresher.refreshBasic(this, prefs)
+        val onboardingDone = prefs.hasCompletedLanguageOnboarding
         themeMode.intValue = prefs.themeMode
         setContent {
             ProvideHapticManager(prefs) {
-                AppRoot(prefs, themeMode)
+                AppRoot(prefs, themeMode, onboardingDone)
             }
         }
 
@@ -374,6 +397,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (LocaleHelper.needsRecreate(this)) {
+            recreate()
+            return
+        }
         themeMode.intValue = prefs.themeMode
         TapZone.previewRequested = true
         if (prefs.serviceEnabled && !TapAccessibilityService.isEnabled(this) && Settings.canDrawOverlays(this)) {
@@ -406,12 +433,17 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppRoot(prefs: Prefs, themeMode: MutableIntState) {
+fun AppRoot(prefs: Prefs, themeMode: MutableIntState, initialOnboardingDone: Boolean = true) {
+    var onboardingDone by rememberSaveable { mutableStateOf(initialOnboardingDone) }
     var screen by remember { mutableStateOf("home") }
     var activeGestureMode by remember { mutableIntStateOf(0) }
     var activeZone by rememberSaveable { mutableIntStateOf(0) }
 
     TapbarTheme(themeMode = themeMode.intValue) {
+        if (!onboardingDone) {
+            LanguageOnboardingScreen(prefs) { onboardingDone = true }
+            return@TapbarTheme
+        }
         AnimatedContent(
             targetState = screen,
             transitionSpec = {
@@ -514,7 +546,7 @@ fun HomeScreen(
             when (doubleTapType) {
                 1 -> prefs.getDoubleTapActionLabel(selectedZone)
                 2 -> prefs.getDoubleTapShortcutDisplay(selectedZone)
-                else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: "Not set"
+                else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
         )
     }
@@ -528,7 +560,7 @@ fun HomeScreen(
             when (tripleTapType) {
                 1 -> prefs.getTripleTapActionLabel(selectedZone)
                 2 -> prefs.getTripleTapShortcutDisplay(selectedZone)
-                else -> prefs.getTripleTapTargetLabel(selectedZone) ?: "Not set"
+                else -> prefs.getTripleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
         )
     }
@@ -542,11 +574,14 @@ fun HomeScreen(
             when (longPressType) {
                 1 -> prefs.getLongPressActionLabel(selectedZone)
                 2 -> prefs.getLongPressShortcutDisplay(selectedZone)
-                else -> prefs.getLongPressTargetLabel(selectedZone) ?: "Not set"
+                else -> prefs.getLongPressTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
         )
     }
     var longPressActionId by remember { mutableStateOf(prefs.getLongPressActionId(selectedZone)) }
+
+    var swipeEnabled by remember { mutableStateOf(prefs.getSwipeEnabled(selectedZone)) }
+    var swipeTarget by remember { mutableIntStateOf(prefs.getSwipeTarget(selectedZone)) }
 
     var tapSpeedMs by remember { mutableIntStateOf(prefs.tapSpeedMs) }
     var blockedCount by remember { mutableIntStateOf(prefs.blockedPackages.size) }
@@ -584,7 +619,7 @@ fun HomeScreen(
         doubleTapLabel = when (doubleTapType) {
             1 -> prefs.getDoubleTapActionLabel(selectedZone)
             2 -> prefs.getDoubleTapShortcutDisplay(selectedZone)
-            else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: "Not set"
+            else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
         doubleTapActionId = prefs.getDoubleTapActionId(selectedZone)
 
@@ -594,7 +629,7 @@ fun HomeScreen(
         tripleTapLabel = when (tripleTapType) {
             1 -> prefs.getTripleTapActionLabel(selectedZone)
             2 -> prefs.getTripleTapShortcutDisplay(selectedZone)
-            else -> prefs.getTripleTapTargetLabel(selectedZone) ?: "Not set"
+            else -> prefs.getTripleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
         tripleTapActionId = prefs.getTripleTapActionId(selectedZone)
 
@@ -604,15 +639,28 @@ fun HomeScreen(
         longPressLabel = when (longPressType) {
             1 -> prefs.getLongPressActionLabel(selectedZone)
             2 -> prefs.getLongPressShortcutDisplay(selectedZone)
-            else -> prefs.getLongPressTargetLabel(selectedZone) ?: "Not set"
+            else -> prefs.getLongPressTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
         longPressActionId = prefs.getLongPressActionId(selectedZone)
+
+        swipeEnabled = prefs.getSwipeEnabled(selectedZone)
+        swipeTarget = prefs.getSwipeTarget(selectedZone)
+    }
+
+    LaunchedEffect(Unit) {
+        val changed = withContext(Dispatchers.IO) { LabelRefresher.refreshShortcuts(context, prefs) }
+        if (changed) refreshZoneState()
     }
 
     LaunchedEffect(selectedZone) {
         onZoneChange(selectedZone)
         refreshZoneState()
         TapZone.active?.setSelectedZoneForPreview(selectedZone)
+    }
+
+    val orientationKey = LocalConfiguration.current.orientation
+    LaunchedEffect(orientationKey) {
+        refreshZoneState()
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -741,7 +789,7 @@ fun HomeScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Tapbar") },
+                title = { Text(stringResource(R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     scrolledContainerColor = Color.Transparent
@@ -753,7 +801,7 @@ fun HomeScreen(
                     }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Settings",
+                            contentDescription = stringResource(R.string.settings),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -777,16 +825,14 @@ fun HomeScreen(
             if (!a11yOn) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        "Accessibility Service",
+                        stringResource(R.string.accessibility_service_title),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     SegmentedCard(index = 0, count = 1) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                "Without the accessibility service, Android forces the zone underneath "
-                                        + "the status bar and the system takes those taps. Turn the service "
-                                        + "on to put the zone on the clock itself.",
+                                stringResource(R.string.accessibility_service_body),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -809,7 +855,7 @@ fun HomeScreen(
                                     contentColor = MaterialTheme.colorScheme.surface
                                 )
                             ) {
-                                Text("Turn on accessibility service")
+                                Text(stringResource(R.string.turn_on_accessibility))
                             }
                         }
                     }
@@ -819,15 +865,14 @@ fun HomeScreen(
             if (!hasOverlay && !a11yOn) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        "Permission needed",
+                        stringResource(R.string.permission_needed),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     SegmentedCard(index = 0, count = 1) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                "Tapbar needs the \"Display over other apps\" permission to place " +
-                                        "its tap zone on screen.",
+                                stringResource(R.string.permission_body),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -847,7 +892,7 @@ fun HomeScreen(
                                     contentColor = MaterialTheme.colorScheme.surface
                                 )
                             ) {
-                                Text("Grant permission")
+                                Text(stringResource(R.string.grant_permission))
                             }
                         }
                     }
@@ -856,14 +901,14 @@ fun HomeScreen(
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    "Service & behavior",
+                    stringResource(R.string.service_behavior),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     SegmentedCard(index = 0, count = 3) {
                         SwitchRow(
-                            label = "Enable tap zone",
+                            label = stringResource(R.string.enable_tap_zone),
                             checked = enabled,
                             onChange = {
                                 enabled = it
@@ -880,7 +925,7 @@ fun HomeScreen(
                     }
                     SegmentedCard(index = 1, count = 3) {
                         SwitchRow(
-                            label = "Disable in landscape mode",
+                            label = stringResource(R.string.disable_in_landscape),
                             checked = disableInLandscape,
                             onChange = {
                                 disableInLandscape = it
@@ -891,7 +936,7 @@ fun HomeScreen(
                     }
                     SegmentedCard(index = 2, count = 3) {
                         SwitchRow(
-                            label = "Start automatically on boot",
+                            label = stringResource(R.string.start_on_boot),
                             checked = autoStart,
                             onChange = {
                                 autoStart = it
@@ -904,7 +949,7 @@ fun HomeScreen(
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    "Tap zones",
+                    stringResource(R.string.tap_zones),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -959,7 +1004,7 @@ fun HomeScreen(
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        "Gesture actions",
+                        stringResource(R.string.gesture_actions),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -970,8 +1015,8 @@ fun HomeScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             GestureSquareCard(
-                                title = "Single tap",
-                                subtitle = if (singleTapEnabled) (singleTapLabel ?: "Clock") else "Disabled",
+                                title = stringResource(R.string.single_tap),
+                                subtitle = if (singleTapEnabled) (singleTapLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (singleTapType == 0 || singleTapType == 2),
                                 appIcon = singleTapIcon,
                                 actionIcon = singleTapAction.icon,
@@ -986,8 +1031,8 @@ fun HomeScreen(
                                 }
                             )
                             GestureSquareCard(
-                                title = "Double tap",
-                                subtitle = if (doubleTapEnabled) (doubleTapLabel ?: "Turn off screen") else "Disabled",
+                                title = stringResource(R.string.double_tap),
+                                subtitle = if (doubleTapEnabled) (doubleTapLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (doubleTapType == 0 || doubleTapType == 2),
                                 appIcon = doubleTapIcon,
                                 actionIcon = doubleTapAction.icon,
@@ -1008,8 +1053,8 @@ fun HomeScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             GestureSquareCard(
-                                title = "Triple tap",
-                                subtitle = if (tripleTapEnabled) (tripleTapLabel ?: "Expand notifications") else "Disabled",
+                                title = stringResource(R.string.triple_tap),
+                                subtitle = if (tripleTapEnabled) (tripleTapLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (tripleTapType == 0 || tripleTapType == 2),
                                 appIcon = tripleTapIcon,
                                 actionIcon = tripleTapAction.icon,
@@ -1024,8 +1069,8 @@ fun HomeScreen(
                                 }
                             )
                             GestureSquareCard(
-                                title = "Long press",
-                                subtitle = if (longPressEnabled) (longPressLabel ?: "Power menu") else "Disabled",
+                                title = stringResource(R.string.long_press),
+                                subtitle = if (longPressEnabled) (longPressLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (longPressType == 0 || longPressType == 2),
                                 appIcon = longPressIcon,
                                 actionIcon = longPressAction.icon,
@@ -1040,13 +1085,26 @@ fun HomeScreen(
                                 }
                             )
                         }
+
+                        SwipeGestureCard(
+                            enabled = swipeEnabled,
+                            target = swipeTarget,
+                            isEnabledControls = isZoneControlsEnabled,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                if (isZoneControlsEnabled) {
+                                    haptics.performLightTap(view)
+                                    showGestureSheetFor = 4
+                                }
+                            }
+                        )
                     }
 
                     if (doubleTapEnabled || tripleTapEnabled) {
                         Spacer(Modifier.height(4.dp))
                         SegmentedCard(index = 0, count = 1) {
                             DpSlider(
-                                label = "Tap speed",
+                                label = stringResource(R.string.tap_speed),
                                 value = tapSpeedMs,
                                 min = 150f,
                                 max = 500f,
@@ -1065,17 +1123,17 @@ fun HomeScreen(
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        "Position and size",
+                        stringResource(R.string.position_and_size),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         SegmentedCard(index = 0, count = 4) {
                             DpSlider(
-                                label = "Horizontal position",
+                                label = stringResource(R.string.horizontal_position),
                                 value = x,
                                 min = 0f,
-                                max = 400f,
+                                max = prefs.screenWidthDp().toFloat(),
                                 stepInterval = 20f,
                                 enabled = isZoneControlsEnabled,
                                 onChange = {
@@ -1090,10 +1148,10 @@ fun HomeScreen(
                         }
                         SegmentedCard(index = 1, count = 4) {
                             DpSlider(
-                                label = "Vertical position",
+                                label = stringResource(R.string.vertical_position),
                                 value = y,
                                 min = 0f,
-                                max = 800f,
+                                max = prefs.screenHeightDp().toFloat(),
                                 stepInterval = 20f,
                                 enabled = isZoneControlsEnabled,
                                 onChange = {
@@ -1108,10 +1166,10 @@ fun HomeScreen(
                         }
                         SegmentedCard(index = 2, count = 4) {
                             DpSlider(
-                                label = "Width",
+                                label = stringResource(R.string.width),
                                 value = w,
-                                min = 20f,
-                                max = 400f,
+                                min = 10f,
+                                max = prefs.screenWidthDp().toFloat(),
                                 stepInterval = 20f,
                                 enabled = isZoneControlsEnabled,
                                 onChange = {
@@ -1126,10 +1184,10 @@ fun HomeScreen(
                         }
                         SegmentedCard(index = 3, count = 4) {
                             DpSlider(
-                                label = "Height",
+                                label = stringResource(R.string.height),
                                 value = h,
                                 min = 16f,
-                                max = 400f,
+                                max = prefs.screenHeightDp().toFloat(),
                                 stepInterval = 10f,
                                 enabled = isZoneControlsEnabled,
                                 onChange = {
@@ -1148,7 +1206,7 @@ fun HomeScreen(
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    "App filter",
+                    stringResource(R.string.app_filter),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1164,21 +1222,21 @@ fun HomeScreen(
                     ListItem(
                         headlineContent = {
                             Text(
-                                if (blockedCount == 0) "No apps blocked"
-                                else "$blockedCount app${if (blockedCount > 1) "s" else ""} blocked",
+                                if (blockedCount == 0) stringResource(R.string.no_apps_blocked)
+                                else context.resources.getQuantityString(R.plurals.apps_blocked, blockedCount, blockedCount),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         supportingContent = {
                             Text(
-                                "Block in apps (Filter list)",
+                                stringResource(R.string.block_in_apps_desc),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
                         leadingContent = {
                             Icon(
                                 painter = painterResource(R.drawable.ic_block_red),
-                                contentDescription = "Block in apps",
+                                contentDescription = stringResource(R.string.cd_block_in_apps),
                                 modifier = Modifier.size(32.dp),
                                 tint = Color.Unspecified
                             )
@@ -1188,6 +1246,7 @@ fun HomeScreen(
                 }
             }
 
+            val resetDoneText = stringResource(R.string.settings_reset_done)
             SlideToReset(
                 onReset = {
                     prefs.resetToDefaults()
@@ -1214,7 +1273,7 @@ fun HomeScreen(
                     TapZone.active?.setSelectedZoneForPreview(0)
 
                     onSettingsReset()
-                    Toast.makeText(context, "Settings reset to default", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, resetDoneText, Toast.LENGTH_SHORT).show()
                 }
             )
 
@@ -1238,10 +1297,11 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 val sheetTitle = when (gestureMode) {
-                    1 -> "Double tap mode"
-                    2 -> "Triple tap mode"
-                    3 -> "Long press mode"
-                    else -> "Single tap mode"
+                    1 -> stringResource(R.string.double_tap_mode)
+                    2 -> stringResource(R.string.triple_tap_mode)
+                    3 -> stringResource(R.string.long_press_mode)
+                    4 -> stringResource(R.string.swipe_gesture)
+                    else -> stringResource(R.string.single_tap_mode)
                 }
 
                 Text(
@@ -1253,7 +1313,7 @@ fun HomeScreen(
 
                 if (gestureMode == 0) {
                     SwitchRow(
-                        label = "Enable single tap",
+                        label = stringResource(R.string.enable_single_tap),
                         checked = singleTapEnabled,
                         onChange = {
                             singleTapEnabled = it
@@ -1262,7 +1322,7 @@ fun HomeScreen(
                     )
                 } else if (gestureMode == 1) {
                     SwitchRow(
-                        label = "Enable double tap",
+                        label = stringResource(R.string.enable_double_tap),
                         checked = doubleTapEnabled,
                         onChange = {
                             doubleTapEnabled = it
@@ -1271,7 +1331,7 @@ fun HomeScreen(
                     )
                 } else if (gestureMode == 2) {
                     SwitchRow(
-                        label = "Enable triple tap",
+                        label = stringResource(R.string.enable_triple_tap),
                         checked = tripleTapEnabled,
                         onChange = {
                             tripleTapEnabled = it
@@ -1280,15 +1340,39 @@ fun HomeScreen(
                     )
                 } else if (gestureMode == 3) {
                     SwitchRow(
-                        label = "Enable long press",
+                        label = stringResource(R.string.enable_long_press),
                         checked = longPressEnabled,
                         onChange = {
                             longPressEnabled = it
                             prefs.setLongPressEnabled(selectedZone, it)
                         }
                     )
+                } else if (gestureMode == 4) {
+                    SwitchRow(
+                        label = stringResource(R.string.enable_swipe),
+                        checked = swipeEnabled,
+                        onChange = {
+                            swipeEnabled = it
+                            prefs.setSwipeEnabled(selectedZone, it)
+                        }
+                    )
                 }
 
+                if (gestureMode == 4) {
+                    SwipeOptionsList(
+                        target = swipeTarget,
+                        axis = SwipeAxisResolver.resolve(
+                            x, y, w, h,
+                            prefs.screenWidthDp(),
+                            prefs.screenHeightDp(),
+                            ZoneLayout.EDGE_DP
+                        ),
+                        onSelect = { picked ->
+                            swipeTarget = picked
+                            prefs.setSwipeTarget(selectedZone, picked)
+                        }
+                    )
+                } else {
                 val currentType = when (gestureMode) {
                     1 -> doubleTapType
                     2 -> tripleTapType
@@ -1335,7 +1419,7 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "Open App",
+                                stringResource(R.string.open_app),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -1376,7 +1460,7 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "Action",
+                                stringResource(R.string.perform_action),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -1411,7 +1495,7 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "App shortcut",
+                                stringResource(R.string.app_shortcut),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -1429,6 +1513,7 @@ fun HomeScreen(
                             )
                         }
                     }
+                }
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -1489,7 +1574,7 @@ fun GestureSquareCard(
                     if (!isEnabled) {
                         Icon(
                             imageVector = Icons.Rounded.Block,
-                            contentDescription = "Disabled",
+                            contentDescription = stringResource(R.string.disabled),
                             modifier = Modifier.size(36.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1532,6 +1617,96 @@ fun GestureSquareCard(
     }
 }
 
+@Composable
+fun SwipeGestureCard(
+    enabled: Boolean,
+    target: Int,
+    isEnabledControls: Boolean = true,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val subtitleText = when {
+        !enabled -> stringResource(R.string.disabled)
+        target == SWIPE_TARGET_BRIGHTNESS -> stringResource(R.string.swipe_control_brightness)
+        else -> stringResource(R.string.swipe_control_volume)
+    }
+
+    val iconVector = if (target == SWIPE_TARGET_BRIGHTNESS) {
+        Icons.Rounded.Brightness7
+    } else {
+        Icons.Rounded.VolumeUp
+    }
+
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        modifier = modifier
+            .height(152.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(enabled = isEnabledControls, onClick = onClick)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.swipe_title),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (!enabled || !isEnabledControls) {
+                        Icon(
+                            imageVector = Icons.Rounded.Block,
+                            contentDescription = stringResource(R.string.disabled),
+                            modifier = Modifier.size(32.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Icon(
+                            imageVector = iconVector,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+
+                Spacer(Modifier.width(14.dp))
+
+                Text(
+                    text = subtitleText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionPickerScreen(
@@ -1558,12 +1733,12 @@ fun ActionPickerScreen(
 
     val actionGroups = remember {
         listOf(
-            "Quick settings & toggles" to quickSettingActions,
-            "Media & volume" to mediaActions,
-            "Display" to displayActions,
-            "Navigation & system" to navigationActions,
-            "Settings" to settingsActions,
-            "Advanced settings" to advancedSettingsActions
+            R.string.group_quick_settings to quickSettingActions,
+            R.string.group_media to mediaActions,
+            R.string.group_display to displayActions,
+            R.string.group_navigation to navigationActions,
+            R.string.group_settings to settingsActions,
+            R.string.group_advanced to advancedSettingsActions
         )
     }
 
@@ -1575,8 +1750,8 @@ fun ActionPickerScreen(
             val terms = q.split(' ').filter { it.isNotEmpty() }
             actionGroups.mapNotNull { (groupTitle, actions) ->
                 val matchingActions = actions.filter { action ->
-                    val title = action.title.lowercase()
-                    val desc = action.description.lowercase()
+                    val title = context.getString(action.titleRes).lowercase()
+                    val desc = context.getString(action.descRes).lowercase()
                     terms.all { term -> title.contains(term) || desc.contains(term) }
                 }
                 if (matchingActions.isNotEmpty()) {
@@ -1597,10 +1772,10 @@ fun ActionPickerScreen(
     val bottomPadding = maxOf(imePadding, navBarPadding) + 16.dp
 
     val screenTitle = when (gestureMode) {
-        1 -> "Double tap action"
-        2 -> "Triple tap action"
-        3 -> "Long press action"
-        else -> "Single tap action"
+        1 -> stringResource(R.string.double_tap_action)
+        2 -> stringResource(R.string.triple_tap_action)
+        3 -> stringResource(R.string.long_press_action)
+        else -> stringResource(R.string.single_tap_action)
     }
 
     Scaffold(
@@ -1620,7 +1795,7 @@ fun ActionPickerScreen(
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -1636,11 +1811,11 @@ fun ActionPickerScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search actions...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                placeholder = { Text(stringResource(R.string.search_actions), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.cd_search),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
@@ -1652,7 +1827,7 @@ fun ActionPickerScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Clear",
+                                contentDescription = stringResource(R.string.cd_clear),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -1682,7 +1857,7 @@ fun ActionPickerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("No matching actions", color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.no_actions_found), color = MaterialTheme.colorScheme.onSurface)
                 }
             } else {
                 LazyColumn(
@@ -1699,7 +1874,7 @@ fun ActionPickerScreen(
                     filteredActionGroups.forEach { (groupTitle, actions) ->
                         item(key = "header_$groupTitle") {
                             Text(
-                                text = groupTitle,
+                                text = stringResource(groupTitle),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp)
@@ -1719,19 +1894,19 @@ fun ActionPickerScreen(
                                     when (gestureMode) {
                                         1 -> {
                                             prefs.setDoubleTapActionId(zone, action.id)
-                                            prefs.setDoubleTapActionLabel(zone, action.title)
+                                            prefs.setDoubleTapActionLabel(zone, context.getString(action.titleRes))
                                         }
                                         2 -> {
                                             prefs.setTripleTapActionId(zone, action.id)
-                                            prefs.setTripleTapActionLabel(zone, action.title)
+                                            prefs.setTripleTapActionLabel(zone, context.getString(action.titleRes))
                                         }
                                         3 -> {
                                             prefs.setLongPressActionId(zone, action.id)
-                                            prefs.setLongPressActionLabel(zone, action.title)
+                                            prefs.setLongPressActionLabel(zone, context.getString(action.titleRes))
                                         }
                                         else -> {
                                             prefs.setSingleTapActionId(zone, action.id)
-                                            prefs.setSingleTapActionLabel(zone, action.title)
+                                            prefs.setSingleTapActionLabel(zone, context.getString(action.titleRes))
                                         }
                                     }
                                     if (action.id in listOf("dnd", "ringer_mode", "mute")) {
@@ -1775,18 +1950,18 @@ fun ActionRow(
         ListItem(
             headlineContent = {
                 Text(
-                    action.title,
+                    stringResource(action.titleRes),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             },
             supportingContent = {
                 Text(
-                    action.description,
+                    stringResource(action.descRes),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             },
@@ -1803,7 +1978,7 @@ fun ActionRow(
                     painter = painterResource(
                         if (isSelected) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
                     ),
-                    contentDescription = if (isSelected) "Selected" else "Not selected",
+                    contentDescription = if (isSelected) stringResource(R.string.cd_selected) else stringResource(R.string.cd_not_selected),
                     modifier = Modifier
                         .size(24.dp)
                         .graphicsLayer(scaleX = scale, scaleY = scale),
@@ -1892,7 +2067,7 @@ fun AppRow(
                 )
                 if (app.isClockApp) {
                     Text(
-                        text = "Clock app",
+                        text = stringResource(R.string.clock_app),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1
@@ -1973,10 +2148,10 @@ fun AppPickerScreen(
     val bottomPadding = maxOf(imePadding, navBarPadding) + 16.dp
 
     val screenTitle = when (gestureMode) {
-        1 -> "Double tap app"
-        2 -> "Triple tap app"
-        3 -> "Long press app"
-        else -> "Choose app"
+        1 -> stringResource(R.string.double_tap_app)
+        2 -> stringResource(R.string.triple_tap_app)
+        3 -> stringResource(R.string.long_press_app)
+        else -> stringResource(R.string.choose_app)
     }
 
     Scaffold(
@@ -1996,7 +2171,7 @@ fun AppPickerScreen(
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -2012,11 +2187,11 @@ fun AppPickerScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search apps...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                placeholder = { Text(stringResource(R.string.search_apps), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.cd_search),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
@@ -2028,7 +2203,7 @@ fun AppPickerScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Clear",
+                                contentDescription = stringResource(R.string.cd_clear),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -2059,7 +2234,7 @@ fun AppPickerScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        if (apps.isEmpty()) "Loading apps..." else "No matching apps",
+                        if (apps.isEmpty()) stringResource(R.string.loading_apps) else stringResource(R.string.no_apps_found),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -2127,7 +2302,7 @@ fun AppPickerScreen(
                                         painter = painterResource(
                                             if (isSelected) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
                                         ),
-                                        contentDescription = if (isSelected) "Selected" else "Not selected",
+                                        contentDescription = if (isSelected) stringResource(R.string.cd_selected) else stringResource(R.string.cd_not_selected),
                                         modifier = Modifier
                                             .size(24.dp)
                                             .graphicsLayer(scaleX = scale, scaleY = scale),
@@ -2204,7 +2379,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Filter list (Block apps)") },
+                title = { Text(stringResource(R.string.filter_list_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     scrolledContainerColor = Color.Transparent
@@ -2216,7 +2391,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -2232,11 +2407,11 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search apps...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                placeholder = { Text(stringResource(R.string.search_apps), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.cd_search),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
@@ -2248,7 +2423,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Clear",
+                                contentDescription = stringResource(R.string.cd_clear),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -2279,7 +2454,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        if (apps.isEmpty()) "Loading apps..." else "No matching apps",
+                        if (apps.isEmpty()) stringResource(R.string.loading_apps) else stringResource(R.string.no_apps_found),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -2331,7 +2506,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
                                     if (isBlocked) {
                                         Icon(
                                             painter = painterResource(R.drawable.ic_block_red),
-                                            contentDescription = "Blocked",
+                                            contentDescription = stringResource(R.string.cd_blocked),
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .graphicsLayer(scaleX = scale, scaleY = scale),
@@ -2340,7 +2515,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
                                     } else {
                                         Icon(
                                             painter = painterResource(R.drawable.ic_radio_unselected),
-                                            contentDescription = "Not blocked",
+                                            contentDescription = stringResource(R.string.cd_not_blocked),
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .graphicsLayer(scaleX = scale, scaleY = scale),
@@ -2363,6 +2538,7 @@ private suspend fun batchLoadApps(
 ) = withContext(Dispatchers.IO) {
     val pm = context.packageManager
     val prefs = Prefs(context)
+    val labelLocale = AppLabels.appLocale(context)
 
     val clockPackages = try {
         pm.queryIntentActivities(Intent(AlarmClock.ACTION_SHOW_ALARMS), 0)
@@ -2381,7 +2557,7 @@ private suspend fun batchLoadApps(
     val rawList = activities.mapNotNull { ri ->
         val pkg = ri.activityInfo?.packageName ?: return@mapNotNull null
         if (pm.getLaunchIntentForPackage(pkg) == null) return@mapNotNull null
-        val label = ri.loadLabel(pm).toString()
+        val label = AppLabels.label(context, ri, labelLocale)
         AppEntry(pkg, label, clockPackages.contains(pkg))
     }
         .distinctBy { it.packageName }
@@ -2500,24 +2676,122 @@ fun DpSlider(
     val view = LocalView.current
     val helper = remember(min, max, stepInterval) { SliderHapticHelper(min, max, stepInterval) }
 
+    var isEditing by remember { mutableStateOf(false) }
+    var textFieldValue by remember(isEditing) {
+        val str = value.toString()
+        mutableStateOf(
+            TextFieldValue(
+                text = str,
+                selection = TextRange(0, str.length)
+            )
+        )
+    }
+    var hadFocus by remember(isEditing) { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
+    fun commitEdit() {
+        val parsed = textFieldValue.text.toIntOrNull()
+        val finalValue = (parsed ?: value).coerceIn(min.toInt(), max.toInt())
+        onChange(finalValue)
+        onChangeFinished?.invoke()
+        isEditing = false
+    }
+    val unitSuffix = if (label.contains("speed", ignoreCase = true)) "ms" else "dp"
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 label,
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                if (label.contains("speed")) "$value ms" else "$value dp",
-                style = MaterialTheme.typography.labelLarge,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
-            )
+
+            if (isEditing && enabled) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                ) {
+                    BasicTextField(
+                        value = textFieldValue,
+                        onValueChange = { newTfv ->
+                            val cleanDigits = newTfv.text.filter { it.isDigit() }.take(5)
+                            textFieldValue = newTfv.copy(text = cleanDigits)
+                            if (cleanDigits.isNotEmpty()) {
+                                val parsed = cleanDigits.toIntOrNull()
+                                if (parsed != null) {
+                                    if (parsed in min.toInt()..max.toInt()) {
+                                        onChange(parsed)
+                                    } else if (parsed > max.toInt()) {
+                                        onChange(max.toInt())
+                                    }
+                                }
+                            }
+                        },
+                        textStyle = MaterialTheme.typography.labelLarge.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { commitEdit() }
+                        ),
+                        singleLine = true,
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        modifier = Modifier
+                            .width(IntrinsicSize.Min)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { state ->
+                                if (state.isFocused) {
+                                    hadFocus = true
+                                } else if (hadFocus && isEditing) {
+                                    commitEdit()
+                                }
+                            }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        unitSuffix,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+            } else {
+                Text(
+                    text = "$value $unitSuffix",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .clickable(enabled = enabled) {
+                            haptics.performLightTap(view)
+                            val str = value.toString()
+                            textFieldValue = TextFieldValue(text = str, selection = TextRange(0, str.length))
+                            isEditing = true
+                        }
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
         }
+
         Slider(
             value = value.toFloat(),
             enabled = enabled,

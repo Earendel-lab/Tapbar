@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.provider.Settings
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -25,8 +26,14 @@ class TapAccessibilityService : AccessibilityService() {
         val c = TapZoneController(
             context = this,
             windowType = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            yOffsetPx = 0,
-            onSwipeDown = { performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS) }
+            yOffsetProvider = { 0 },
+            onSwipeDown = { downX ->
+                val screenW = resources.displayMetrics.widthPixels
+                performGlobalAction(
+                    if (downX > screenW / 2f) GLOBAL_ACTION_QUICK_SETTINGS
+                    else GLOBAL_ACTION_NOTIFICATIONS
+                )
+            }
         )
         controller = c
         c.attach()
@@ -51,6 +58,11 @@ class TapAccessibilityService : AccessibilityService() {
                pkg == "com.android.systemui" ||
                pkg.contains("inputmethod") ||
                pkg.contains("keyboard")
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        controller?.onConfigurationChanged()
     }
 
     override fun onInterrupt() {}

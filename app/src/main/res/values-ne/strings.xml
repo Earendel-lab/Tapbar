@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar चलिरहेको छ</string>
+    <string name="notif_text">ट्याप क्षेत्र सक्रिय छ। सेटिङहरू खोल्न ट्याप गर्नुहोस्।</string>
+    <string name="notif_channel">Tapbar ओभरले</string>
+    <string name="action_stop">रोक्नुहोस्</string>
+    <string name="accessibility_desc">Tapbar लाई स्टेटस बारमा सानो ट्याप क्षेत्र राख्न अनुमति दिन्छ। यसले स्क्रिनको सामग्री पढ्दैन।</string>
+
+    <string name="single_tap">एक पटक ट्याप</string>
+    <string name="double_tap">दुई पटक ट्याप</string>
+    <string name="triple_tap">तीन पटक ट्याप</string>
+    <string name="long_press">लामो थिचाइ</string>
+    <string name="swipe_gesture">स्वाइप इसारा</string>
+    <string name="disabled">अक्षम गरियो</string>
+
+    <string name="single_tap_mode">एक ट्याप मोड</string>
+    <string name="double_tap_mode">दुई ट्याप मोड</string>
+    <string name="triple_tap_mode">तीन ट्याप मोड</string>
+    <string name="long_press_mode">लामो थिचाइ मोड</string>
+
+    <string name="enable_single_tap">एक ट्याप सक्षम गर्नुहोस्</string>
+    <string name="enable_double_tap">दुई ट्याप सक्षम गर्नुहोस्</string>
+    <string name="enable_triple_tap">तीन ट्याप सक्षम गर्नुहोस्</string>
+    <string name="enable_long_press">लामो थिचाइ सक्षम गर्नुहोस्</string>
+    <string name="enable_swipe">स्वाइप सक्षम गर्नुहोस्</string>
+
+    <string name="open_app">एप खोल्नुहोस्</string>
+    <string name="perform_action">कार्य गर्नुहोस्</string>
+    <string name="app_shortcut">एप सर्टकट</string>
+
+    <string name="volume">आवाज</string>
+    <string name="brightness">उज्यालो</string>
+
+    <string name="swipe_bright_horiz_desc">उज्यालो मिलाउन बायाँ वा दायाँ स्वाइप गर्नुहोस्।</string>
+    <string name="swipe_bright_vert_desc">उज्यालो मिलाउन माथि वा तल स्वाइप गर्नुहोस्।</string>
+    <string name="swipe_vol_horiz_desc">आवाज मिलाउन बायाँ वा दायाँ स्वाइप गर्नुहोस्।</string>
+    <string name="swipe_vol_vert_desc">आवाज मिलाउन माथि वा तल स्वाइप गर्नुहोस्।</string>
+
+    <string name="swipe_horiz_footnote">दायाँले बढाउँछ, बायाँले घटाउँछ। यस क्षेत्रमा तल स्वाइप गर्दा पनि सूचना खोलिन्छ।</string>
+    <string name="swipe_vert_footnote">माथिले बढाउँछ, तलले घटाउँछ। सक्षम हुँदा तल स्वाइप गर्दा सूचना खोलिंदैन।</string>
+
+    <string name="swipe_control_volume">आवाज मिलाउन स्वाइप गर्नुहोस्</string>
+    <string name="swipe_control_brightness">उज्यालो मिलाउन स्वाइप गर्नुहोस्</string>
+
+    <string name="tap_speed">ट्याप गति</string>
+    <string name="position_and_size">स्थिति र आकार</string>
+    <string name="horizontal_position">तेर्सो स्थिति</string>
+    <string name="vertical_position">ठाडो स्थिति</string>
+    <string name="width">चौडाइ</string>
+    <string name="height">उचाइ</string>
+
+    <string name="tap_zones">ट्याप क्षेत्रहरू</string>
+    <string name="zone_name">क्षेत्र %1$d</string>
+    <string name="enable_zone">क्षेत्र %1$d सक्षम गर्नुहोस्</string>
+
+    <string name="settings">सेटिङहरू</string>
+    <string name="appearance">उपस्थिति</string>
+    <string name="theme_auto">स्वचालित</string>
+    <string name="theme_light">उज्यालो</string>
+    <string name="theme_dark">गाढा</string>
+
+    <string name="haptic_feedback">कम्पन प्रतिक्रिया</string>
+    <string name="buzz_every_tap">प्रत्येक ट्यापमा कम्पन्न गर्नुहोस्</string>
+    <string name="buzz_action_runs">कार्य हुँदा कम्पन्न गर्नुहोस्</string>
+
+    <string name="language">भाषा</string>
+    <string name="choose_language">भाषा छान्नुहोस्</string>
+    <string name="done">सम्पन्न</string>
+
+    <string name="about">हाम्रो बारेमा</string>
+    <string name="check_update">अपडेट जाँच गर्नुहोस्</string>
+    <string name="current_version">हालको संस्करण v%1$s</string>
+    <string name="developer">विकासकर्ता</string>
+    <string name="source_code">सोर्स कोड</string>
+    <string name="star_project">GitHub मा स्टार दिनुहोस्</string>
+    <string name="license">लाइसेन्स</string>
+
+    <string name="made_with_love">♥️ सँग बनाइएको</string>
+    <string name="tagline_offline">१००% अफलाइन • ट्र्याकररहित • ओपन सोर्स</string>
+    <string name="data_stays_on_device">तपाईंको डाटा १००% तपाईंको उपकरणमै रहन्छ</string>
+
+    <string name="search_apps">एपहरू खोज्नुहोस्</string>
+    <string name="search_actions">कार्यहरू खोज्नुहोस्</string>
+    <string name="search_shortcuts">सर्टकटहरू खोज्नुहोस्</string>
+    <string name="no_apps_found">कुनै एप फेला परेन</string>
+    <string name="no_actions_found">कुनै कार्य फेला परेन</string>
+    <string name="no_shortcuts_found">कुनै सर्टकट फेला परेन</string>
+</resources>

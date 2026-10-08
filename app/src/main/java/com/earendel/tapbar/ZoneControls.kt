@@ -1,5 +1,6 @@
 package com.earendel.tapbar
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -88,14 +89,14 @@ fun ZoneSelectCard(
                 } else {
                     Image(
                         painter = painterResource(R.drawable.ic_block_red),
-                        contentDescription = "Off",
+                        contentDescription = stringResource(R.string.disabled),
                         modifier = Modifier.size(24.dp)
                     )
                 }
             }
             Spacer(Modifier.width(10.dp))
             Text(
-                text = "Zone ${zone + 1}",
+                text = stringResource(R.string.zone_name, zone + 1),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -137,7 +138,7 @@ fun ZoneToggleCard(
                 modifier = Modifier.weight(1f)
             ) { z ->
                 Text(
-                    text = "Enable Zone ${z + 1}",
+                    text = stringResource(R.string.enable_zone, z + 1),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
