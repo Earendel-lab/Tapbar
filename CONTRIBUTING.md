@@ -1,61 +1,56 @@
 # Contributing to Tapbar
 
-First off, thanks for taking the time to contribute! Tapbar is a small, privacy-first project, and every issue, idea, or pull request helps make it better.
+Tapbar is a small, privacy-first app focused on quick actions and gestures. It is kept simple on purpose. Please read this before opening an issue or a pull request.
 
-## Ways to Contribute
+## Before you open an issue
 
-- **Report a bug** — open an issue with steps to reproduce, your Android version/device, and what you expected to happen.
-- **Suggest a feature** — open an issue describing the use case, not just the solution. Explain *why* it would help.
-- **Fix a bug or build a feature** — check open issues, especially ones labeled `good first issue` or `help wanted`.
-- **Improve documentation** — README clarity, code comments, and setup instructions all count.
-- **Translations** — if you'd like to help localize Tapbar, open an issue first so we can coordinate.
+- Search open and closed issues first. Duplicates will be closed.
+- Read the README and the [latest release changelog](https://github.com/Earendel-lab/Tapbar/releases/latest). The feature may already exist, or the bug may already be fixed.
+- Write in English. Use a translator if you need to.
+- Fill in the form completely. Issues with missing details will be closed.
+- If I ask a follow-up question, answer within 24 hours or the issue will be closed. You can reply to reopen it.
 
-## Getting Started
+## Bug reports
 
-1. **Fork** the repository and clone your fork:
-   ```
-   git clone https://github.com/<your-username>/Tapbar
-   ```
-2. **Create a branch** for your change:
-   ```
-   git checkout -b feature/short-description
-   ```
-3. **Open the project in Android Studio** and let Gradle sync.
-4. Make your changes, then build and run locally on a device or emulator to confirm everything works as expected.
+Include your device, Android version, ROM, Tapbar version, steps to reproduce, and what you expected vs what happened. A screenshot or screen recording helps a lot.
 
-## Development Guidelines
+## Feature requests
 
-- Keep changes focused — one feature or fix per pull request.
-- Match the existing code style (Kotlin conventions, existing naming patterns).
-- Avoid adding new dependencies unless necessary; Tapbar aims to stay lightweight.
-- Do not introduce analytics, trackers, ads, or any network calls. Privacy and offline-first behavior are core to this project and any PR that compromises them will not be merged.
-- Test on a real device if possible, especially for anything involving overlays, permissions, or boot behavior.
+Explain the problem you are trying to solve and why it belongs in Tapbar, not just the solution you have in mind.
 
-## Commit Messages
+These will not be added:
 
-Write clear, descriptive commit messages, e.g.:
-```
-Fix tap zone not responding after screen rotation
-Add option to resize tap zone from settings
-```
+- Anything that needs root, Shizuku, Sui or other helper apps or services
+- Advanced or system-level options
+- Analytics, trackers, ads or network calls
 
-## Submitting a Pull Request
+If your idea needs one of these, it is out of scope and the issue will be closed.
 
-1. Push your branch to your fork.
-2. Open a pull request against the `main` branch of this repository.
-3. In the PR description, explain:
-   - What the change does
-   - Why it's needed
-   - How you tested it
-4. Link any related issues (e.g. `Closes #12`).
-5. Be responsive to review feedback — small follow-up commits are totally fine.
+## Questions
 
-## Code of Conduct
+Issues are only for bug reports and feature requests. Check the README first, since most questions are answered there.
 
-Be respectful and constructive. Assume good intent, keep feedback focused on the code/idea, and help keep this a welcoming space for contributors of all experience levels.
+## Pull requests
 
-## Questions?
+Open an issue first for anything bigger than a small fix, so you don't spend time on something that won't be merged.
 
-If anything is unclear, open an issue and ask. There's no such thing as a bad question — better to ask than to guess.
+1. Fork the repo and create a branch from `main`.
+2. Open the project in Android Studio and let Gradle sync.
+3. Make your change and test it on a device or emulator. Test on a real device if it touches overlays, permissions or boot behavior.
+4. Open a pull request against `main`. Say what it changes, why, and how you tested it. Link the issue (for example `Closes #12`).
 
-Thanks again for helping make Tapbar better! ⭐
+Guidelines:
+
+- One fix or feature per pull request.
+- Follow the existing Kotlin style and naming.
+- Don't add new dependencies unless there is no other way. Tapbar should stay lightweight.
+- Don't add analytics, trackers, ads or network calls. Privacy and offline behavior are core to the app, and a PR that breaks them won't be merged.
+- Write clear commit messages, for example `Fix tap zone not responding after rotation`.
+
+## Translations
+
+Open a feature request first so it can be coordinated.
+
+## Conduct
+
+Be respectful and keep feedback about the code or the idea.
