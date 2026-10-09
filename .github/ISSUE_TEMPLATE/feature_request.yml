@@ -1,0 +1,70 @@
+name: Feature request
+description: Suggest an idea that fits Tapbar
+title: "[FEAT] "
+labels: ["enhancement"]
+assignees:
+  - Earendel-lab
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > Tapbar is focused on quick actions and gestures. Not every request will fit the app or be added.
+        >
+        > Tapbar stays simple. It does not rely on helper apps, root access, or services like Shizuku or Sui, and it will not include advanced or system-level options. Requests that depend on these will not be added and will be closed.
+        >
+        > **Please write in English. If needed, use a translator.** Issues in other languages may be closed.
+        >
+        > **Follow-up questions must be answered within 24 hours or the issue will be closed.**
+        >
+        > **Feature requests are considered based on the use case, feedback and discussion in the issue.**
+        >
+        > Check the [README](https://github.com/Earendel-lab/Tapbar#readme) and the [latest release changelog](https://github.com/Earendel-lab/Tapbar/releases/latest) before requesting. The feature may already be added.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched open and closed issues and this is not a duplicate
+          required: true
+        - label: I read the README and the latest release changelog, and this feature does not already exist
+          required: true
+        - label: This request fits Tapbar's focus on quick actions and gestures
+          required: true
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: What feature would you like?
+      description: Describe the feature and how you expect it to work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Why do you need it?
+      description: Your real use case. How often would you use it, and why does it belong in Tapbar?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you tried
+      description: Other apps or workarounds, and why they don't work for you.
+    validations:
+      required: true
+
+  - type: textarea
+    id: where
+    attributes:
+      label: Where did you see this feature?
+      description: Another app, device, ROM or OS. Screenshots or links help.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
