@@ -1,5 +1,5 @@
 
-<img width="1256" height="1000" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/f28a827f-3e39-41ed-9240-ce4cec94eefd" />
+<img width="1256" height="1030" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/2c6ee6ea-73b7-459b-b9a8-867c07c8dfd5" />
 
 <p align="center">
   <strong>Completely offline • Battery efficient • No ads • No trackers </strong>
@@ -30,9 +30,9 @@ Create tappable areas on your screen. Assign single tap, double tap, triple tap,
 ## Features
 
 * Create up to **4 custom tap zones** anywhere on your screen
-* **4 gestures:** single tap, double tap, triple tap, and long press
+* **5 gestures:** single tap, double tap, triple tap, long press and Swipe gesture
 * Assign a different app, action, or app shortcut to each gesture
-* Use both tap zones independently
+* Use all tap zones independently
 * Start automatically when the device boots
 * Works completely **offline**
 * No ads, trackers, or analytics
