@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions / Help
+    url: https://github.com/Earendel-lab/Tapbar/discussions
+    about: For questions and general help, use Discussions instead of opening an issue.
