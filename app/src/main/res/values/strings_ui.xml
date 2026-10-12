@@ -10,6 +10,8 @@
     <string name="enable_tap_zone">Enable tap zone</string>
     <string name="disable_in_landscape">Disable in landscape mode</string>
     <string name="start_on_boot">Start automatically on boot</string>
+    <string name="split_shade">Split shade</string>
+    <string name="split_shade_desc">For phones with a separate quick settings panel</string>
     <string name="gesture_actions">Gesture actions</string>
     <string name="swipe_title">Swipe</string>
     <string name="app_filter">App filter</string>

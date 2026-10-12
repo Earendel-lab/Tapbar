@@ -90,7 +90,7 @@ class Prefs(context: Context) {
     }
 
     fun resetToDefaults() {
-        val keep = setOf("service_enabled", "has_seen_privacy_notice", "app_language", "has_completed_language_onboarding")
+        val keep = setOf("service_enabled", "has_seen_privacy_notice", "app_language", "has_completed_language_onboarding", "split_shade")
         val editor = sp.edit()
         for (key in sp.all.keys) {
             if (key !in keep) editor.remove(key)
@@ -139,6 +139,10 @@ class Prefs(context: Context) {
     var disableInLandscape: Boolean
         get() = sp.getBoolean("disable_in_landscape", false)
         set(v) = sp.edit().putBoolean("disable_in_landscape", v).apply()
+
+    var splitShade: Boolean
+        get() = sp.getBoolean("split_shade", false)
+        set(v) = sp.edit().putBoolean("split_shade", v).apply()
 
     var themeMode: Int
         get() = sp.getInt("theme_mode", 0)
