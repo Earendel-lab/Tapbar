@@ -39,6 +39,7 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Update
+import androidx.compose.material.icons.rounded.VerticalSplit
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -109,6 +110,7 @@ class SettingsActivity : ComponentActivity() {
 fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
     var themeMode by remember { mutableIntStateOf(prefs.themeMode) }
     var hapticsEnabled by remember { mutableStateOf(prefs.hapticFeedbackEnabled) }
+    var splitShade by remember { mutableStateOf(prefs.splitShade) }
     var tapHapticMode by remember { mutableIntStateOf(prefs.tapHapticMode) }
     val haptics = LocalHapticManager.current
     val view = LocalView.current
@@ -363,6 +365,17 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                     }
                 }
 
+                SegmentedCard(index = 0, count = 1) {
+                    SplitShadeToggleRow(
+                        checked = splitShade,
+                        onCheckedChange = { enabled ->
+                            splitShade = enabled
+                            prefs.splitShade = enabled
+                            haptics.performToggle(view, enabled)
+                        }
+                    )
+                }
+
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.about),
@@ -430,6 +443,54 @@ fun HapticToggleRow(
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
+        Spacer(Modifier.width(12.dp))
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.surface,
+                checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            )
+        )
+    }
+}
+
+@Composable
+fun SplitShadeToggleRow(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.VerticalSplit,
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.width(16.dp))
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.split_shade),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = stringResource(R.string.split_shade_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         Spacer(Modifier.width(12.dp))
         Switch(
             checked = checked,

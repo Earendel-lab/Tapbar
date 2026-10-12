@@ -74,7 +74,7 @@ class OverlayService : Service() {
 
     private fun expandPanel(downX: Float) {
         val screenW = resources.displayMetrics.widthPixels
-        val method = if (downX > screenW / 2f) "expandSettingsPanel" else "expandNotificationsPanel"
+        val method = if (prefs.splitShade && downX > screenW / 2f) "expandSettingsPanel" else "expandNotificationsPanel"
         try {
             val statusBarService = getSystemService("statusbar")
             val cls = Class.forName("android.app.StatusBarManager")

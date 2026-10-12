@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import android.view.accessibility.AccessibilityWindowInfo
 
 object TapAccessibilityServiceHolder {
     @Volatile
@@ -17,6 +18,7 @@ object TapAccessibilityServiceHolder {
 
 class TapAccessibilityService : AccessibilityService() {
 
+    private val prefs by lazy { Prefs(this) }
     private var controller: TapZoneController? = null
     private var lastPkg: String? = null
 
@@ -30,7 +32,7 @@ class TapAccessibilityService : AccessibilityService() {
             onSwipeDown = { downX ->
                 val screenW = resources.displayMetrics.widthPixels
                 performGlobalAction(
-                    if (downX > screenW / 2f) GLOBAL_ACTION_QUICK_SETTINGS
+                    if (prefs.splitShade && downX > screenW / 2f) GLOBAL_ACTION_QUICK_SETTINGS
                     else GLOBAL_ACTION_NOTIFICATIONS
                 )
             }
@@ -44,8 +46,11 @@ class TapAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            val pkg = event.packageName?.toString()?.trim()?.lowercase() ?: return
-            if (!isTransientSystemPackage(pkg) && pkg != lastPkg) {
+            val eventPkg = event.packageName?.toString()?.trim() ?: return
+            if (eventPkg == packageName && event.className?.toString() != "$packageName.MainActivity") return
+            val raw = activeApplicationPackage() ?: return
+            val pkg = raw.lowercase()
+            if (!isTransientSystemPackage(pkg) && isLaunchableApp(raw) && pkg != lastPkg) {
                 lastPkg = pkg
                 TapZone.currentForegroundApp = pkg
                 controller?.attach()
@@ -53,11 +58,48 @@ class TapAccessibilityService : AccessibilityService() {
         }
     }
 
+    private fun activeApplicationPackage(): String? {
+        return try {
+            val list = windows
+            if (list.isNullOrEmpty()) return null
+            var found: String? = null
+            for (w in list) {
+                if (w.type == AccessibilityWindowInfo.TYPE_APPLICATION && (w.isActive || w.isFocused)) {
+                    val root = w.root
+                    val p = root?.packageName?.toString()?.trim()
+                    root?.recycle()
+                    if (!p.isNullOrEmpty()) {
+                        found = p
+                        break
+                    }
+                }
+            }
+            found
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun isLaunchableApp(pkg: String): Boolean {
+        return try {
+            packageManager.getLaunchIntentForPackage(pkg) != null || isHomePackage(pkg)
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    private fun isHomePackage(pkg: String): Boolean {
+        val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+        return packageManager.queryIntentActivities(home, 0).any {
+            it.activityInfo?.packageName.equals(pkg, ignoreCase = true)
+        }
+    }
+
     private fun isTransientSystemPackage(pkg: String): Boolean {
         return pkg == "android" ||
-               pkg == "com.android.systemui" ||
-               pkg.contains("inputmethod") ||
-               pkg.contains("keyboard")
+                pkg == "com.android.systemui" ||
+                pkg.contains("inputmethod") ||
+                pkg.contains("keyboard")
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
