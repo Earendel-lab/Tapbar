@@ -54,7 +54,7 @@ You are not limited to the Clock app or even the status bar. You can create tapp
 
 <div align="center">
   
-https://github.com/user-attachments/assets/a7f904a1-4b3a-4b51-ac85-23bb0822c7c9
+https://github.com/user-attachments/assets/65ce5d94-bfe1-4132-8be4-fefc59ab1604
 
 </div>
 
