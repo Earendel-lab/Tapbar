@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tapbar</string>
+    <string name="notif_title">Tapbar çalışıyor</string>
+    <string name="notif_text">Dokunma bölgesi etkin. Ayarları açmak için dokunun.</string>
+    <string name="notif_channel">Tapbar katmanı</string>
+    <string name="action_stop">Durdur</string>
+    <string name="accessibility_desc">Tapbar'ın durum çubuğuna küçük bir dokunma alanı yerleştirmesini sağlar. Ekran içeriğini okumaz.</string>
+
+    <string name="single_tap">Tek dokunuş</string>
+    <string name="double_tap">Çift dokunuş</string>
+    <string name="triple_tap">Üç kez dokunma</string>
+    <string name="long_press">Basılı tutma</string>
+    <string name="swipe_gesture">Kaydırma hareketi</string>
+    <string name="disabled">Devre dışı</string>
+
+    <string name="single_tap_mode">Tek dokunuş modu</string>
+    <string name="double_tap_mode">Çift dokunuş modu</string>
+    <string name="triple_tap_mode">Üç kez dokunma modu</string>
+    <string name="long_press_mode">Basılı tutma modu</string>
+
+    <string name="enable_single_tap">Tek dokunuşu etkinleştir</string>
+    <string name="enable_double_tap">Çift dokunuşu etkinleştir</string>
+    <string name="enable_triple_tap">Üç kez dokunmayı etkinleştir</string>
+    <string name="enable_long_press">Basılı tutmayı etkinleştir</string>
+    <string name="enable_swipe">Kaydırma hareketini etkinleştir</string>
+
+    <string name="open_app">Uygulamayı aç</string>
+    <string name="perform_action">Eylemi gerçekleştir</string>
+    <string name="app_shortcut">Uygulama kısayolu</string>
+
+    <string name="volume">Ses düzeyi</string>
+    <string name="brightness">Parlaklık</string>
+
+    <string name="swipe_bright_horiz_desc">Parlaklığı değiştirmek için sağa veya sola kaydırın.</string>
+    <string name="swipe_bright_vert_desc">Parlaklığı değiştirmek için yukarı veya aşağı kaydırın.</string>
+    <string name="swipe_vol_horiz_desc">Ses düzeyini değiştirmek için sağa veya sola kaydırın.</string>
+    <string name="swipe_vol_vert_desc">Ses düzeyini değiştirmek için yukarı veya aşağı kaydırın.</string>
+
+    <string name="swipe_horiz_footnote">Sağa kaydırmak değeri artırır, sola kaydırmak azaltır. Bu bölgede aşağı kaydırdığınızda bildirim paneli açılmaya devam eder.</string>
+    <string name="swipe_vert_footnote">Yukarı kaydırmak değeri artırır, aşağı kaydırmak azaltır. Bu özellik etkinleştirildiğinde, bu bölgede aşağı kaydırmak artık bildirim panelini açmaz.</string>
+
+    <string name="swipe_control_volume">Kaydırarak ses düzeyini kontrol et</string>
+    <string name="swipe_control_brightness">Kaydırarak parlaklığı kontrol et</string>
+
+    <string name="tap_speed">Dokunma hızı</string>
+    <string name="position_and_size">Konum ve boyut</string>
+    <string name="horizontal_position">Yatay konum</string>
+    <string name="vertical_position">Dikey konum</string>
+    <string name="width">Genişlik</string>
+    <string name="height">Yükseklik</string>
+
+    <string name="tap_zones">Dokunma bölgeleri</string>
+    <string name="zone_name">%1$d. bölge</string>
+    <string name="enable_zone">%1$d. bölgeyi etkinleştir</string>
+
+    <string name="settings">Ayarlar</string>
+    <string name="appearance">Görünüm</string>
+    <string name="theme_auto">Otomatik</string>
+    <string name="theme_light">Açık</string>
+    <string name="theme_dark">Koyu</string>
+
+    <string name="haptic_feedback">Dokunsal geri bildirim</string>
+    <string name="buzz_every_tap">Her dokunuşta titreştir</string>
+    <string name="buzz_action_runs">Eylem gerçekleştirildiğinde titreştir</string>
+
+    <string name="language">Dil</string>
+    <string name="choose_language">Dil seçin</string>
+    <string name="done">Tamam</string>
+
+    <string name="about">Hakkında</string>
+    <string name="check_update">Güncellemeleri kontrol et</string>
+    <string name="current_version">Geçerli sürüm: v%1$s</string>
+    <string name="developer">Geliştirici</string>
+    <string name="source_code">Kaynak kodu</string>
+    <string name="star_project">Projeye yıldız verin</string>
+    <string name="license">Lisans</string>
+
+    <string name="made_with_love">Sevgiyle yapıldı ♥️</string>
+    <string name="tagline_offline">%100 çevrimdışı • İzleyici yok • Açık kaynak</string>
+    <string name="data_stays_on_device">Verileriniz tamamen cihazınızda kalır</string>
+
+    <string name="search_apps">Uygulamalarda ara</string>
+    <string name="search_actions">Eylemlerde ara</string>
+    <string name="search_shortcuts">Kısayollarda ara</string>
+    <string name="no_apps_found">Uygulama bulunamadı</string>
+    <string name="no_actions_found">Eylem bulunamadı</string>
+    <string name="no_shortcuts_found">Kısayol bulunamadı</string>
+</resources>
