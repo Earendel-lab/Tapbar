@@ -62,6 +62,7 @@ private val AllLanguages = listOf(
     AppLanguage("ja", "日本語", "Japanese"),
     AppLanguage("ko", "한국어", "Korean"),
     AppLanguage("ne", "नेपाली", "Nepali"),
+    AppLanguage("tr", "Türkçe", "Turkish"),
     AppLanguage("zh", "中文", "Chinese")
 )
 

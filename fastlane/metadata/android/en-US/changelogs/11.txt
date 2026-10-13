@@ -2,3 +2,5 @@ Added split-shade support for phones with separate quick settings
 Improved foreground app detection, including fullscreen apps
 Fixed tap zones staying blocked on the home screen after leaving a blocked app
 Fixed blocking in fullscreen apps
+Merged UI strings into language files
+Added Turkish language support

@@ -53,6 +53,18 @@
             android:label="@string/settings" />
 
         <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="androidx.appcompat.app.AppLocalesMetadataHolderService" />
+            </intent-filter>
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
+        <service
             android:name="com.earendel.tapbar.OverlayService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
