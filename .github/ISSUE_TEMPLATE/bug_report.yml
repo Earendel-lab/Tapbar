@@ -13,6 +13,8 @@ body:
         > **Follow-up questions must be answered within 24 hours or the issue will be closed.**
         >
         > Check the [latest release changelog](https://github.com/Earendel-lab/Tapbar/releases/latest) to see if the bug is already fixed.
+        >
+        > Issues are only for bugs. Feature ideas and questions go in [Discussions](https://github.com/Earendel-lab/Tapbar/discussions).
 
   - type: checkboxes
     id: checks
