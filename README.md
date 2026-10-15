@@ -1,4 +1,3 @@
-
 <img width="1256" height="1030" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/2c6ee6ea-73b7-459b-b9a8-867c07c8dfd5" />
 
 <p align="center">
@@ -100,9 +99,10 @@ Tapbar does not need your data to provide its main function.
 Tapbar is built in the open, and it's better with you in it.
 
 - ⭐ **Star the repo** if Tapbar's useful to you, it helps others discover the project and keeps development going
-- Found a bug or have an idea? [Open an issue](https://github.com/Earendel-lab/Tapbar/issues), every report and suggestion genuinely shapes what comes next
+- Found a bug? [Open an issue](https://github.com/Earendel-lab/Tapbar/issues/new/choose), every report genuinely shapes what comes next
+- Have an idea or a feature request like the one that started this whole project? [Start a discussion](https://github.com/Earendel-lab/Tapbar/discussions/new?category=ideas), we'd love to hear it
+- Have a question? Ask it in [Discussions](https://github.com/Earendel-lab/Tapbar/discussions/new?category=q-a)
 - Want to contribute code? Fork the project, dig in, and open a pull request, check out [CONTRIBUTING.md](./CONTRIBUTING.md) to get started
-- Have a feature request like the one that started this whole project? We'd love to hear it
 
 No idea is too small. Tapbar exists because someone asked for a way to tap a clock.
 
