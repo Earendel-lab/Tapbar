@@ -1,0 +1,45 @@
+title: "[Q] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > Use this category for questions about using Tapbar. Bugs go in [Issues](https://github.com/Earendel-lab/Tapbar/issues/new/choose) and feature ideas go in the Ideas category.
+        >
+        > **Please write in English. If needed, use a translator.** Posts in other languages may be closed.
+        >
+        > Check the [README](https://github.com/Earendel-lab/Tapbar#readme) first, since most questions are answered there.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing discussions and read the README, and my question is not answered there
+          required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What are you trying to do, and what is not working or unclear?
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      placeholder: e.g. Nothing Phone 1, Android 17
+
+  - type: input
+    id: version
+    attributes:
+      label: Tapbar version
+      placeholder: e.g. v1.6
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots or anything else that helps.
