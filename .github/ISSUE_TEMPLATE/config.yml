@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Feature request or idea
+    url: https://github.com/Earendel-lab/Tapbar/discussions/new?category=ideas
+    about: Suggest a feature in Discussions.
+  - name: Question or help
+    url: https://github.com/Earendel-lab/Tapbar/discussions/new?category=q-a
+    about: Ask how to use Tapbar. Check the README first.
