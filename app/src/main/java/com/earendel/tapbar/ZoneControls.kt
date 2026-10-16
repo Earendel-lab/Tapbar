@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
@@ -68,8 +69,7 @@ fun ZoneSelectCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 18.dp)
-                .graphicsLayer { alpha = contentAlpha },
+                .padding(horizontal = 16.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Crossfade(
@@ -84,13 +84,14 @@ fun ZoneSelectCard(
                         ),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha)
                     )
                 } else {
-                    Image(
+                    Icon(
                         painter = painterResource(R.drawable.ic_block_red),
                         contentDescription = stringResource(R.string.disabled),
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
+                        tint = Color(0xFFD71921)
                     )
                 }
             }
@@ -99,7 +100,7 @@ fun ZoneSelectCard(
                 text = stringResource(R.string.zone_name, zone + 1),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha)
             )
         }
     }

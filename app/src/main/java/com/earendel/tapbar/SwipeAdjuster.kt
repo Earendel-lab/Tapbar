@@ -5,6 +5,7 @@ import android.content.Intent
 import android.media.AudioManager
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -68,10 +69,7 @@ class SwipeAdjuster(
         scheduled.set(false)
         val volume = pendingVolume.getAndSet(-1)
         if (volume >= 0) {
-            try {
-                audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0)
-            } catch (_: Throwable) {
-            }
+            applyVolume(volume)
         }
         val brightness = pendingBrightness.getAndSet(-1)
         if (brightness >= 0) {
@@ -146,6 +144,49 @@ class SwipeAdjuster(
         view = null
         if (target == SWIPE_TARGET_VOLUME) {
             hud.hideSoon()
+        }
+    }
+
+    private fun applyVolume(target: Int) {
+        try {
+            audio.setStreamVolume(AudioManager.STREAM_MUSIC, target, 0)
+        } catch (t: Throwable) {
+            Log.e("Tapbar", "setStreamVolume failed", t)
+        }
+        var actual = try {
+            audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+        } catch (_: Throwable) {
+            return
+        }
+        if (actual == target) return
+
+        var previousDiff = target - actual
+        var guard = 0
+        while (previousDiff != 0 && guard < volumeMax + 2) {
+            guard++
+            try {
+                audio.adjustStreamVolume(
+                    AudioManager.STREAM_MUSIC,
+                    if (previousDiff > 0) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER,
+                    0
+                )
+            } catch (t: Throwable) {
+                Log.e("Tapbar", "adjustStreamVolume failed", t)
+                return
+            }
+            val now = try {
+                audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+            } catch (_: Throwable) {
+                return
+            }
+            if (now == actual) {
+                Log.w("Tapbar", "Volume stuck at $now, wanted $target")
+                return
+            }
+            actual = now
+            val diff = target - actual
+            if (diff == 0 || (diff > 0) != (previousDiff > 0)) return
+            previousDiff = diff
         }
     }
 

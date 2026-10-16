@@ -89,6 +89,13 @@ class Prefs(context: Context) {
         sp.edit().putInt(zk(zone, "swipe_target"), v).apply()
     }
 
+    fun getVolumeLevel(zone: Int, gesture: Int): Int =
+        sp.getInt(zk(zone, "volume_level_$gesture"), 50).coerceIn(0, 100)
+
+    fun setVolumeLevel(zone: Int, gesture: Int, v: Int) {
+        sp.edit().putInt(zk(zone, "volume_level_$gesture"), v.coerceIn(0, 100)).apply()
+    }
+
     fun resetToDefaults() {
         val keep = setOf("service_enabled", "has_seen_privacy_notice", "app_language", "has_completed_language_onboarding", "split_shade")
         val editor = sp.edit()
@@ -181,6 +188,24 @@ class Prefs(context: Context) {
             return sp.getBoolean("has_completed_language_onboarding", false)
         }
         set(v) = sp.edit().putBoolean("has_completed_language_onboarding", v).apply()
+
+    var hasCompletedPermissionOnboarding: Boolean
+        get() {
+            if (!sp.contains("has_completed_perm_onboarding")) {
+                val isExistingUser = sp.contains("has_initial_pos") || sp.contains("has_seen_privacy_notice") || sp.contains("service_enabled")
+                if (isExistingUser) {
+                    sp.edit().putBoolean("has_completed_perm_onboarding", true).apply()
+                    return true
+                }
+                return false
+            }
+            return sp.getBoolean("has_completed_perm_onboarding", false)
+        }
+        set(v) = sp.edit().putBoolean("has_completed_perm_onboarding", v).apply()
+
+    var colorfulUi: Boolean
+        get() = sp.getBoolean("colorful_ui", false)
+        set(v) = sp.edit().putBoolean("colorful_ui", v).apply()
 
     var blockedPackages: Set<String>
         get() {

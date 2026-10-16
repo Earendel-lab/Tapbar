@@ -77,8 +77,8 @@
     <string name="license">Licence</string>
 
     <string name="made_with_love">Fait avec ♥️</string>
-    <string name="tagline_offline">100% Hors ligne • Sans traqueur • Open Source</string>
-    <string name="data_stays_on_device">Vos données restent 100% sur votre appareil</string>
+    <string name="tagline_offline" formatted="false">100% Hors ligne • Sans traqueur • Open Source</string>
+    <string name="data_stays_on_device" formatted="false">Vos données restent 100% sur votre appareil</string>
 
     <string name="search_apps">Rechercher des applications</string>
     <string name="search_actions">Rechercher des actions</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">Aucun raccourci trouvé</string>
 
     <string name="accessibility_service_title">Service d’accessibilité</string>
-    <string name="accessibility_service_body">Sans le service d’accessibilité, Android place la zone sous la barre d’état et le système intercepte ces appuis. Activez le service pour placer la zone sur l’horloge elle-même.</string>
+    <string name="accessibility_service_body">Sans le service d’accessibilité, Android place la zone sous la barre d’état et le système intercepte ces appuis. Activez le service pour placer la zone directement sur la barre d’état.</string>
     <string name="turn_on_accessibility">Activer le service d’accessibilité</string>
     <string name="permission_needed">Autorisation requise</string>
     <string name="permission_body">Tapbar a besoin de l’autorisation « Affichage par-dessus les autres applis » pour placer sa zone de toucher à l’écran.</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">Augmente le volume des médias</string>
     <string name="action_volume_down">Volume -</string>
     <string name="action_volume_down_desc">Diminue le volume des médias</string>
+    <string name="action_volume_set">Définir le volume</string>
+    <string name="action_volume_set_desc">Définit le volume des médias à un niveau spécifique</string>
+    <string name="action_volume_set_label">Définir le volume (%1$d%%)</string>
+    <string name="volume_level">Niveau du volume</string>
     <string name="action_mute">Couper/rétablir le son</string>
     <string name="action_mute_desc">Coupe ou rétablit la musique</string>
     <string name="action_media_play_pause">Lecture/pause des médias</string>
@@ -306,4 +310,42 @@
     </plurals>
     <string name="split_shade">Volet de notifications séparé</string>
     <string name="split_shade_desc">Volets distincts pour les notifications et les paramètres rapides</string>
+
+    <string name="next">Suivant</string>
+    <string name="get_started">Commencer</string>
+    <string name="skip_for_now">Ignorer pour la suite</string>
+    <string name="permissions_title">Configurer Tapbar</string>
+    <string name="perm_accessibility_title">Service d\'accessibilité</string>
+    <string name="perm_recommended">Recommandé</string>
+    <string name="perm_accessibility_desc">Permet de placer la zone tactile directement sur la barre d\'état. Ne lit ni ne transmet aucun texte à l\'écran.</string>
+    <string name="perm_overlay_title">Afficher par-dessus d\'autres applications</string>
+    <string name="perm_fallback">Secours</string>
+    <string name="perm_overlay_desc">Affiche la zone tactile sous la barre d\'état lorsque le service d\'accessibilité n\'est pas actif.</string>
+    <string name="perm_granted">Accordé</string>
+    <string name="perm_allow">Activer</string>
+    <string name="restricted_help_title">Option grisée ?</string>
+    <string name="restricted_help_text">Ouvrez Infos sur l\'appli, appuyez sur le menu à trois points en haut à droite, choisissez Autoriser les paramètres restreints, puis réessayez.</string>
+    <string name="open_app_info">Infos appli</string>
+    <string name="view_visual_guide">Guide visuel</string>
+    <string name="success_title">Tout est prêt</string>
+    <string name="success_desc_a11y">La zone tactile est située directement sur la barre d\'état.</string>
+    <string name="success_desc_overlay">La zone tactile est située sous la barre d\'état. Vous pourrez activer l\'accessibilité plus tard dans les paramètres.</string>
+    <string name="cd_setup_complete">Configuration terminée</string>
+
+    <string name="backup_restore_title">Sauvegarde et restauration</string>
+    <string name="backup_title">Sauvegarder les paramètres</string>
+    <string name="backup_desc">Enregistrez vos gestes et préférences dans un fichier</string>
+    <string name="restore_title">Restaurer les paramètres</string>
+    <string name="restore_desc">Chargez vos gestes et préférences depuis un fichier de sauvegarde</string>
+    <string name="backup_done">Sauvegarde enregistrée</string>
+    <string name="backup_failed">Impossible d’enregistrer la sauvegarde</string>
+    <string name="restore_confirm_title">Restaurer les paramètres ?</string>
+    <string name="restore_confirm_message">Vos paramètres actuels seront remplacés par la sauvegarde du %1$s.</string>
+    <string name="restore_confirm_action">Restaurer</string>
+    <string name="restore_done">Paramètres restaurés</string>
+    <string name="restore_invalid">Ce fichier n’est pas une sauvegarde Tapbar valide</string>
+    <string name="restore_newer">Cette sauvegarde a été créée avec une version plus récente de Tapbar. Mettez l’application à jour et réessayez.</string>
+    <string name="restore_failed">Impossible de restaurer les paramètres</string>
+    <string name="cancel">Annuler</string>
+    <string name="notification_shade_title">Volet de notifications</string>
 </resources>

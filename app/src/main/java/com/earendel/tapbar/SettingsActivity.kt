@@ -5,9 +5,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -28,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.BrightnessAuto
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
@@ -36,12 +40,21 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.icons.rounded.VerticalSplit
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.WbSunny
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +63,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -57,6 +71,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +86,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 class SettingsActivity : ComponentActivity() {
 
@@ -365,16 +381,26 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                     }
                 }
 
-                SegmentedCard(index = 0, count = 1) {
-                    SplitShadeToggleRow(
-                        checked = splitShade,
-                        onCheckedChange = { enabled ->
-                            splitShade = enabled
-                            prefs.splitShade = enabled
-                            haptics.performToggle(view, enabled)
-                        }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        stringResource(R.string.notification_shade_title),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
+                    SegmentedCard(index = 0, count = 1) {
+                        SplitShadeToggleRow(
+                            checked = splitShade,
+                            onCheckedChange = { enabled ->
+                                splitShade = enabled
+                                prefs.splitShade = enabled
+                                haptics.performToggle(view, enabled)
+                            }
+                        )
+                    }
                 }
+
+                BackupRestoreSection(prefs)
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
@@ -413,6 +439,276 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                         textAlign = TextAlign.Center
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun BackupRestoreSection(prefs: Prefs) {
+    val context = LocalContext.current
+    val haptics = LocalHapticManager.current
+    val view = LocalView.current
+    val scope = rememberCoroutineScope()
+    var busyAction by remember { mutableIntStateOf(0) }
+    var pending by remember { mutableStateOf<ParsedBackup?>(null) }
+
+    val backupDone = stringResource(R.string.backup_done)
+    val backupFailed = stringResource(R.string.backup_failed)
+    val restoreDone = stringResource(R.string.restore_done)
+    val restoreInvalid = stringResource(R.string.restore_invalid)
+    val restoreNewer = stringResource(R.string.restore_newer)
+    val restoreFailed = stringResource(R.string.restore_failed)
+
+    val createLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            busyAction = 1
+            scope.launch {
+                val ok = try {
+                    BackupManager.writeBackup(context, uri)
+                } finally {
+                    busyAction = 0
+                }
+                Toast.makeText(context, if (ok) backupDone else backupFailed, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    val openLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            busyAction = 2
+            scope.launch {
+                val result = try {
+                    BackupManager.readBackup(context, uri)
+                } finally {
+                    busyAction = 0
+                }
+                when (result) {
+                    is BackupParseResult.Valid -> pending = result.backup
+                    is BackupParseResult.TooNew -> Toast.makeText(context, restoreNewer, Toast.LENGTH_LONG).show()
+                    is BackupParseResult.Invalid -> Toast.makeText(context, restoreInvalid, Toast.LENGTH_LONG).show()
+                    is BackupParseResult.Unreadable -> Toast.makeText(context, restoreFailed, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            stringResource(R.string.backup_restore_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            BackupActionRow(
+                icon = Icons.Rounded.Backup,
+                title = stringResource(R.string.backup_title),
+                description = stringResource(R.string.backup_desc),
+                index = 0,
+                count = 2,
+                enabled = busyAction == 0,
+                busy = busyAction == 1,
+                onClick = {
+                    haptics.performLightTap(view)
+                    try {
+                        createLauncher.launch(BackupManager.defaultFileName())
+                    } catch (_: Throwable) {
+                        Toast.makeText(context, backupFailed, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
+            BackupActionRow(
+                icon = Icons.Rounded.Restore,
+                title = stringResource(R.string.restore_title),
+                description = stringResource(R.string.restore_desc),
+                index = 1,
+                count = 2,
+                enabled = busyAction == 0,
+                busy = busyAction == 2,
+                onClick = {
+                    haptics.performLightTap(view)
+                    try {
+                        openLauncher.launch(arrayOf("*/*"))
+                    } catch (_: Throwable) {
+                        Toast.makeText(context, restoreFailed, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
+        }
+    }
+
+    pending?.let { backup ->
+        Dialog(onDismissRequest = { pending = null }) {
+            androidx.compose.material3.Surface(
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Rounded.Restore,
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Text(
+                                text = stringResource(R.string.restore_confirm_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        Text(
+                            text = stringResource(
+                                R.string.restore_confirm_message,
+                                BackupManager.formatTimestamp(backup.createdAt)
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        RestoreDialogButton(
+                            text = stringResource(R.string.restore_confirm_action),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            index = 0,
+                            onClick = {
+                                haptics.performLightTap(view)
+                                pending = null
+                                busyAction = 2
+                                val languageBefore = prefs.appLanguage
+                                scope.launch {
+                                    val ok = try {
+                                        BackupManager.applyBackup(context, backup)
+                                    } finally {
+                                        busyAction = 0
+                                    }
+                                    if (ok) {
+                                        Toast.makeText(context, restoreDone, Toast.LENGTH_SHORT).show()
+                                        TapZone.active?.attach()
+                                        val languageAfter = prefs.appLanguage
+                                        if (languageAfter != languageBefore) {
+                                            LocaleHelper.applyLanguage(context, prefs, languageAfter)
+                                        } else {
+                                            LocaleHelper.findActivity(context)?.recreate()
+                                        }
+                                    } else {
+                                        Toast.makeText(context, restoreFailed, Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            }
+                        )
+                        RestoreDialogButton(
+                            text = stringResource(R.string.cancel),
+                            color = androidx.compose.ui.graphics.Color(0xFFD71921),
+                            index = 1,
+                            onClick = { pending = null }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RestoreDialogButton(
+    text: String,
+    color: androidx.compose.ui.graphics.Color,
+    index: Int,
+    onClick: () -> Unit
+) {
+    androidx.compose.material3.Surface(
+        shape = segmentedShape(index, 2),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+            .compositeOver(MaterialTheme.colorScheme.surfaceContainer),
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 72.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = color,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun BackupActionRow(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    index: Int,
+    count: Int,
+    enabled: Boolean,
+    busy: Boolean,
+    onClick: () -> Unit
+) {
+    SegmentedCard(
+        index = index,
+        count = count,
+        onClick = if (enabled) onClick else null
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (busy) {
+                Spacer(Modifier.width(12.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }

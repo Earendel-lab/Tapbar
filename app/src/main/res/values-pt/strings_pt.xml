@@ -77,8 +77,8 @@
     <string name="license">Licença</string>
 
     <string name="made_with_love">Feito com ♥️</string>
-    <string name="tagline_offline">100% Offline • Sem rastreadores • Código aberto</string>
-    <string name="data_stays_on_device">Seus dados ficam 100% no seu dispositivo</string>
+    <string name="tagline_offline" formatted="false">100% Offline • Sem rastreadores • Código aberto</string>
+    <string name="data_stays_on_device" formatted="false">Seus dados ficam 100% no seu dispositivo</string>
 
     <string name="search_apps">Pesquisar aplicativos</string>
     <string name="search_actions">Pesquisar ações</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">Nenhum atalho encontrado</string>
 
     <string name="accessibility_service_title">Serviço de acessibilidade</string>
-    <string name="accessibility_service_body">Sem o serviço de acessibilidade, o Android força a zona para baixo da barra de status e o sistema captura esses toques. Ative o serviço para colocar a zona sobre o próprio relógio.</string>
+    <string name="accessibility_service_body">Sem o serviço de acessibilidade, o Android força a zona para baixo da barra de status e o sistema captura esses toques. Ative o serviço para colocar a zona diretamente na barra de status.</string>
     <string name="turn_on_accessibility">Ativar serviço de acessibilidade</string>
     <string name="permission_needed">Permissão necessária</string>
     <string name="permission_body">O Tapbar precisa da permissão \"Sobrepor a outros apps\" para posicionar sua zona de toque na tela.</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">Aumenta o volume de mídia</string>
     <string name="action_volume_down">Diminuir volume</string>
     <string name="action_volume_down_desc">Diminui o volume de mídia</string>
+    <string name="action_volume_set">Definir volume</string>
+    <string name="action_volume_set_desc">Define o volume de mídia para um nível específico</string>
+    <string name="action_volume_set_label">Definir volume (%1$d%%)</string>
+    <string name="volume_level">Nível de volume</string>
     <string name="action_mute">Silenciar / reativar som</string>
     <string name="action_mute_desc">Alterna o mudo do volume de música</string>
     <string name="action_media_play_pause">Reproduzir / pausar mídia</string>
@@ -306,4 +310,42 @@
     </plurals>
     <string name="split_shade">Painel de notificações dividido</string>
     <string name="split_shade_desc">Painéis separados para notificações e configurações rápidas</string>
+
+    <string name="next">Avançar</string>
+    <string name="get_started">Começar</string>
+    <string name="skip_for_now">Pular por enquanto</string>
+    <string name="permissions_title">Configurar o Tapbar</string>
+    <string name="perm_accessibility_title">Serviço de acessibilidade</string>
+    <string name="perm_recommended">Recomendado</string>
+    <string name="perm_accessibility_desc">Permite colocar a zona de toque diretamente na barra de status. Não lê nem envia texto da tela.</string>
+    <string name="perm_overlay_title">Exibir sobre outros aplicativos</string>
+    <string name="perm_fallback">Alternativa</string>
+    <string name="perm_overlay_desc">Exibe a zona de toque abaixo da barra de status quando o serviço de acessibilidade não está ativo.</string>
+    <string name="perm_granted">Concedido</string>
+    <string name="perm_allow">Ativar</string>
+    <string name="restricted_help_title">Opção desativada (cinza)?</string>
+    <string name="restricted_help_text">Abra as Informações do app, toque no menu de três pontos no canto superior direito, escolha Permitir configurações restritas e tente novamente.</string>
+    <string name="open_app_info">Info do app</string>
+    <string name="view_visual_guide">Guia visual</string>
+    <string name="success_title">Tudo pronto</string>
+    <string name="success_desc_a11y">A zona de toque está diretamente na barra de status.</string>
+    <string name="success_desc_overlay">A zona de toque está abaixo da barra de status. Você pode ativar a acessibilidade mais tarde nas Configurações.</string>
+    <string name="cd_setup_complete">Configuração concluída</string>
+
+    <string name="backup_restore_title">Backup e restauração</string>
+    <string name="backup_title">Fazer backup das configurações</string>
+    <string name="backup_desc">Salve seus gestos e preferências em um arquivo</string>
+    <string name="restore_title">Restaurar configurações</string>
+    <string name="restore_desc">Carregue gestos e preferências de um arquivo de backup</string>
+    <string name="backup_done">Backup salvo</string>
+    <string name="backup_failed">Não foi possível salvar o backup</string>
+    <string name="restore_confirm_title">Restaurar configurações?</string>
+    <string name="restore_confirm_message">Suas configurações atuais serão substituídas pelo backup de %1$s.</string>
+    <string name="restore_confirm_action">Restaurar</string>
+    <string name="restore_done">Configurações restauradas</string>
+    <string name="restore_invalid">Este não é um arquivo de backup válido do Tapbar</string>
+    <string name="restore_newer">Este backup foi criado com uma versão mais recente do Tapbar. Atualize o app e tente novamente.</string>
+    <string name="restore_failed">Não foi possível restaurar as configurações</string>
+    <string name="cancel">Cancelar</string>
+    <string name="notification_shade_title">Painel de notificações</string>
 </resources>

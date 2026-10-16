@@ -77,8 +77,8 @@
     <string name="license">ライセンス</string>
 
     <string name="made_with_love">♥️ を込めて制作</string>
-    <string name="tagline_offline">100% オフライン • トラッカーなし • オープンソース</string>
-    <string name="data_stays_on_device">データは100%デバイス内に保持されます</string>
+    <string name="tagline_offline" formatted="false">100% オフライン • トラッカーなし • オープンソース</string>
+    <string name="data_stays_on_device" formatted="false">データは100%デバイス内に保持されます</string>
 
     <string name="search_apps">アプリを検索</string>
     <string name="search_actions">アクションを検索</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">ショートカットが見つかりません</string>
 
     <string name="accessibility_service_title">ユーザー補助サービス</string>
-    <string name="accessibility_service_body">ユーザー補助サービスがオフの場合、Android がタップゾーンをステータスバーの下に強制的に配置し、システムがそのタップを受け取ります。サービスをオンにすると、時計の上にタップゾーンを置けます。</string>
+    <string name="accessibility_service_body">ユーザー補助サービスがオフの場合、Androidがゾーンをステータスバーの下に配置し、システムがタップを処理します。サービスをオンにすると、ステータスバー上に直接配置できます。</string>
     <string name="turn_on_accessibility">ユーザー補助サービスをオンにする</string>
     <string name="permission_needed">権限が必要です</string>
     <string name="permission_body">Tapbar がタップゾーンを画面に表示するには、「他のアプリの上に重ねて表示」の権限が必要です。</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">メディアの音量を上げます</string>
     <string name="action_volume_down">音量を下げる</string>
     <string name="action_volume_down_desc">メディアの音量を下げます</string>
+    <string name="action_volume_set">音量を設定</string>
+    <string name="action_volume_set_desc">メディアの音量を特定レベルに設定します</string>
+    <string name="action_volume_set_label">音量を設定 (%1$d%%)</string>
+    <string name="volume_level">音量レベル</string>
     <string name="action_mute">ミュート／解除</string>
     <string name="action_mute_desc">音楽の音量のミュートを切り替えます</string>
     <string name="action_media_play_pause">メディアの再生／一時停止</string>
@@ -302,4 +306,42 @@
     </plurals>
     <string name="split_shade">分割通知シェード</string>
     <string name="split_shade_desc">通知とクイック設定のシェードを分離</string>
+
+    <string name="next">次へ</string>
+    <string name="get_started">始める</string>
+    <string name="skip_for_now">今はスキップ</string>
+    <string name="permissions_title">Tapbarのセットアップ</string>
+    <string name="perm_accessibility_title">アクセシビリティサービス</string>
+    <string name="perm_recommended">推奨</string>
+    <string name="perm_accessibility_desc">ステータスバーの上に直接タッチゾーンを配置できます。画面テキストの読み取りや送信は行いません。</string>
+    <string name="perm_overlay_title">他のアプリの上に重ねて表示</string>
+    <string name="perm_fallback">代替</string>
+    <string name="perm_overlay_desc">アクセシビリティサービスが無効な場合、ステータスバーの下にタッチゾーンを表示します。</string>
+    <string name="perm_granted">許可済み</string>
+    <string name="perm_allow">オンにする</string>
+    <string name="restricted_help_title">スイッチがグレーアウトしていますか？</string>
+    <string name="restricted_help_text">「アプリ情報」を開き、右上の3点メニューをタップして「制限付き設定を許可」を選択してから再度お試しください。</string>
+    <string name="open_app_info">アプリ情報</string>
+    <string name="view_visual_guide">ガイドを見る</string>
+    <string name="success_title">準備完了</string>
+    <string name="success_desc_a11y">タップゾーンはステータスバーの上に配置されています。</string>
+    <string name="success_desc_overlay">タップゾーンはステータスバーの下に配置されています。後で設定からアクセシビリティを有効にできます。</string>
+    <string name="cd_setup_complete">セットアップ完了</string>
+
+    <string name="backup_restore_title">バックアップと復元</string>
+    <string name="backup_title">設定をバックアップ</string>
+    <string name="backup_desc">ジェスチャーと設定をファイルに保存します</string>
+    <string name="restore_title">設定を復元</string>
+    <string name="restore_desc">バックアップファイルからジェスチャーと設定を読み込みます</string>
+    <string name="backup_done">バックアップを保存しました</string>
+    <string name="backup_failed">バックアップを保存できませんでした</string>
+    <string name="restore_confirm_title">設定を復元しますか？</string>
+    <string name="restore_confirm_message">現在の設定が、%1$s のバックアップの内容に置き換えられます。</string>
+    <string name="restore_confirm_action">復元</string>
+    <string name="restore_done">設定を復元しました</string>
+    <string name="restore_invalid">有効な Tapbar のバックアップファイルではありません</string>
+    <string name="restore_newer">このバックアップは新しいバージョンの Tapbar で作成されました。アプリを更新してからもう一度お試しください。</string>
+    <string name="restore_failed">設定を復元できませんでした</string>
+    <string name="cancel">キャンセル</string>
+    <string name="notification_shade_title">通知シェード</string>
 </resources>

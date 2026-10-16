@@ -77,8 +77,8 @@
     <string name="license">Lisans</string>
 
     <string name="made_with_love">Sevgiyle yapıldı ♥️</string>
-    <string name="tagline_offline">%100 çevrimdışı • İzleyici yok • Açık kaynak</string>
-    <string name="data_stays_on_device">Verileriniz tamamen cihazınızda kalır</string>
+    <string name="tagline_offline" formatted="false">%100 çevrimdışı • İzleyici yok • Açık kaynak</string>
+    <string name="data_stays_on_device" formatted="false">Verileriniz tamamen cihazınızda kalır</string>
 
     <string name="search_apps">Uygulamalarda ara</string>
     <string name="search_actions">Eylemlerde ara</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">Kısayol bulunamadı</string>
 
     <string name="accessibility_service_title">Erişilebilirlik hizmeti</string>
-    <string name="accessibility_service_body">Erişilebilirlik hizmeti olmadan Android, dokunma bölgesini durum çubuğunun altına yerleştirir ve dokunuşları sistem algılar. Dokunma bölgesini doğrudan saatin üzerine yerleştirmek için hizmeti etkinleştirin.</string>
+    <string name="accessibility_service_body">Erişilebilirlik hizmeti olmadan Android, dokunma bölgesini durum çubuğunun altına yerleştirir ve sistem bu dokunmaları yakalar. Bölgeyi doğrudan durum çubuğu üzerine yerleştirmek için hizmeti açın.</string>
     <string name="turn_on_accessibility">Erişilebilirlik hizmetini etkinleştir</string>
     <string name="permission_needed">İzin gerekli</string>
     <string name="permission_body">Tapbar\'ın ekrana dokunma bölgesi yerleştirebilmesi için "Diğer uygulamaların üzerinde göster" izni gerekir.</string>
@@ -172,6 +172,10 @@
     <string name="action_volume_up_desc">Medya ses düzeyini artırır</string>
     <string name="action_volume_down">Ses düzeyini azalt</string>
     <string name="action_volume_down_desc">Medya ses düzeyini azaltır</string>
+    <string name="action_volume_set">Ses düzeyini ayarla</string>
+    <string name="action_volume_set_desc">Medya ses düzeyini belirli bir seviyeye ayarlar</string>
+    <string name="action_volume_set_label">Ses düzeyini ayarla (%1$d%%)</string>
+    <string name="volume_level">Ses düzeyi</string>
     <string name="action_mute">Sesi kapat/aç</string>
     <string name="action_mute_desc">Medya sesini kapatır veya açar</string>
     <string name="action_media_play_pause">Medyayı oynat/duraklat</string>
@@ -302,4 +306,42 @@
         <item quantity="one">%d kısayol</item>
         <item quantity="other">%d kısayol</item>
     </plurals>
+
+    <string name="next">İleri</string>
+    <string name="get_started">Başla</string>
+    <string name="skip_for_now">Şimdilik atla</string>
+    <string name="permissions_title">Tapbar Kurulumu</string>
+    <string name="perm_accessibility_title">Erişilebilirlik hizmeti</string>
+    <string name="perm_recommended">Önerilen</string>
+    <string name="perm_accessibility_desc">Dokunma bölgesinin doğrudan durum çubuğu üzerine yerleşmesini sağlar. Ekran metinlerini okumaz veya göndermez.</string>
+    <string name="perm_overlay_title">Diğer uygulamaların üzerinde göster</string>
+    <string name="perm_fallback">Yedek</string>
+    <string name="perm_overlay_desc">Erişilebilirlik hizmeti etkin olmadığında dokunma bölgesini durum çubuğunun altında gösterir.</string>
+    <string name="perm_granted">İzin verildi</string>
+    <string name="perm_allow">Aç</string>
+    <string name="restricted_help_title">Ayar gri renkte mi?</string>
+    <string name="restricted_help_text">Uygulama Bilgisi öğesini açın, sağ üstteki üç nokta menüsüne dokunun, Kısıtlanmış ayarlara izin ver seçeneğini belirleyin ve tekrar deneyin.</string>
+    <string name="open_app_info">Uygulama bilgisi</string>
+    <string name="view_visual_guide">Görsel rehber</string>
+    <string name="success_title">Her şey hazır</string>
+    <string name="success_desc_a11y">Dokunma bölgesi doğrudan durum çubuğu üzerindedir.</string>
+    <string name="success_desc_overlay">Dokunma bölgesi durum çubuğunun altındadır. Erişilebilirliği daha sonra Ayarlar\'dan açabilirsiniz.</string>
+    <string name="cd_setup_complete">Kurulum tamamlandı</string>
+
+    <string name="backup_restore_title">Yedekle ve geri yükle</string>
+    <string name="backup_title">Ayarları yedekle</string>
+    <string name="backup_desc">Hareketleri ve tercihleri bir dosyaya kaydet</string>
+    <string name="restore_title">Ayarları geri yükle</string>
+    <string name="restore_desc">Hareketleri ve tercihleri bir yedek dosyasından yükle</string>
+    <string name="backup_done">Yedek kaydedildi</string>
+    <string name="backup_failed">Yedek kaydedilemedi</string>
+    <string name="restore_confirm_title">Ayarlar geri yüklensin mi?</string>
+    <string name="restore_confirm_message">Mevcut ayarlar, %1$s tarihli yedekle değiştirilecek.</string>
+    <string name="restore_confirm_action">Geri yükle</string>
+    <string name="restore_done">Ayarlar geri yüklendi</string>
+    <string name="restore_invalid">Bu geçerli bir Tapbar yedek dosyası değil</string>
+    <string name="restore_newer">Bu yedek Tapbar’ın daha yeni bir sürümüyle oluşturulmuş. Uygulamayı güncelleyip tekrar dene.</string>
+    <string name="restore_failed">Ayarlar geri yüklenemedi</string>
+    <string name="cancel">İptal</string>
+    <string name="notification_shade_title">Bildirim paneli</string>
 </resources>

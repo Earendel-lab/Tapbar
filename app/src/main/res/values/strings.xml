@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">No shortcuts found</string>
 
     <string name="accessibility_service_title">Accessibility Service</string>
-    <string name="accessibility_service_body">Without the accessibility service, Android forces the zone underneath the status bar and the system takes those taps. Turn the service on to put the zone on the clock itself.</string>
+    <string name="accessibility_service_body">Without the accessibility service, Android places the zone below the status bar and the system takes those taps. Turn the service on to place the zone directly on the status bar.</string>
     <string name="turn_on_accessibility">Turn on accessibility service</string>
     <string name="permission_needed">Permission needed</string>
     <string name="permission_body">Tapbar needs the \"Display over other apps\" permission to place its tap zone on screen.</string>
@@ -173,6 +173,10 @@
     <string name="action_volume_up_desc">Raises media volume</string>
     <string name="action_volume_down">Volume down</string>
     <string name="action_volume_down_desc">Lowers media volume</string>
+    <string name="action_volume_set">Set volume level</string>
+    <string name="action_volume_set_desc">Sets media volume to a specific level</string>
+    <string name="action_volume_set_label">Set volume (%1$d%%)</string>
+    <string name="volume_level">Volume level</string>
     <string name="action_mute">Mute / unmute</string>
     <string name="action_mute_desc">Toggles music volume mute</string>
     <string name="action_media_play_pause">Play / pause media</string>
@@ -304,4 +308,42 @@
         <item quantity="one">%d shortcut</item>
         <item quantity="other">%d shortcuts</item>
     </plurals>
+
+    <string name="next">Next</string>
+    <string name="get_started">Get started</string>
+    <string name="skip_for_now">Skip for now</string>
+    <string name="permissions_title">Setup Tapbar</string>
+    <string name="perm_accessibility_title">Accessibility service</string>
+    <string name="perm_recommended">Recommended</string>
+    <string name="perm_accessibility_desc">Lets the tap zone sit directly on the status bar. It does not read or send any screen text.</string>
+    <string name="perm_overlay_title">Display over other apps</string>
+    <string name="perm_fallback">Fallback</string>
+    <string name="perm_overlay_desc">Draws the tap zone below the status bar when the Accessibility service is not active.</string>
+    <string name="perm_granted">Granted</string>
+    <string name="perm_allow">Turn on</string>
+    <string name="restricted_help_title">If the accessibility switch is greyed out:</string>
+    <string name="restricted_help_text">Open App info, tap the three-dot menu at the top right, choose Allow restricted settings, then try again.</string>
+    <string name="open_app_info">Open app info</string>
+    <string name="view_visual_guide">View visual guide</string>
+    <string name="success_title">You\'re all set</string>
+    <string name="success_desc_a11y">The tap zone sits directly on the status bar.</string>
+    <string name="success_desc_overlay">The tap zone sits below the status bar. You can enable accessibility later in Settings.</string>
+    <string name="cd_setup_complete">Setup complete</string>
+
+    <string name="backup_restore_title">Backup &amp; restore</string>
+    <string name="backup_title">Backup settings</string>
+    <string name="backup_desc">Save your gestures and preferences to a file</string>
+    <string name="restore_title">Restore settings</string>
+    <string name="restore_desc">Load gestures and preferences from a backup file</string>
+    <string name="backup_done">Backup saved</string>
+    <string name="backup_failed">Couldn’t save the backup</string>
+    <string name="restore_confirm_title">Restore settings?</string>
+    <string name="restore_confirm_message">This replaces your current settings with the backup from %1$s.</string>
+    <string name="restore_confirm_action">Restore</string>
+    <string name="restore_done">Settings restored</string>
+    <string name="restore_invalid">This isn’t a valid Tapbar backup file</string>
+    <string name="restore_newer">This backup was made with a newer version of Tapbar. Update the app and try again.</string>
+    <string name="restore_failed">Couldn’t restore settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="notification_shade_title">Notification shade</string>
 </resources>

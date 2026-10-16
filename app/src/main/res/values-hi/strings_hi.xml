@@ -77,8 +77,8 @@
     <string name="license">लाइसेंस</string>
 
     <string name="made_with_love">♥️ के साथ बनाया गया</string>
-    <string name="tagline_offline">100% ऑफ़लाइन • कोई ट्रैकर नहीं • ओपन सोर्स</string>
-    <string name="data_stays_on_device">आपका डेटा 100% आपके डिवाइस पर रहता है</string>
+    <string name="tagline_offline" formatted="false">100% ऑफ़लाइन • कोई ट्रैकर नहीं • ओपन सोर्स</string>
+    <string name="data_stays_on_device" formatted="false">आपका डेटा 100% आपके डिवाइस पर रहता है</string>
 
     <string name="search_apps">ऐप्स खोजें</string>
     <string name="search_actions">कार्रवाई खोजें</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">कोई शॉर्टकट नहीं मिला</string>
 
     <string name="accessibility_service_title">एक्सेसिबिलिटी सेवा</string>
-    <string name="accessibility_service_body">एक्सेसिबिलिटी सेवा के बिना, Android ज़ोन को स्टेटस बार के नीचे धकेल देता है और सिस्टम वे टैप ले लेता है। ज़ोन को सीधे घड़ी पर रखने के लिए सेवा चालू करें।</string>
+    <string name="accessibility_service_body">एक्सेसिबिलिटी सेवा के बिना, Android ज़ोन को स्टेटस बार के नीचे रखता है और सिस्टम उन टैप को कैप्चर करता है। ज़ोन को सीधे स्टेटस बार पर रखने के लिए सेवा को चालू करें।</string>
     <string name="turn_on_accessibility">एक्सेसिबिलिटी सेवा चालू करें</string>
     <string name="permission_needed">अनुमति आवश्यक है</string>
     <string name="permission_body">Tapbar को स्क्रीन पर अपना टैप ज़ोन रखने के लिए \"अन्य ऐप्स के ऊपर दिखाएँ\" अनुमति चाहिए।</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">मीडिया वॉल्यूम बढ़ाता है</string>
     <string name="action_volume_down">वॉल्यूम घटाएँ</string>
     <string name="action_volume_down_desc">मीडिया वॉल्यूम घटाता है</string>
+    <string name="action_volume_set">वॉल्यूम सेट करें</string>
+    <string name="action_volume_set_desc">मीडिया वॉल्यूम को एक विशिष्ट स्तर पर सेट करता है</string>
+    <string name="action_volume_set_label">वॉल्यूम सेट करें (%1$d%%)</string>
+    <string name="volume_level">वॉल्यूम स्तर</string>
     <string name="action_mute">म्यूट / अनम्यूट</string>
     <string name="action_mute_desc">संगीत वॉल्यूम म्यूट या अनम्यूट करता है</string>
     <string name="action_media_play_pause">मीडिया चलाएँ / रोकें</string>
@@ -304,4 +308,42 @@
     </plurals>
     <string name="split_shade">विभाजित नोटिफिकेशन शेड</string>
     <string name="split_shade_desc">नोटिफिकेशन और क्विक सेटिंग्स के लिए अलग-अलग शेड</string>
+
+    <string name="next">आगे बढ़ें</string>
+    <string name="get_started">शुरू करें</string>
+    <string name="skip_for_now">अभी के लिए छोड़ें</string>
+    <string name="permissions_title">Tapbar सेटअप करें</string>
+    <string name="perm_accessibility_title">एक्सेसिबिलिटी सेवा</string>
+    <string name="perm_recommended">अनुशंसित</string>
+    <string name="perm_accessibility_desc">टच ज़ोन को सीधे स्टेटस बार पर रखने की अनुमति देता है। यह स्क्रीन का कोई टेक्स्ट नहीं पढ़ता या भेजता है।</string>
+    <string name="perm_overlay_title">अन्य ऐप्स के ऊपर प्रदर्शित करें</string>
+    <string name="perm_fallback">विकल्प</string>
+    <string name="perm_overlay_desc">एक्सेसिबिलिटी सेवा सक्रिय न होने पर स्टेटस बार के नीचे टच ज़ोन दिखाता है।</string>
+    <string name="perm_granted">अनुमति दी गई</string>
+    <string name="perm_allow">चालू करें</string>
+    <string name="restricted_help_title">स्विच धुंधला है?</string>
+    <string name="restricted_help_text">ऐप जानकारी खोलें, ऊपरी दाएं तीन-बिंदु वाले मेनू को टैप करें, प्रतिबंधित सेटिंग्स की अनुमति दें चुनें और फिर से प्रयास करें।</string>
+    <string name="open_app_info">ऐप जानकारी</string>
+    <string name="view_visual_guide">गाइड देखें</string>
+    <string name="success_title">सब तैयार है</string>
+    <string name="success_desc_a11y">टैप ज़ोन सीधे स्टेटस बार पर स्थित है।</string>
+    <string name="success_desc_overlay">टैप ज़ोन स्टेटस बार के नीचे स्थित है। आप बाद में सेटिंग्स में एक्सेसिबिलिटी चालू कर सकते हैं।</string>
+    <string name="cd_setup_complete">सेटअप पूरा हुआ</string>
+
+    <string name="backup_restore_title">बैकअप और रीस्टोर</string>
+    <string name="backup_title">सेटिंग्स का बैकअप लें</string>
+    <string name="backup_desc">अपने जेस्चर और प्राथमिकताएँ फ़ाइल में सेव करें</string>
+    <string name="restore_title">सेटिंग्स रीस्टोर करें</string>
+    <string name="restore_desc">बैकअप फ़ाइल से जेस्चर और प्राथमिकताएँ लोड करें</string>
+    <string name="backup_done">बैकअप सेव हो गया</string>
+    <string name="backup_failed">बैकअप सेव नहीं हो सका</string>
+    <string name="restore_confirm_title">सेटिंग्स रीस्टोर करें?</string>
+    <string name="restore_confirm_message">आपकी मौजूदा सेटिंग्स की जगह %1$s का बैकअप लागू होगा।</string>
+    <string name="restore_confirm_action">रीस्टोर करें</string>
+    <string name="restore_done">सेटिंग्स रीस्टोर हो गईं</string>
+    <string name="restore_invalid">यह मान्य Tapbar बैकअप फ़ाइल नहीं है</string>
+    <string name="restore_newer">यह बैकअप Tapbar के नए वर्ज़न से बनाया गया था। ऐप अपडेट करें और फिर कोशिश करें।</string>
+    <string name="restore_failed">सेटिंग्स रीस्टोर नहीं हो सकीं</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="notification_shade_title">नोटिफिकेशन शेड</string>
 </resources>

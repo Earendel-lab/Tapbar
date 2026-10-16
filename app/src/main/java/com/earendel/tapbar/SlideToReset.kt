@@ -85,7 +85,6 @@ fun SlideToReset(
     val maxTravel = (trackWidthPx - thumbPx - padPx * 2).coerceAtLeast(1f)
 
     val offsetPx = remember { Animatable(0f) }
-    val spin = remember { Animatable(0f) }
     var busy by remember { mutableStateOf(false) }
     var lastBucket by remember { mutableIntStateOf(0) }
     var atEnd by remember { mutableStateOf(false) }
@@ -98,14 +97,12 @@ fun SlideToReset(
         scope.launch {
             offsetPx.animateTo(maxTravel, tween(140, easing = FastOutSlowInEasing))
             haptics.performConfirm(view)
-            launch { spin.animateTo(360f, tween(650, easing = FastOutSlowInEasing)) }
             onReset()
             delay(420)
             offsetPx.animateTo(
                 0f,
                 spring(dampingRatio = 0.82f, stiffness = Spring.StiffnessLow)
             )
-            spin.snapTo(0f)
             lastBucket = 0
             atEnd = false
             busy = false
@@ -193,7 +190,6 @@ fun SlideToReset(
                     val pop = 0.6f + 0.4f * progress
                     scaleX = pop
                     scaleY = pop
-                    rotationZ = progress * 360f + spin.value
                 }
         )
 

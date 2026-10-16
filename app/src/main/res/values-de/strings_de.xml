@@ -77,8 +77,8 @@
     <string name="license">Lizenz</string>
 
     <string name="made_with_love">Mit ♥️ gemacht</string>
-    <string name="tagline_offline">100% Offline • Keine Tracker • Open Source</string>
-    <string name="data_stays_on_device">Deine Daten bleiben 100% auf deinem Gerät</string>
+    <string name="tagline_offline" formatted="false">100% Offline • Keine Tracker • Open Source</string>
+    <string name="data_stays_on_device" formatted="false">Deine Daten bleiben 100% auf deinem Gerät</string>
 
     <string name="search_apps">Apps suchen</string>
     <string name="search_actions">Aktionen suchen</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">Keine Verknüpfungen gefunden</string>
 
     <string name="accessibility_service_title">Bedienungshilfen-Dienst</string>
-    <string name="accessibility_service_body">Ohne den Bedienungshilfen-Dienst zwingt Android die Zone unter die Statusleiste und das System fängt diese Tipper ab. Aktiviere den Dienst, um die Zone direkt auf die Uhr zu legen.</string>
+    <string name="accessibility_service_body">Ohne den Bedienungshilfen-Dienst platziert Android die Zone unterhalb der Statusleiste, und das System erfasst diese Tippgesten. Schalten Sie den Dienst ein, um die Zone direkt auf der Statusleiste zu platzieren.</string>
     <string name="turn_on_accessibility">Bedienungshilfen-Dienst aktivieren</string>
     <string name="permission_needed">Berechtigung erforderlich</string>
     <string name="permission_body">Tapbar benötigt die Berechtigung „Über anderen Apps einblenden“, um die Tippzone auf dem Bildschirm zu platzieren.</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">Erhöht die Medienlautstärke</string>
     <string name="action_volume_down">Leiser</string>
     <string name="action_volume_down_desc">Verringert die Medienlautstärke</string>
+    <string name="action_volume_set">Lautstärke einstellen</string>
+    <string name="action_volume_set_desc">Stellt die Medienlautstärke auf einen bestimmten Wert ein</string>
+    <string name="action_volume_set_label">Lautstärke einstellen (%1$d%%)</string>
+    <string name="volume_level">Lautstärke</string>
     <string name="action_mute">Stummschalten / Ton an</string>
     <string name="action_mute_desc">Schaltet Musik stumm oder laut</string>
     <string name="action_media_play_pause">Medien abspielen / pausieren</string>
@@ -304,4 +308,42 @@
     </plurals>
     <string name="split_shade">Geteilte Benachrichtigungsleiste</string>
     <string name="split_shade_desc">Getrennte Leisten für Benachrichtigungen und Schnelleinstellungen</string>
+
+    <string name="next">Weiter</string>
+    <string name="get_started">Loslegen</string>
+    <string name="skip_for_now">Vorerst überspringen</string>
+    <string name="permissions_title">Tapbar einrichten</string>
+    <string name="perm_accessibility_title">Barrierefreiheit-Dienst</string>
+    <string name="perm_recommended">Empfohlen</string>
+    <string name="perm_accessibility_desc">Ermöglicht das Platzieren der Tippzone direkt auf der Statusleiste. Liest oder überträgt keinen Bildschirminhalt.</string>
+    <string name="perm_overlay_title">Über anderen Apps anzeigen</string>
+    <string name="perm_fallback">Ausweichlösung</string>
+    <string name="perm_overlay_desc">Zeigt die Tippzone unterhalb der Statusleiste an, wenn der Barrierefreiheit-Dienst nicht aktiv ist.</string>
+    <string name="perm_granted">Gewährt</string>
+    <string name="perm_allow">Einschalten</string>
+    <string name="restricted_help_title">Schalter ausgegraut?</string>
+    <string name="restricted_help_text">Öffnen Sie die App-Info, tippen Sie oben rechts auf das Dreipunkt-Menü, wählen Sie Eingeschränkte Einstellungen zulassen und versuchen Sie es erneut.</string>
+    <string name="open_app_info">App-Info</string>
+    <string name="view_visual_guide">Anleitung</string>
+    <string name="success_title">Alles bereit</string>
+    <string name="success_desc_a11y">Die Tippzone liegt direkt auf der Statusleiste.</string>
+    <string name="success_desc_overlay">Die Tippzone liegt unterhalb der Statusleiste. Sie können die Barrierefreiheit später in den Einstellungen aktivieren.</string>
+    <string name="cd_setup_complete">Einrichtung abgeschlossen</string>
+
+    <string name="backup_restore_title">Sicherung &amp; Wiederherstellung</string>
+    <string name="backup_title">Einstellungen sichern</string>
+    <string name="backup_desc">Gesten und Einstellungen in einer Datei speichern</string>
+    <string name="restore_title">Einstellungen wiederherstellen</string>
+    <string name="restore_desc">Gesten und Einstellungen aus einer Sicherungsdatei laden</string>
+    <string name="backup_done">Sicherung gespeichert</string>
+    <string name="backup_failed">Sicherung konnte nicht gespeichert werden</string>
+    <string name="restore_confirm_title">Einstellungen wiederherstellen?</string>
+    <string name="restore_confirm_message">Deine aktuellen Einstellungen werden durch die Sicherung vom %1$s ersetzt.</string>
+    <string name="restore_confirm_action">Wiederherstellen</string>
+    <string name="restore_done">Einstellungen wiederhergestellt</string>
+    <string name="restore_invalid">Das ist keine gültige Tapbar-Sicherungsdatei</string>
+    <string name="restore_newer">Diese Sicherung stammt aus einer neueren Tapbar-Version. Aktualisiere die App und versuche es erneut.</string>
+    <string name="restore_failed">Einstellungen konnten nicht wiederhergestellt werden</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="notification_shade_title">Benachrichtigungsleiste</string>
 </resources>

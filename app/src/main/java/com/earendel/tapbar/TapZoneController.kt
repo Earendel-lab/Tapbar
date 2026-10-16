@@ -485,7 +485,7 @@ class TapZoneController(
             haptics.performGesture(view)
         }
         when (prefs.getSingleTapType(zone)) {
-            1 -> executeAction(prefs.getSingleTapActionId(zone))
+            1 -> executeAction(prefs.getSingleTapActionId(zone), zone, 0)
             2 -> launchShortcut(prefs.getSingleTapShortcutUri(zone), prefs.getSingleTapTargetPkg(zone, context) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getSingleTapTargetPkg(zone, context) ?: if (zone == 0) prefs.targetPackage else null)
         }
@@ -497,7 +497,7 @@ class TapZoneController(
         val view = views[zone]
         haptics.performConfirm(view)
         when (prefs.getDoubleTapType(zone)) {
-            1 -> executeAction(prefs.getDoubleTapActionId(zone))
+            1 -> executeAction(prefs.getDoubleTapActionId(zone), zone, 1)
             2 -> launchShortcut(prefs.getDoubleTapShortcutUri(zone), prefs.getDoubleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getDoubleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
         }
@@ -509,7 +509,7 @@ class TapZoneController(
         val view = views[zone]
         haptics.performConfirm(view)
         when (prefs.getTripleTapType(zone)) {
-            1 -> executeAction(prefs.getTripleTapActionId(zone))
+            1 -> executeAction(prefs.getTripleTapActionId(zone), zone, 2)
             2 -> launchShortcut(prefs.getTripleTapShortcutUri(zone), prefs.getTripleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getTripleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
         }
@@ -521,7 +521,7 @@ class TapZoneController(
         val view = views[zone]
         haptics.performConfirm(view)
         when (prefs.getLongPressType(zone)) {
-            1 -> executeAction(prefs.getLongPressActionId(zone))
+            1 -> executeAction(prefs.getLongPressActionId(zone), zone, 3)
             2 -> launchShortcut(prefs.getLongPressShortcutUri(zone), prefs.getLongPressTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getLongPressTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
         }
@@ -549,7 +549,7 @@ class TapZoneController(
     }
 
     @SuppressLint("NewApi")
-    private fun executeAction(actionId: String?) {
+    private fun executeAction(actionId: String?, zone: Int = 0, gesture: Int = 0) {
         if (actionId.isNullOrEmpty()) return
         val service = TapAccessibilityServiceHolder.service
         when (actionId) {
@@ -590,6 +590,7 @@ class TapZoneController(
             "media_next" -> dispatchMediaKey(context, KeyEvent.KEYCODE_MEDIA_NEXT)
             "media_previous" -> dispatchMediaKey(context, KeyEvent.KEYCODE_MEDIA_PREVIOUS)
             "volume_up" -> adjustVolume(context, AudioManager.ADJUST_RAISE)
+            "volume_set" -> setVolumePercent(context, prefs.getVolumeLevel(zone, gesture))
             "volume_down" -> adjustVolume(context, AudioManager.ADJUST_LOWER)
             "mute" -> toggleMute(context)
             "ringer_mode" -> cycleRingerMode(context)
@@ -677,6 +678,19 @@ class TapZoneController(
             am.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, AudioManager.FLAG_SHOW_UI)
         } catch (t: Throwable) {
             Log.e("Tapbar", "Could not adjust volume", t)
+        }
+    }
+
+    private fun setVolumePercent(context: Context, percent: Int) {
+        try {
+            val am = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
+            if (am.isVolumeFixed) return
+            val max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            if (max <= 0) return
+            val index = ((percent.coerceIn(0, 100) * max + 50) / 100).coerceIn(0, max)
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, index, AudioManager.FLAG_SHOW_UI)
+        } catch (t: Throwable) {
+            Log.e("Tapbar", "Could not set volume", t)
         }
     }
 

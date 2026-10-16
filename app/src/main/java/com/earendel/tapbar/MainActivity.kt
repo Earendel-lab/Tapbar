@@ -281,7 +281,8 @@ val mediaActions = listOf(
     ActionEntry("mute", R.string.action_mute, R.string.action_mute_desc, Icons.Rounded.VolumeOff),
     ActionEntry("media_play_pause", R.string.action_media_play_pause, R.string.action_media_play_pause_desc, Icons.Rounded.PlayArrow),
     ActionEntry("media_next", R.string.action_media_next, R.string.action_media_next_desc, Icons.Rounded.SkipNext),
-    ActionEntry("media_previous", R.string.action_media_previous, R.string.action_media_previous_desc, Icons.Rounded.SkipPrevious)
+    ActionEntry("media_previous", R.string.action_media_previous, R.string.action_media_previous_desc, Icons.Rounded.SkipPrevious),
+    ActionEntry("volume_set", R.string.action_volume_set, R.string.action_volume_set_desc, Icons.Rounded.Tune)
 )
 
 val displayActions = listOf(
@@ -359,6 +360,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var prefs: Prefs
     private val themeMode = mutableIntStateOf(0)
+    private val restoreGeneration = BackupManager.generation
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.wrap(newBase))
@@ -398,6 +400,10 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         if (LocaleHelper.needsRecreate(this)) {
+            recreate()
+            return
+        }
+        if (restoreGeneration != BackupManager.generation) {
             recreate()
             return
         }
@@ -604,6 +610,7 @@ fun HomeScreen(
         w = prefs.getZoneWidth(selectedZone)
         h = prefs.getZoneHeight(selectedZone)
 
+        singleTapEnabled = prefs.getSingleTapEnabled(selectedZone)
         singleTapType = prefs.getSingleTapType(selectedZone)
         singleTapPkg = prefs.getSingleTapTargetPkg(selectedZone, context)
         singleTapLabel = when (singleTapType) {
@@ -1238,7 +1245,7 @@ fun HomeScreen(
                                 painter = painterResource(R.drawable.ic_block_red),
                                 contentDescription = stringResource(R.string.cd_block_in_apps),
                                 modifier = Modifier.size(32.dp),
-                                tint = Color.Unspecified
+                                tint = Color(0xFFD71921)
                             )
                         },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
@@ -1373,147 +1380,147 @@ fun HomeScreen(
                         }
                     )
                 } else {
-                val currentType = when (gestureMode) {
-                    1 -> doubleTapType
-                    2 -> tripleTapType
-                    3 -> longPressType
-                    else -> singleTapType
-                }
+                    val currentType = when (gestureMode) {
+                        1 -> doubleTapType
+                        2 -> tripleTapType
+                        3 -> longPressType
+                        else -> singleTapType
+                    }
 
-                val radioScale0 by animateFloatAsState(
-                    targetValue = if (currentType == 0) 1.15f else 1.0f,
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                    label = "RadioScale0"
-                )
-                val radioScale1 by animateFloatAsState(
-                    targetValue = if (currentType == 1) 1.15f else 1.0f,
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                    label = "RadioScale1"
-                )
-                val radioScale2 by animateFloatAsState(
-                    targetValue = if (currentType == 2) 1.15f else 1.0f,
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                    label = "RadioScale2"
-                )
+                    val radioScale0 by animateFloatAsState(
+                        targetValue = if (currentType == 0) 1.15f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "RadioScale0"
+                    )
+                    val radioScale1 by animateFloatAsState(
+                        targetValue = if (currentType == 1) 1.15f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "RadioScale1"
+                    )
+                    val radioScale2 by animateFloatAsState(
+                        targetValue = if (currentType == 2) 1.15f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "RadioScale2"
+                    )
 
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    SegmentedCard(
-                        index = 0,
-                        count = 3,
-                        onClick = {
-                            haptics.performSelection(view)
-                            when (gestureMode) {
-                                1 -> { doubleTapType = 0; prefs.setDoubleTapType(selectedZone, 0) }
-                                2 -> { tripleTapType = 0; prefs.setTripleTapType(selectedZone, 0) }
-                                3 -> { longPressType = 0; prefs.setLongPressType(selectedZone, 0) }
-                                else -> { singleTapType = 0; prefs.setSingleTapType(selectedZone, 0) }
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        SegmentedCard(
+                            index = 0,
+                            count = 3,
+                            onClick = {
+                                haptics.performSelection(view)
+                                when (gestureMode) {
+                                    1 -> { doubleTapType = 0; prefs.setDoubleTapType(selectedZone, 0) }
+                                    2 -> { tripleTapType = 0; prefs.setTripleTapType(selectedZone, 0) }
+                                    3 -> { longPressType = 0; prefs.setLongPressType(selectedZone, 0) }
+                                    else -> { singleTapType = 0; prefs.setSingleTapType(selectedZone, 0) }
+                                }
+                                showGestureSheetFor = null
+                                onOpenPicker(gestureMode)
                             }
-                            showGestureSheetFor = null
-                            onOpenPicker(gestureMode)
-                        }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                stringResource(R.string.open_app),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Icon(
-                                painter = painterResource(
-                                    if (currentType == 0) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
-                                ),
-                                contentDescription = null,
+                            Row(
                                 modifier = Modifier
-                                    .size(24.dp)
-                                    .graphicsLayer(scaleX = radioScale0, scaleY = radioScale0),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-
-                    SegmentedCard(
-                        index = 1,
-                        count = 3,
-                        onClick = {
-                            haptics.performSelection(view)
-                            when (gestureMode) {
-                                1 -> { doubleTapType = 1; prefs.setDoubleTapType(selectedZone, 1) }
-                                2 -> { tripleTapType = 1; prefs.setTripleTapType(selectedZone, 1) }
-                                3 -> { longPressType = 1; prefs.setLongPressType(selectedZone, 1) }
-                                else -> { singleTapType = 1; prefs.setSingleTapType(selectedZone, 1) }
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    stringResource(R.string.open_app),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    painter = painterResource(
+                                        if (currentType == 0) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .graphicsLayer(scaleX = radioScale0, scaleY = radioScale0),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
                             }
-                            showGestureSheetFor = null
-                            onOpenActionPicker(gestureMode)
                         }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                stringResource(R.string.perform_action),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Icon(
-                                painter = painterResource(
-                                    if (currentType == 1) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
-                                ),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .graphicsLayer(scaleX = radioScale1, scaleY = radioScale1),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
 
-                    SegmentedCard(
-                        index = 2,
-                        count = 3,
-                        onClick = {
-                            haptics.performSelection(view)
-                            showGestureSheetFor = null
-                            onOpenShortcutPicker(gestureMode)
-                        }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        SegmentedCard(
+                            index = 1,
+                            count = 3,
+                            onClick = {
+                                haptics.performSelection(view)
+                                when (gestureMode) {
+                                    1 -> { doubleTapType = 1; prefs.setDoubleTapType(selectedZone, 1) }
+                                    2 -> { tripleTapType = 1; prefs.setTripleTapType(selectedZone, 1) }
+                                    3 -> { longPressType = 1; prefs.setLongPressType(selectedZone, 1) }
+                                    else -> { singleTapType = 1; prefs.setSingleTapType(selectedZone, 1) }
+                                }
+                                showGestureSheetFor = null
+                                onOpenActionPicker(gestureMode)
+                            }
                         ) {
-                            Text(
-                                stringResource(R.string.app_shortcut),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Icon(
-                                painter = painterResource(
-                                    if (currentType == 2) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
-                                ),
-                                contentDescription = null,
+                            Row(
                                 modifier = Modifier
-                                    .size(24.dp)
-                                    .graphicsLayer(scaleX = radioScale2, scaleY = radioScale2),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    stringResource(R.string.perform_action),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    painter = painterResource(
+                                        if (currentType == 1) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .graphicsLayer(scaleX = radioScale1, scaleY = radioScale1),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        SegmentedCard(
+                            index = 2,
+                            count = 3,
+                            onClick = {
+                                haptics.performSelection(view)
+                                showGestureSheetFor = null
+                                onOpenShortcutPicker(gestureMode)
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    stringResource(R.string.app_shortcut),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    painter = painterResource(
+                                        if (currentType == 2) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .graphicsLayer(scaleX = radioScale2, scaleY = radioScale2),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
-                }
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -1573,10 +1580,10 @@ fun GestureSquareCard(
                 ) {
                     if (!isEnabled) {
                         Icon(
-                            imageVector = Icons.Rounded.Block,
+                            painter = painterResource(R.drawable.ic_block_red),
                             contentDescription = stringResource(R.string.disabled),
                             modifier = Modifier.size(36.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = Color(0xFFD71921)
                         )
                     } else if (isAppType && appIcon != null) {
                         Image(
@@ -1676,10 +1683,10 @@ fun SwipeGestureCard(
                 ) {
                     if (!enabled || !isEnabledControls) {
                         Icon(
-                            imageVector = Icons.Rounded.Block,
+                            painter = painterResource(R.drawable.ic_block_red),
                             contentDescription = stringResource(R.string.disabled),
                             modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = Color(0xFFD71921)
                         )
                     } else {
                         Icon(
@@ -1728,6 +1735,19 @@ fun ActionPickerScreen(
         3 -> prefs.getLongPressActionId(zone)
         else -> prefs.getSingleTapActionId(zone)
     }
+    var selectedId by remember { mutableStateOf(selectedActionId) }
+    var volumeLevel by remember { mutableIntStateOf(prefs.getVolumeLevel(zone, gestureMode)) }
+
+    fun saveVolumeLabel(level: Int) {
+        val label = context.getString(R.string.action_volume_set_label, level)
+        when (gestureMode) {
+            1 -> prefs.setDoubleTapActionLabel(zone, label)
+            2 -> prefs.setTripleTapActionLabel(zone, label)
+            3 -> prefs.setLongPressActionLabel(zone, label)
+            else -> prefs.setSingleTapActionLabel(zone, label)
+        }
+    }
+
     var searchQuery by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
@@ -1888,7 +1908,7 @@ fun ActionPickerScreen(
                                 action = action,
                                 index = index,
                                 totalCount = actions.size,
-                                isSelected = (selectedActionId == action.id),
+                                isSelected = (selectedId == action.id),
                                 onSelect = {
                                     haptics.performSelection(view)
                                     when (gestureMode) {
@@ -1914,9 +1934,37 @@ fun ActionPickerScreen(
                                             openNotificationPolicyAccessSettings(context)
                                         }
                                     }
-                                    onBack()
+                                    selectedId = action.id
+                                    if (action.id == "volume_set") {
+                                        saveVolumeLabel(volumeLevel)
+                                    } else {
+                                        onBack()
+                                    }
                                 }
                             )
+                        }
+                        if (selectedId == "volume_set" && actions.any { it.id == "volume_set" }) {
+                            item(key = "volume_level_card") {
+                                SegmentedCard(
+                                    index = 0,
+                                    count = 1,
+                                    modifier = Modifier.padding(top = 10.dp)
+                                ) {
+                                    DpSlider(
+                                        label = stringResource(R.string.volume_level),
+                                        value = volumeLevel,
+                                        min = 0f,
+                                        max = 100f,
+                                        stepInterval = 5f,
+                                        unit = "%",
+                                        onChange = {
+                                            volumeLevel = it
+                                            prefs.setVolumeLevel(zone, gestureMode, it)
+                                        },
+                                        onChangeFinished = { saveVolumeLabel(volumeLevel) }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -2510,7 +2558,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .graphicsLayer(scaleX = scale, scaleY = scale),
-                                            tint = Color.Unspecified
+                                            tint = Color(0xFFD71921)
                                         )
                                     } else {
                                         Icon(
@@ -2670,7 +2718,8 @@ fun DpSlider(
     stepInterval: Float = 15f,
     enabled: Boolean = true,
     onChange: (Int) -> Unit,
-    onChangeFinished: (() -> Unit)? = null
+    onChangeFinished: (() -> Unit)? = null,
+    unit: String? = null
 ) {
     val haptics = LocalHapticManager.current
     val view = LocalView.current
@@ -2696,7 +2745,7 @@ fun DpSlider(
         onChangeFinished?.invoke()
         isEditing = false
     }
-    val unitSuffix = if (label.contains("speed", ignoreCase = true)) "ms" else "dp"
+    val unitSuffix = unit ?: if (label.contains("speed", ignoreCase = true)) "ms" else "dp"
 
     Column(
         modifier = Modifier
@@ -2775,7 +2824,7 @@ fun DpSlider(
                 }
             } else {
                 Text(
-                    text = "$value $unitSuffix",
+                    text = if (unit == "%") "$value%" else "$value $unitSuffix",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,

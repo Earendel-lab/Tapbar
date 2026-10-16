@@ -77,8 +77,8 @@
     <string name="license">लाइसेन्स</string>
 
     <string name="made_with_love">♥️ सँग बनाइएको</string>
-    <string name="tagline_offline">१००% अफलाइन • ट्र्याकररहित • ओपन सोर्स</string>
-    <string name="data_stays_on_device">तपाईंको डाटा १००% तपाईंको उपकरणमै रहन्छ</string>
+    <string name="tagline_offline" formatted="false">१००% अफलाइन • ट्र्याकररहित • ओपन सोर्स</string>
+    <string name="data_stays_on_device" formatted="false">तपाईंको डाटा १००% तपाईंको उपकरणमै रहन्छ</string>
 
     <string name="search_apps">एपहरू खोज्नुहोस्</string>
     <string name="search_actions">कार्यहरू खोज्नुहोस्</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">कुनै सर्टकट फेला परेन</string>
 
     <string name="accessibility_service_title">पहुँचयोग्यता सेवा</string>
-    <string name="accessibility_service_body">पहुँचयोग्यता सेवा बिना, Android ले जोनलाई स्थिति पट्टीको मुनि धकेल्छ र प्रणालीले ती ट्यापहरू लिन्छ। जोनलाई सिधै घडीमाथि राख्न सेवा सक्रिय गर्नुहोस्।</string>
+    <string name="accessibility_service_body">पहुँचयोग्यता सेवा बिना, Android ले जोनलाई स्थिति पट्टीको मुनि राख्छ र प्रणालीले ती ट्यापहरू लिन्छ। स्थिति पट्टीमै जोन राख्न सेवा चालू गर्नुहोस्।</string>
     <string name="turn_on_accessibility">पहुँचयोग्यता सेवा सक्रिय गर्नुहोस्</string>
     <string name="permission_needed">अनुमति आवश्यक छ</string>
     <string name="permission_body">Tapbar लाई स्क्रिनमा आफ्नो ट्याप जोन राख्न \"अन्य एपहरूमाथि देखाउनुहोस्\" अनुमति चाहिन्छ।</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">मिडिया भोल्युम बढाउँछ</string>
     <string name="action_volume_down">भोल्युम घटाउनुहोस्</string>
     <string name="action_volume_down_desc">मिडिया भोल्युम घटाउँछ</string>
+    <string name="action_volume_set">भोल्युम सेट गर्नुहोस्</string>
+    <string name="action_volume_set_desc">मिडिया भोल्युमलाई निश्चित स्तरमा सेट गर्दछ</string>
+    <string name="action_volume_set_label">भोल्युम सेट गर्नुहोस् (%1$d%%)</string>
+    <string name="volume_level">भोल्युम स्तर</string>
     <string name="action_mute">म्युट / अनम्युट</string>
     <string name="action_mute_desc">सङ्गीत भोल्युम म्युट वा अनम्युट गर्छ</string>
     <string name="action_media_play_pause">मिडिया प्ले / पज गर्नुहोस्</string>
@@ -304,4 +308,42 @@
     </plurals>
     <string name="split_shade">विभाजित सूचना शेड</string>
     <string name="split_shade_desc">सूचना र द्रुत सेटिङहरूका लागि छुट्टाछुट्टै शेड</string>
+
+    <string name="next">अगाडि बढ्नुहोस्</string>
+    <string name="get_started">सुरु गर्नुहोस्</string>
+    <string name="skip_for_now">अहिलेलाई छोड्नुहोस्</string>
+    <string name="permissions_title">Tapbar सेटअप गर्नुहोस्</string>
+    <string name="perm_accessibility_title">पहुँच सेवा (Accessibility)</string>
+    <string name="perm_recommended">सिफारिस गरिएको</string>
+    <string name="perm_accessibility_desc">टच जोनलाई सिधै स्थिति पट्टीमा राख्न दिन्छ। यसले कुनै स्क्रिन पाठ पढ्दैन वा पठाउँदैन।</string>
+    <string name="perm_overlay_title">अन्य एपहरूमाथि देखाउनुहोस्</string>
+    <string name="perm_fallback">विकल्प</string>
+    <string name="perm_overlay_desc">पहुँच सेवा सक्रिय नहुँदा स्थिति पट्टीमुनि टच जोन देखाउँछ।</string>
+    <string name="perm_granted">स्वीकृत</string>
+    <string name="perm_allow">चालू गर्नुहोस्</string>
+    <string name="restricted_help_title">स्विच धुमिल छ?</string>
+    <string name="restricted_help_text">एप जानकारी खोल्नुहोस्, माथिल्लो दायँ तीन-विन्दु मेनुमा ट्याप गर्नुहोस्, प्रतिबन्धित सेटिङहरू अनुमति दिनुहोस् छान्नुहोस् र पुनः प्रयास गर्नुहोस्।</string>
+    <string name="open_app_info">एप जानकारी</string>
+    <string name="view_visual_guide">गाइड हेर्नुहोस्</string>
+    <string name="success_title">सबै तयार भयो</string>
+    <string name="success_desc_a11y">ट्याप जोन सिधै स्थिति पट्टीमा स्थित छ।</string>
+    <string name="success_desc_overlay">ट्याप जोन स्थिति पट्टीमुनि स्थित छ। तपाईं पछि सेटिङहरूमा पहुँच सेवा चालू गर्न सक्नुहुन्छ।</string>
+    <string name="cd_setup_complete">सेटअप पूर्ण भयो</string>
+
+    <string name="backup_restore_title">ब्याकअप र पुनर्स्थापना</string>
+    <string name="backup_title">सेटिङहरूको ब्याकअप लिनुहोस्</string>
+    <string name="backup_desc">आफ्ना जेस्चर र सेटिङहरू फाइलमा सुरक्षित गर्नुहोस्</string>
+    <string name="restore_title">सेटिङहरू पुनर्स्थापना गर्नुहोस्</string>
+    <string name="restore_desc">ब्याकअप फाइलबाट जेस्चर र सेटिङहरू लोड गर्नुहोस्</string>
+    <string name="backup_done">ब्याकअप सुरक्षित गरियो</string>
+    <string name="backup_failed">ब्याकअप सुरक्षित गर्न सकिएन</string>
+    <string name="restore_confirm_title">सेटिङहरू पुनर्स्थापना गर्ने?</string>
+    <string name="restore_confirm_message">तपाईंका हालका सेटिङहरू %1$s को ब्याकअपले प्रतिस्थापन गर्नेछ।</string>
+    <string name="restore_confirm_action">पुनर्स्थापना गर्नुहोस्</string>
+    <string name="restore_done">सेटिङहरू पुनर्स्थापना गरियो</string>
+    <string name="restore_invalid">यो मान्य Tapbar ब्याकअप फाइल होइन</string>
+    <string name="restore_newer">यो ब्याकअप Tapbar को नयाँ संस्करणबाट बनाइएको हो। एप अपडेट गरेर फेरि प्रयास गर्नुहोस्।</string>
+    <string name="restore_failed">सेटिङहरू पुनर्स्थापना गर्न सकिएन</string>
+    <string name="cancel">रद्द गर्नुहोस्</string>
+    <string name="notification_shade_title">सूचना शेड</string>
 </resources>

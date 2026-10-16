@@ -10,8 +10,11 @@ object LabelRefresher {
     private fun store(context: Context) =
         context.getSharedPreferences("tapbar_prefs", Context.MODE_PRIVATE)
 
-    private fun actionTitle(localized: Context, id: String?): String? {
+    private fun actionTitle(localized: Context, id: String?, volumeLevel: Int): String? {
         val entry = systemActions.firstOrNull { it.id == id } ?: return null
+        if (entry.id == "volume_set") {
+            return localized.getString(R.string.action_volume_set_label, volumeLevel)
+        }
         return localized.getString(entry.titleRes)
     }
 
@@ -33,10 +36,10 @@ object LabelRefresher {
         }
 
         for (zone in 0 until ZONE_COUNT) {
-            actionTitle(localized, prefs.getSingleTapActionId(zone))?.let { prefs.setSingleTapActionLabel(zone, it) }
-            actionTitle(localized, prefs.getDoubleTapActionId(zone))?.let { prefs.setDoubleTapActionLabel(zone, it) }
-            actionTitle(localized, prefs.getTripleTapActionId(zone))?.let { prefs.setTripleTapActionLabel(zone, it) }
-            actionTitle(localized, prefs.getLongPressActionId(zone))?.let { prefs.setLongPressActionLabel(zone, it) }
+            actionTitle(localized, prefs.getSingleTapActionId(zone), prefs.getVolumeLevel(zone, 0))?.let { prefs.setSingleTapActionLabel(zone, it) }
+            actionTitle(localized, prefs.getDoubleTapActionId(zone), prefs.getVolumeLevel(zone, 1))?.let { prefs.setDoubleTapActionLabel(zone, it) }
+            actionTitle(localized, prefs.getTripleTapActionId(zone), prefs.getVolumeLevel(zone, 2))?.let { prefs.setTripleTapActionLabel(zone, it) }
+            actionTitle(localized, prefs.getLongPressActionId(zone), prefs.getVolumeLevel(zone, 3))?.let { prefs.setLongPressActionLabel(zone, it) }
 
             appLabel(prefs.getSingleTapTargetPkg(zone))?.let { prefs.setSingleTapTargetLabel(zone, it) }
             appLabel(prefs.getDoubleTapTargetPkg(zone))?.let { prefs.setDoubleTapTargetLabel(zone, it) }

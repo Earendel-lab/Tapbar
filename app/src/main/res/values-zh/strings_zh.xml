@@ -77,8 +77,8 @@
     <string name="license">开源许可证</string>
 
     <string name="made_with_love">用 ♥️ 制作</string>
-    <string name="tagline_offline">100% 离线 • 无追踪器 • 开源</string>
-    <string name="data_stays_on_device">您的数据 100% 保存在您的设备上</string>
+    <string name="tagline_offline" formatted="false">100% 离线 • 无追踪器 • 开源</string>
+    <string name="data_stays_on_device" formatted="false">您的数据 100% 保存在您的设备上</string>
 
     <string name="search_apps">搜索应用</string>
     <string name="search_actions">搜索动作</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">未找到快捷方式</string>
 
     <string name="accessibility_service_title">无障碍服务</string>
-    <string name="accessibility_service_body">未开启无障碍服务时，Android 会将触摸区域强制放在状态栏下方，系统会拦截这些点击。开启该服务后，即可把触摸区域放在时钟上。</string>
+    <string name="accessibility_service_body">未开启无障碍服务时，Android 会将触摸区域放在状态栏下方，系统会拦截这些点击。开启服务后即可将触摸区域直接放在状态栏上。</string>
     <string name="turn_on_accessibility">开启无障碍服务</string>
     <string name="permission_needed">需要权限</string>
     <string name="permission_body">Tapbar 需要“显示在其他应用上层”权限，才能在屏幕上放置触摸区域。</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">提高媒体音量</string>
     <string name="action_volume_down">调低音量</string>
     <string name="action_volume_down_desc">降低媒体音量</string>
+    <string name="action_volume_set">设置音量</string>
+    <string name="action_volume_set_desc">将媒体音量设置为特定级别</string>
+    <string name="action_volume_set_label">设置音量 (%1$d%%)</string>
+    <string name="volume_level">音量级别</string>
     <string name="action_mute">静音/取消静音</string>
     <string name="action_mute_desc">切换音乐音量静音</string>
     <string name="action_media_play_pause">播放/暂停媒体</string>
@@ -302,4 +306,42 @@
     </plurals>
     <string name="split_shade">分割通知栏</string>
     <string name="split_shade_desc">分离通知和快捷设置面板</string>
+
+    <string name="next">下一步</string>
+    <string name="get_started">开始使用</string>
+    <string name="skip_for_now">暂时跳过</string>
+    <string name="permissions_title">设置 Tapbar</string>
+    <string name="perm_accessibility_title">无障碍服务</string>
+    <string name="perm_recommended">推荐</string>
+    <string name="perm_accessibility_desc">允许将点击区域直接放在状态栏上。不会读取或发送任何屏幕文本。</string>
+    <string name="perm_overlay_title">显示在其他应用上</string>
+    <string name="perm_fallback">备用方案</string>
+    <string name="perm_overlay_desc">当无障碍服务未处于活动状态时，在状态栏下方显示点击区域。</string>
+    <string name="perm_granted">已授予</string>
+    <string name="perm_allow">开启</string>
+    <string name="restricted_help_title">开关显示为灰色？</string>
+    <string name="restricted_help_text">打开应用信息，点击右上角的三点菜单，选择“允许受限设置”，然后重试。</string>
+    <string name="open_app_info">应用信息</string>
+    <string name="view_visual_guide">图文指南</string>
+    <string name="success_title">已全部就绪</string>
+    <string name="success_desc_a11y">点击区域直接位于状态栏上。</string>
+    <string name="success_desc_overlay">点击区域位于状态栏下方。您可以稍后在设置中开启无障碍服务。</string>
+    <string name="cd_setup_complete">设置完成</string>
+
+    <string name="backup_restore_title">备份与恢复</string>
+    <string name="backup_title">备份设置</string>
+    <string name="backup_desc">将手势和偏好设置保存到文件</string>
+    <string name="restore_title">恢复设置</string>
+    <string name="restore_desc">从备份文件加载手势和偏好设置</string>
+    <string name="backup_done">备份已保存</string>
+    <string name="backup_failed">无法保存备份</string>
+    <string name="restore_confirm_title">恢复设置？</string>
+    <string name="restore_confirm_message">当前设置将被 %1$s 的备份替换。</string>
+    <string name="restore_confirm_action">恢复</string>
+    <string name="restore_done">设置已恢复</string>
+    <string name="restore_invalid">这不是有效的 Tapbar 备份文件</string>
+    <string name="restore_newer">此备份由更新版本的 Tapbar 创建。请更新应用后重试。</string>
+    <string name="restore_failed">无法恢复设置</string>
+    <string name="cancel">取消</string>
+    <string name="notification_shade_title">通知栏</string>
 </resources>

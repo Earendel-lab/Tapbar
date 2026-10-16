@@ -77,8 +77,8 @@
     <string name="license">Лицензия</string>
 
     <string name="made_with_love">Сделано с ♥️</string>
-    <string name="tagline_offline">100% Офлайн • Без трекеров • Открытый код</string>
-    <string name="data_stays_on_device">Ваши данные остаются 100% на устройстве</string>
+    <string name="tagline_offline" formatted="false">100% Офлайн • Без трекеров • Открытый код</string>
+    <string name="data_stays_on_device" formatted="false">Ваши данные остаются 100% на устройстве</string>
 
     <string name="search_apps">Поиск приложений</string>
     <string name="search_actions">Поиск действий</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">Ярлыки не найдены</string>
 
     <string name="accessibility_service_title">Служба специальных возможностей</string>
-    <string name="accessibility_service_body">Без службы специальных возможностей Android смещает зону под строку состояния, и система перехватывает эти нажатия. Включите службу, чтобы поместить зону прямо на часы.</string>
+    <string name="accessibility_service_body">Без службы специальных возможностей Android смещает зону под строку состояния, и система перехватывает касания. Включите службу, чтобы разместить зону прямо на строке состояния.</string>
     <string name="turn_on_accessibility">Включить службу специальных возможностей</string>
     <string name="permission_needed">Требуется разрешение</string>
     <string name="permission_body">Для размещения зоны касания на экране Tapbar нужно разрешение «Поверх других приложений».</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">Увеличивает громкость мультимедиа</string>
     <string name="action_volume_down">Громкость ниже</string>
     <string name="action_volume_down_desc">Уменьшает громкость мультимедиа</string>
+    <string name="action_volume_set">Установить громкость</string>
+    <string name="action_volume_set_desc">Устанавливает громкость мультимедиа на определенный уровень</string>
+    <string name="action_volume_set_label">Установить громкость (%1$d%%)</string>
+    <string name="volume_level">Уровень громкости</string>
     <string name="action_mute">Выключить / включить звук</string>
     <string name="action_mute_desc">Отключает или включает звук музыки</string>
     <string name="action_media_play_pause">Воспроизведение / пауза</string>
@@ -308,4 +312,42 @@
     </plurals>
     <string name="split_shade">Раздельная шторка уведомлений</string>
     <string name="split_shade_desc">Раздельные шторки для уведомлений и быстрых настроек</string>
+
+    <string name="next">Далее</string>
+    <string name="get_started">Начать</string>
+    <string name="skip_for_now">Пропустить</string>
+    <string name="permissions_title">Настройка Tapbar</string>
+    <string name="perm_accessibility_title">Служба специальных возможностей</string>
+    <string name="perm_recommended">Рекомендуется</string>
+    <string name="perm_accessibility_desc">Позволяет разместить сенсорную зону прямо на строке состояния. Не читает и не передает текст с экрана.</string>
+    <string name="perm_overlay_title">Отображение поверх других окон</string>
+    <string name="perm_fallback">Запасной вариант</string>
+    <string name="perm_overlay_desc">Отображает сенсорную зону под строкой состояния, когда служба специальных возможностей не активна.</string>
+    <string name="perm_granted">Предоставлено</string>
+    <string name="perm_allow">Включить</string>
+    <string name="restricted_help_title">Переключатель неактивен?</string>
+    <string name="restricted_help_text">Откройте информацию о приложении, нажмите меню из трех точек вверху справа, выберите Разрешить ограниченные настройки и попробуйте снова.</string>
+    <string name="open_app_info">О приложении</string>
+    <string name="view_visual_guide">Инструкция</string>
+    <string name="success_title">Всё готово</string>
+    <string name="success_desc_a11y">Сенсорная зона расположена прямо на строке состояния.</string>
+    <string name="success_desc_overlay">Сенсорная зона расположена под строкой состояния. Вы можете включить специальные возможности позже в настройках.</string>
+    <string name="cd_setup_complete">Настройка завершена</string>
+
+    <string name="backup_restore_title">Резервная копия и восстановление</string>
+    <string name="backup_title">Создать резервную копию</string>
+    <string name="backup_desc">Сохранить жесты и настройки в файл</string>
+    <string name="restore_title">Восстановить настройки</string>
+    <string name="restore_desc">Загрузить жесты и настройки из файла резервной копии</string>
+    <string name="backup_done">Резервная копия сохранена</string>
+    <string name="backup_failed">Не удалось сохранить резервную копию</string>
+    <string name="restore_confirm_title">Восстановить настройки?</string>
+    <string name="restore_confirm_message">Текущие настройки будут заменены резервной копией от %1$s.</string>
+    <string name="restore_confirm_action">Восстановить</string>
+    <string name="restore_done">Настройки восстановлены</string>
+    <string name="restore_invalid">Это недействительный файл резервной копии Tapbar</string>
+    <string name="restore_newer">Эта копия создана в более новой версии Tapbar. Обновите приложение и повторите попытку.</string>
+    <string name="restore_failed">Не удалось восстановить настройки</string>
+    <string name="cancel">Отмена</string>
+    <string name="notification_shade_title">Шторка уведомлений</string>
 </resources>

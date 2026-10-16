@@ -1,0 +1,5 @@
+Added a new permission setup onboarding screen
+Added backup and restore functionality
+Added customizable media volume levels
+Fixed volume swipe gestures not working on some devices
+Improved tap zone behavior

@@ -77,8 +77,8 @@
     <string name="license">라이선스</string>
 
     <string name="made_with_love">♥️로 제작됨</string>
-    <string name="tagline_offline">100% 오프라인 • 추적기 없음 • 오픈 소스</string>
-    <string name="data_stays_on_device">모든 데이터는 기기에만 안전하게 저장됩니다</string>
+    <string name="tagline_offline" formatted="false">100% 오프라인 • 추적기 없음 • 오픈 소스</string>
+    <string name="data_stays_on_device" formatted="false">모든 데이터는 기기에만 안전하게 저장됩니다</string>
 
     <string name="search_apps">앱 검색</string>
     <string name="search_actions">동작 검색</string>
@@ -88,7 +88,7 @@
     <string name="no_shortcuts_found">바로가기를 찾을 수 없습니다</string>
 
     <string name="accessibility_service_title">접근성 서비스</string>
-    <string name="accessibility_service_body">접근성 서비스를 사용하지 않으면 Android가 탭 영역을 상태 표시줄 아래로 강제로 옮기고, 시스템이 해당 탭을 가져갑니다. 서비스를 켜면 시계 위에 탭 영역을 둘 수 있습니다.</string>
+    <string name="accessibility_service_body">접근성 서비스를 사용하지 않으면 Android가 영역을 상태 표시줄 아래로 이동시키고 시스템이 터치를 차단합니다. 접근성 서비스를 켜면 상태 표시줄 위에 직접 영역을 배치할 수 있습니다.</string>
     <string name="turn_on_accessibility">접근성 서비스 켜기</string>
     <string name="permission_needed">권한 필요</string>
     <string name="permission_body">Tapbar가 화면에 탭 영역을 표시하려면 \'다른 앱 위에 표시\' 권한이 필요합니다.</string>
@@ -171,6 +171,10 @@
     <string name="action_volume_up_desc">미디어 볼륨을 높입니다</string>
     <string name="action_volume_down">볼륨 낮추기</string>
     <string name="action_volume_down_desc">미디어 볼륨을 낮춥니다</string>
+    <string name="action_volume_set">볼륨 설정</string>
+    <string name="action_volume_set_desc">미디어 볼륨을 특정 수준으로 설정합니다</string>
+    <string name="action_volume_set_label">볼륨 설정 (%1$d%%)</string>
+    <string name="volume_level">볼륨 수준</string>
     <string name="action_mute">음소거 / 해제</string>
     <string name="action_mute_desc">음악 볼륨 음소거를 전환합니다</string>
     <string name="action_media_play_pause">미디어 재생 / 일시정지</string>
@@ -302,4 +306,42 @@
     </plurals>
     <string name="split_shade">분할 알림창</string>
     <string name="split_shade_desc">알림창과 빠른 설정창을 분리</string>
+
+    <string name="next">다음</string>
+    <string name="get_started">시작하기</string>
+    <string name="skip_for_now">지금은 건너뛰기</string>
+    <string name="permissions_title">Tapbar 설정</string>
+    <string name="perm_accessibility_title">접근성 서비스</string>
+    <string name="perm_recommended">권장</string>
+    <string name="perm_accessibility_desc">터치 영역을 상태 표시줄 위에 직접 배치합니다. 화면 텍스트를 읽거나 전송하지 않습니다.</string>
+    <string name="perm_overlay_title">다른 앱 위에 표시</string>
+    <string name="perm_fallback">대체</string>
+    <string name="perm_overlay_desc">접근성 서비스가 활성화되지 않은 경우 상태 표시줄 아래에 터치 영역을 표시합니다.</string>
+    <string name="perm_granted">허용됨</string>
+    <string name="perm_allow">켜기</string>
+    <string name="restricted_help_title">스위치가 비활성화되어 있나요?</string>
+    <string name="restricted_help_text">앱 정보를 열고 오른쪽 상단의 점 세 개 메뉴를 누른 후 \'제한된 설정 허용\'을 선택하고 다시 시도하세요.</string>
+    <string name="open_app_info">앱 정보</string>
+    <string name="view_visual_guide">가이드 보기</string>
+    <string name="success_title">모든 준비 완료</string>
+    <string name="success_desc_a11y">탭 영역이 상태 표시줄 위에 직접 배치됩니다.</string>
+    <string name="success_desc_overlay">탭 영역이 상태 표시줄 아래에 배치됩니다. 나중에 설정에서 접근성을 켤 수 있습니다.</string>
+    <string name="cd_setup_complete">설정 완료</string>
+
+    <string name="backup_restore_title">백업 및 복원</string>
+    <string name="backup_title">설정 백업</string>
+    <string name="backup_desc">제스처와 설정을 파일로 저장합니다</string>
+    <string name="restore_title">설정 복원</string>
+    <string name="restore_desc">백업 파일에서 제스처와 설정을 불러옵니다</string>
+    <string name="backup_done">백업이 저장되었습니다</string>
+    <string name="backup_failed">백업을 저장하지 못했습니다</string>
+    <string name="restore_confirm_title">설정을 복원할까요?</string>
+    <string name="restore_confirm_message">현재 설정이 %1$s에 만든 백업으로 교체됩니다.</string>
+    <string name="restore_confirm_action">복원</string>
+    <string name="restore_done">설정이 복원되었습니다</string>
+    <string name="restore_invalid">올바른 Tapbar 백업 파일이 아닙니다</string>
+    <string name="restore_newer">이 백업은 더 최신 버전의 Tapbar에서 만들어졌습니다. 앱을 업데이트한 후 다시 시도하세요.</string>
+    <string name="restore_failed">설정을 복원하지 못했습니다</string>
+    <string name="cancel">취소</string>
+    <string name="notification_shade_title">알림창</string>
 </resources>
