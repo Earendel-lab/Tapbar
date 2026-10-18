@@ -1,4 +1,4 @@
-<img width="1256" height="1030" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/2c6ee6ea-73b7-459b-b9a8-867c07c8dfd5" />
+<img width="1280" height="640" alt="Tapbar Banner" src="https://github.com/user-attachments/assets/541263be-b429-46f2-8004-28a061ee588e" />
 
 <p align="center">
   <strong>Completely offline • Battery efficient • No ads • No trackers </strong>
@@ -53,8 +53,8 @@ You are not limited to the Clock app or even the status bar. You can create tapp
 
 
 <div align="center">
-  
-https://github.com/user-attachments/assets/65ce5d94-bfe1-4132-8be4-fefc59ab1604
+
+https://github.com/user-attachments/assets/c076ad06-f121-417d-ba9c-3dd56d3bc7e2
 
 </div>
 
