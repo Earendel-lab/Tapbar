@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar が実行中です</string>
     <string name="notif_text">タップゾーンが有効です。タップして設定を開きます。</string>
     <string name="notif_channel">Tapbar オーバーレイ</string>
+    <string name="notif_channel_automation">自動化トリガー</string>
     <string name="action_stop">停止</string>
     <string name="accessibility_desc">Tapbarがステータスバー上にタッチ領域を配置することを許可します。画面の内容は読み取りません。</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">自動</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
+
+    <string name="style">スタイル</string>
+    <string name="style_minimal">ミニマル</string>
+    <string name="style_immersive">イマーシブ</string>
 
     <string name="haptic_feedback">触覚フィードバック</string>
     <string name="buzz_every_tap">タップごとに振動</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">ナビゲーションとシステム</string>
     <string name="group_settings">設定</string>
     <string name="group_advanced">詳細設定</string>
+    <string name="group_automation">自動化</string>
     <string name="cd_back">戻る</string>
     <string name="cd_search">検索</string>
     <string name="cd_clear">クリア</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">一部の機種では動作しない場合があります</string>
     <string name="action_dismiss_shade">通知を閉じる</string>
     <string name="action_dismiss_shade_desc">通知シェードを閉じます</string>
+    <string name="action_scroll_to_top">一番上へスクロール</string>
+    <string name="action_scroll_to_top_desc">現在のリストやページを一番上までスクロールします</string>
+    <string name="action_previous_app">前のアプリ</string>
+    <string name="action_previous_app_desc">直前に使っていたアプリに切り替えます</string>
+    <string name="action_scroll_to_bottom">一番下へスクロール</string>
+    <string name="action_scroll_to_bottom_desc">現在のリストやページを一番下までスクロールします</string>
+    <string name="action_page_up">ページアップ</string>
+    <string name="action_page_up_desc">現在のリストやページを1画面分上にスクロールします</string>
+    <string name="action_page_down">ページダウン</string>
+    <string name="action_page_down_desc">現在のリストやページを1画面分下にスクロールします</string>
+    <string name="action_copy">コピー</string>
+    <string name="action_copy_desc">選択中のテキストをコピーします</string>
+    <string name="action_paste">貼り付け</string>
+    <string name="action_paste_desc">クリップボードの内容をフォーカス中の入力欄に貼り付けます</string>
+    <string name="action_select_all">すべて選択</string>
+    <string name="action_select_all_desc">フォーカス中の入力欄のテキストをすべて選択します</string>
+    <string name="action_caffeine">画面をオンのままにする</string>
+    <string name="action_caffeine_desc">オフにするまで画面を点灯したままにします</string>
+    <string name="caffeine_on">画面を点灯したままにします</string>
+    <string name="caffeine_off">画面のタイムアウトを元に戻しました</string>
+    <string name="action_refresh">更新</string>
+    <string name="action_refresh_desc">画面を下に引いて、現在のページやリストを更新します</string>
+    <string name="action_swipe_left">左にスワイプ</string>
+    <string name="action_swipe_left_desc">画面を左にスワイプします（次のタブやページへ移動など）</string>
+    <string name="action_swipe_right">右にスワイプ</string>
+    <string name="action_swipe_right_desc">画面を右にスワイプします（前のタブやページへ移動など）</string>
+    <string name="action_clear_clipboard">クリップボードを消去</string>
+    <string name="action_clear_clipboard_desc">現在コピーされている内容を消去します</string>
+    <string name="action_switch_keyboard">キーボードを切り替え</string>
+    <string name="action_switch_keyboard_desc">キーボード選択画面を開きます</string>
+    <string name="clipboard_cleared">クリップボードを消去しました</string>
+    <string name="action_cut">切り取り</string>
+    <string name="action_cut_desc">選択中のテキストを切り取ります</string>
+    <string name="action_web_search">ウェブ検索</string>
+    <string name="action_web_search_desc">検索を開いて調べものができます</string>
+    <string name="action_open_dialer">電話ダイヤラー</string>
+    <string name="action_open_dialer_desc">電話のダイヤル画面を開きます</string>
+    <string name="action_open_browser">ブラウザ</string>
+    <string name="action_open_browser_desc">既定のウェブブラウザを開きます</string>
+    <string name="action_current_app_info">現在のアプリ情報</string>
+    <string name="action_current_app_info_desc">使用中のアプリの設定ページを開きます</string>
     <string name="action_all_apps">すべてのアプリ</string>
     <string name="action_all_apps_desc">アプリ一覧を開きます</string>
     <string name="action_accessibility_button">ユーザー補助ボタン</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">重ねて表示の権限リストを開きます</string>
     <string name="action_write_settings">システム設定の変更</string>
     <string name="action_write_settings_desc">システム設定の変更リストを開きます</string>
+    <string name="action_send_notification">通知を送信</string>
+    <string name="action_send_notification_desc">Automate、MacroDroid、Taskerが反応できる通知を投稿します</string>
 
     <plurals name="apps_blocked">
         <item quantity="other">%d 個のアプリをブロック中</item>

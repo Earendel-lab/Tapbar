@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar está ejecutándose</string>
     <string name="notif_text">Zona táctil activa. Toca para abrir la configuración.</string>
     <string name="notif_channel">Superposición de Tapbar</string>
+    <string name="notif_channel_automation">Disparadores de automatización</string>
     <string name="action_stop">Detener</string>
     <string name="accessibility_desc">Permite a Tapbar colocar un área táctil en la barra de estado. No lee el contenido de la pantalla.</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">Automático</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
+
+    <string name="style">Estilo</string>
+    <string name="style_minimal">Minimalista</string>
+    <string name="style_immersive">Inmersivo</string>
 
     <string name="haptic_feedback">Vibración háptica</string>
     <string name="buzz_every_tap">Vibrar en cada toque</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">Navegación y sistema</string>
     <string name="group_settings">Ajustes</string>
     <string name="group_advanced">Ajustes avanzados</string>
+    <string name="group_automation">Automatización</string>
     <string name="cd_back">Atrás</string>
     <string name="cd_search">Buscar</string>
     <string name="cd_clear">Borrar</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">No en todos los teléfonos</string>
     <string name="action_dismiss_shade">Descartar notificaciones</string>
     <string name="action_dismiss_shade_desc">Cierra el panel de notificaciones</string>
+    <string name="action_scroll_to_top">Desplazar al inicio</string>
+    <string name="action_scroll_to_top_desc">Desplaza la lista o página actual hasta arriba</string>
+    <string name="action_previous_app">Aplicación anterior</string>
+    <string name="action_previous_app_desc">Vuelve a la aplicación que usaste antes de esta</string>
+    <string name="action_scroll_to_bottom">Desplazar al final</string>
+    <string name="action_scroll_to_bottom_desc">Desplaza la lista o página actual hasta abajo</string>
+    <string name="action_page_up">Subir página</string>
+    <string name="action_page_up_desc">Desplaza la lista o página actual una pantalla hacia arriba</string>
+    <string name="action_page_down">Bajar página</string>
+    <string name="action_page_down_desc">Desplaza la lista o página actual una pantalla hacia abajo</string>
+    <string name="action_copy">Copiar</string>
+    <string name="action_copy_desc">Copia el texto seleccionado</string>
+    <string name="action_paste">Pegar</string>
+    <string name="action_paste_desc">Pega el portapapeles en el campo de texto activo</string>
+    <string name="action_select_all">Seleccionar todo</string>
+    <string name="action_select_all_desc">Selecciona todo el texto del campo de texto activo</string>
+    <string name="action_caffeine">Mantener pantalla encendida</string>
+    <string name="action_caffeine_desc">Mantiene la pantalla encendida hasta que lo desactives</string>
+    <string name="caffeine_on">La pantalla permanecerá encendida</string>
+    <string name="caffeine_off">Tiempo de pantalla restablecido</string>
+    <string name="action_refresh">Actualizar</string>
+    <string name="action_refresh_desc">Desliza hacia abajo para actualizar la página o lista actual</string>
+    <string name="action_swipe_left">Deslizar a la izquierda</string>
+    <string name="action_swipe_left_desc">Desliza hacia la izquierda, por ejemplo a la pestaña o página siguiente</string>
+    <string name="action_swipe_right">Deslizar a la derecha</string>
+    <string name="action_swipe_right_desc">Desliza hacia la derecha, por ejemplo a la pestaña o página anterior</string>
+    <string name="action_clear_clipboard">Borrar portapapeles</string>
+    <string name="action_clear_clipboard_desc">Borra lo que esté copiado en este momento</string>
+    <string name="action_switch_keyboard">Cambiar teclado</string>
+    <string name="action_switch_keyboard_desc">Abre el selector de teclado</string>
+    <string name="clipboard_cleared">Portapapeles borrado</string>
+    <string name="action_cut">Cortar</string>
+    <string name="action_cut_desc">Corta el texto seleccionado</string>
+    <string name="action_web_search">Búsqueda web</string>
+    <string name="action_web_search_desc">Abre la búsqueda para consultar algo</string>
+    <string name="action_open_dialer">Marcador telefónico</string>
+    <string name="action_open_dialer_desc">Abre el marcador del teléfono</string>
+    <string name="action_open_browser">Navegador</string>
+    <string name="action_open_browser_desc">Abre tu navegador web predeterminado</string>
+    <string name="action_current_app_info">Información de la app actual</string>
+    <string name="action_current_app_info_desc">Abre la página de ajustes de la app que estás usando</string>
     <string name="action_all_apps">Todas las apps</string>
     <string name="action_all_apps_desc">Abre el cajón de aplicaciones</string>
     <string name="action_accessibility_button">Botón de accesibilidad</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">Abre la lista de superposición</string>
     <string name="action_write_settings">Modificar ajustes del sistema</string>
     <string name="action_write_settings_desc">Abre la modificación del sistema</string>
+    <string name="action_send_notification">Enviar notificación</string>
+    <string name="action_send_notification_desc">Publica una notificación a la que pueden reaccionar Automate, MacroDroid o Tasker</string>
 
     <plurals name="apps_blocked">
         <item quantity="one">%d app bloqueada</item>

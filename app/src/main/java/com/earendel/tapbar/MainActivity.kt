@@ -59,6 +59,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.displayCutout
@@ -150,8 +151,25 @@ import androidx.compose.material.icons.rounded.SignalCellularAlt
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.Coffee
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.ContentPaste
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.SelectAll
+import androidx.compose.material.icons.rounded.VerticalAlignBottom
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.SwipeLeft
+import androidx.compose.material.icons.rounded.SwipeRight
+import androidx.compose.material.icons.rounded.ContentPasteOff
+import androidx.compose.material.icons.rounded.KeyboardAlt
+import androidx.compose.material.icons.rounded.ContentCut
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Dialpad
+import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.TouchApp
+import androidx.compose.material.icons.rounded.VerticalAlignTop
 import androidx.compose.material.icons.rounded.VerticalSplit
 import androidx.compose.material.icons.rounded.VolumeDown
 import androidx.compose.material.icons.rounded.VolumeOff
@@ -163,6 +181,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -303,6 +322,25 @@ val navigationActions = listOf(
     ActionEntry("quick_settings", R.string.action_quick_settings, R.string.action_quick_settings_desc, Icons.Rounded.Notifications),
     ActionEntry("split_screen", R.string.action_split_screen, R.string.action_split_screen_desc, Icons.Rounded.VerticalSplit),
     ActionEntry("dismiss_shade", R.string.action_dismiss_shade, R.string.action_dismiss_shade_desc, Icons.Rounded.ExpandLess),
+    ActionEntry("scroll_to_top", R.string.action_scroll_to_top, R.string.action_scroll_to_top_desc, Icons.Rounded.VerticalAlignTop),
+    ActionEntry("previous_app", R.string.action_previous_app, R.string.action_previous_app_desc, Icons.Rounded.SwapHoriz),
+    ActionEntry("scroll_to_bottom", R.string.action_scroll_to_bottom, R.string.action_scroll_to_bottom_desc, Icons.Rounded.VerticalAlignBottom),
+    ActionEntry("page_up", R.string.action_page_up, R.string.action_page_up_desc, Icons.Rounded.KeyboardArrowUp),
+    ActionEntry("page_down", R.string.action_page_down, R.string.action_page_down_desc, Icons.Rounded.KeyboardArrowDown),
+    ActionEntry("copy", R.string.action_copy, R.string.action_copy_desc, Icons.Rounded.ContentCopy),
+    ActionEntry("cut", R.string.action_cut, R.string.action_cut_desc, Icons.Rounded.ContentCut),
+    ActionEntry("paste", R.string.action_paste, R.string.action_paste_desc, Icons.Rounded.ContentPaste),
+    ActionEntry("select_all", R.string.action_select_all, R.string.action_select_all_desc, Icons.Rounded.SelectAll),
+    ActionEntry("caffeine", R.string.action_caffeine, R.string.action_caffeine_desc, Icons.Rounded.Coffee),
+    ActionEntry("refresh", R.string.action_refresh, R.string.action_refresh_desc, Icons.Rounded.Refresh),
+    ActionEntry("swipe_left", R.string.action_swipe_left, R.string.action_swipe_left_desc, Icons.Rounded.SwipeLeft),
+    ActionEntry("swipe_right", R.string.action_swipe_right, R.string.action_swipe_right_desc, Icons.Rounded.SwipeRight),
+    ActionEntry("clear_clipboard", R.string.action_clear_clipboard, R.string.action_clear_clipboard_desc, Icons.Rounded.ContentPasteOff),
+    ActionEntry("switch_keyboard", R.string.action_switch_keyboard, R.string.action_switch_keyboard_desc, Icons.Rounded.KeyboardAlt),
+    ActionEntry("web_search", R.string.action_web_search, R.string.action_web_search_desc, Icons.Rounded.Search),
+    ActionEntry("open_dialer", R.string.action_open_dialer, R.string.action_open_dialer_desc, Icons.Rounded.Dialpad),
+    ActionEntry("current_app_info", R.string.action_current_app_info, R.string.action_current_app_info_desc, Icons.Rounded.Info),
+    ActionEntry("open_browser", R.string.action_open_browser, R.string.action_open_browser_desc, Icons.Rounded.Public),
     ActionEntry("all_apps", R.string.action_all_apps, R.string.action_all_apps_desc, Icons.Rounded.Apps),
     ActionEntry("accessibility_button", R.string.action_accessibility_button, R.string.action_accessibility_button_desc, Icons.Rounded.Accessibility),
     ActionEntry("accessibility_shortcut", R.string.action_accessibility_shortcut, R.string.action_accessibility_shortcut_desc, Icons.Rounded.AccessibilityNew),
@@ -354,12 +392,19 @@ val advancedSettingsActions = listOf(
     ActionEntry("write_settings", R.string.action_write_settings, R.string.action_write_settings_desc, Icons.Rounded.Tune)
 )
 
-val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + settingsActions + advancedSettingsActions
+val automationActions = listOf(
+    ActionEntry("send_notification", R.string.action_send_notification, R.string.action_send_notification_desc, Icons.Rounded.NotificationsActive)
+)
+
+val glowActionIds = setOf("send_notification")
+
+val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + automationActions + settingsActions + advancedSettingsActions
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var prefs: Prefs
     private val themeMode = mutableIntStateOf(0)
+    private val ui = UiAppearance()
     private val restoreGeneration = BackupManager.generation
 
     override fun attachBaseContext(newBase: Context) {
@@ -383,9 +428,10 @@ class MainActivity : ComponentActivity() {
         LabelRefresher.refreshBasic(this, prefs)
         val onboardingDone = prefs.hasCompletedLanguageOnboarding
         themeMode.intValue = prefs.themeMode
+        ui.load(prefs)
         setContent {
             ProvideHapticManager(prefs) {
-                AppRoot(prefs, themeMode, onboardingDone)
+                AppRoot(prefs, themeMode, ui, onboardingDone)
             }
         }
 
@@ -408,6 +454,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         themeMode.intValue = prefs.themeMode
+        ui.load(prefs)
         TapZone.previewRequested = true
         if (prefs.serviceEnabled && !TapAccessibilityService.isEnabled(this) && Settings.canDrawOverlays(this)) {
             OverlayService.start(this)
@@ -439,13 +486,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppRoot(prefs: Prefs, themeMode: MutableIntState, initialOnboardingDone: Boolean = true) {
+fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialOnboardingDone: Boolean = true) {
     var onboardingDone by rememberSaveable { mutableStateOf(initialOnboardingDone) }
     var screen by remember { mutableStateOf("home") }
     var activeGestureMode by remember { mutableIntStateOf(0) }
     var activeZone by rememberSaveable { mutableIntStateOf(0) }
 
-    TapbarTheme(themeMode = themeMode.intValue) {
+    TapbarTheme(
+        themeMode = themeMode.intValue,
+        uiStyle = ui.style
+    ) {
         if (!onboardingDone) {
             LanguageOnboardingScreen(prefs) { onboardingDone = true }
             return@TapbarTheme
@@ -482,7 +532,10 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, initialOnboardingDone: Boo
                     prefs = prefs,
                     initialZone = activeZone,
                     onZoneChange = { activeZone = it },
-                    onSettingsReset = { themeMode.intValue = prefs.themeMode },
+                    onSettingsReset = {
+                        themeMode.intValue = prefs.themeMode
+                        ui.load(prefs)
+                    },
                     onOpenPicker = { mode ->
                         activeGestureMode = mode
                         screen = "picker"
@@ -1295,14 +1348,32 @@ fun HomeScreen(
         ModalBottomSheet(
             onDismissRequest = { showGestureSheetFor = null },
             sheetState = sheetState,
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            containerColor = if (LocalImmersive.current != null) {
+                androidx.compose.ui.graphics.Color.Transparent
+            } else {
+                overlayContainerColor()
+            },
+            dragHandle = { if (LocalImmersive.current == null) BottomSheetDefaults.DragHandle() },
+            contentWindowInsets = {
+                if (LocalImmersive.current != null) WindowInsets(0, 0, 0, 0) else BottomSheetDefaults.windowInsets
+            }
         ) {
             Column(
                 modifier = Modifier
+                    .immersiveSheetBackdrop()
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                if (LocalImmersive.current != null) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BottomSheetDefaults.DragHandle()
+                    }
+                }
+
                 val sheetTitle = when (gestureMode) {
                     1 -> stringResource(R.string.double_tap_mode)
                     2 -> stringResource(R.string.triple_tap_mode)
@@ -1524,6 +1595,10 @@ fun HomeScreen(
                 }
 
                 Spacer(Modifier.height(16.dp))
+
+                if (LocalImmersive.current != null) {
+                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+                }
             }
         }
     }
@@ -1541,12 +1616,8 @@ fun GestureSquareCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Card(
+    TapbarCard(
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = modifier
             .height(152.dp)
             .clip(RoundedCornerShape(20.dp))
@@ -1644,12 +1715,8 @@ fun SwipeGestureCard(
         Icons.Rounded.VolumeUp
     }
 
-    Card(
+    TapbarCard(
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = modifier
             .height(152.dp)
             .clip(RoundedCornerShape(20.dp))
@@ -1753,6 +1820,7 @@ fun ActionPickerScreen(
 
     val actionGroups = remember {
         listOf(
+            R.string.group_automation to automationActions,
             R.string.group_quick_settings to quickSettingActions,
             R.string.group_media to mediaActions,
             R.string.group_display to displayActions,
@@ -1934,6 +2002,9 @@ fun ActionPickerScreen(
                                             openNotificationPolicyAccessSettings(context)
                                         }
                                     }
+                                    if (action.id == "send_notification" && !AutomationNotifier.isReady(context)) {
+                                        AutomationNotifier.openSettings(context)
+                                    }
                                     selectedId = action.id
                                     if (action.id == "volume_set") {
                                         saveVolumeLabel(volumeLevel)
@@ -1975,6 +2046,21 @@ fun ActionPickerScreen(
 
 @Composable
 fun ActionRow(
+    action: ActionEntry,
+    index: Int,
+    totalCount: Int,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
+    if (action.id in glowActionIds) {
+        GlowActionRow(action = action, isSelected = isSelected, onSelect = onSelect)
+    } else {
+        PlainActionRow(action = action, index = index, totalCount = totalCount, isSelected = isSelected, onSelect = onSelect)
+    }
+}
+
+@Composable
+fun PlainActionRow(
     action: ActionEntry,
     index: Int,
     totalCount: Int,
@@ -2857,6 +2943,7 @@ fun DpSlider(
                 }
             },
             valueRange = min..max,
+            modifier = Modifier.thumbOnly(((value - min) / (max - min)).coerceIn(0f, 1f)),
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.onSurface,
                 activeTrackColor = MaterialTheme.colorScheme.onSurface,

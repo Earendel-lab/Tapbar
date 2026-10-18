@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.CropSquare
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.BrightnessAuto
@@ -125,13 +127,17 @@ class SettingsActivity : ComponentActivity() {
 @Composable
 fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
     var themeMode by remember { mutableIntStateOf(prefs.themeMode) }
+    var uiStyle by remember { mutableIntStateOf(prefs.uiStyle) }
     var hapticsEnabled by remember { mutableStateOf(prefs.hapticFeedbackEnabled) }
     var splitShade by remember { mutableStateOf(prefs.splitShade) }
     var tapHapticMode by remember { mutableIntStateOf(prefs.tapHapticMode) }
     val haptics = LocalHapticManager.current
     val view = LocalView.current
 
-    TapbarTheme(themeMode = themeMode) {
+    TapbarTheme(
+        themeMode = themeMode,
+        uiStyle = uiStyle
+    ) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -163,6 +169,7 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                if (uiStyle != STYLE_IMMERSIVE) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.appearance),
@@ -210,6 +217,46 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                                     haptics.performSelection(view)
                                     themeMode = 2
                                     prefs.themeMode = 2
+                                }
+                            }
+                        )
+                    }
+                }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        stringResource(R.string.style),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        ThemeRow(
+                            icon = Icons.Rounded.CropSquare,
+                            label = stringResource(R.string.style_minimal),
+                            selected = uiStyle == STYLE_MINIMAL,
+                            index = 0,
+                            count = 2,
+                            onClick = {
+                                if (uiStyle != STYLE_MINIMAL) {
+                                    haptics.performSelection(view)
+                                    uiStyle = STYLE_MINIMAL
+                                    prefs.uiStyle = STYLE_MINIMAL
+                                }
+                            }
+                        )
+                        ThemeRow(
+                            icon = Icons.Rounded.AutoAwesome,
+                            label = stringResource(R.string.style_immersive),
+                            selected = uiStyle == STYLE_IMMERSIVE,
+                            index = 1,
+                            count = 2,
+                            onClick = {
+                                if (uiStyle != STYLE_IMMERSIVE) {
+                                    haptics.performSelection(view)
+                                    uiStyle = STYLE_IMMERSIVE
+                                    prefs.uiStyle = STYLE_IMMERSIVE
                                 }
                             }
                         )
@@ -546,11 +593,17 @@ fun BackupRestoreSection(prefs: Prefs) {
         Dialog(onDismissRequest = { pending = null }) {
             androidx.compose.material3.Surface(
                 shape = RoundedCornerShape(28.dp),
-                color = MaterialTheme.colorScheme.surfaceContainer,
+                color = if (LocalImmersive.current != null) {
+                    androidx.compose.ui.graphics.Color.Transparent
+                } else {
+                    overlayContainerColor()
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
+                    modifier = Modifier
+                        .immersiveSheetBackdrop()
+                        .padding(horizontal = 16.dp, vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Column(
@@ -635,8 +688,12 @@ private fun RestoreDialogButton(
 ) {
     androidx.compose.material3.Surface(
         shape = segmentedShape(index, 2),
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
-            .compositeOver(MaterialTheme.colorScheme.surfaceContainer),
+        color = if (LocalImmersive.current != null) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+        } else {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                .compositeOver(overlayContainerColor())
+        },
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
     ) {

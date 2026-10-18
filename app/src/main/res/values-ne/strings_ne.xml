@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar चलिरहेको छ</string>
     <string name="notif_text">ट्याप क्षेत्र सक्रिय छ। सेटिङहरू खोल्न ट्याप गर्नुहोस्।</string>
     <string name="notif_channel">Tapbar ओभरले</string>
+    <string name="notif_channel_automation">स्वचालन ट्रिगर</string>
     <string name="action_stop">रोक्नुहोस्</string>
     <string name="accessibility_desc">Tapbar लाई स्टेटस बारमा सानो ट्याप क्षेत्र राख्न अनुमति दिन्छ। यसले स्क्रिनको सामग्री पढ्दैन।</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">स्वचालित</string>
     <string name="theme_light">उज्यालो</string>
     <string name="theme_dark">गाढा</string>
+
+    <string name="style">शैली</string>
+    <string name="style_minimal">मिनिमल</string>
+    <string name="style_immersive">इमर्सिभ</string>
 
     <string name="haptic_feedback">कम्पन प्रतिक्रिया</string>
     <string name="buzz_every_tap">प्रत्येक ट्यापमा कम्पन्न गर्नुहोस्</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">नेभिगेसन र प्रणाली</string>
     <string name="group_settings">सेटिङहरू</string>
     <string name="group_advanced">उन्नत सेटिङहरू</string>
+    <string name="group_automation">स्वचालन</string>
     <string name="cd_back">पछाडि</string>
     <string name="cd_search">खोज्नुहोस्</string>
     <string name="cd_clear">हटाउनुहोस्</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">सबै फोनमा काम नगर्न सक्छ</string>
     <string name="action_dismiss_shade">सूचनाहरू बन्द गर्नुहोस्</string>
     <string name="action_dismiss_shade_desc">सूचना शेड बन्द गर्छ</string>
+    <string name="action_scroll_to_top">माथि स्क्रोल गर्नुहोस्</string>
+    <string name="action_scroll_to_top_desc">हालको सूची वा पृष्ठलाई सबैभन्दा माथि स्क्रोल गर्छ</string>
+    <string name="action_previous_app">अघिल्लो एप</string>
+    <string name="action_previous_app_desc">यसअघि प्रयोग गरेको एपमा फर्कन्छ</string>
+    <string name="action_scroll_to_bottom">तल स्क्रोल गर्नुहोस्</string>
+    <string name="action_scroll_to_bottom_desc">हालको सूची वा पृष्ठलाई सबैभन्दा तल स्क्रोल गर्छ</string>
+    <string name="action_page_up">पृष्ठ माथि</string>
+    <string name="action_page_up_desc">हालको सूची वा पृष्ठलाई एक स्क्रिन माथि स्क्रोल गर्छ</string>
+    <string name="action_page_down">पृष्ठ तल</string>
+    <string name="action_page_down_desc">हालको सूची वा पृष्ठलाई एक स्क्रिन तल स्क्रोल गर्छ</string>
+    <string name="action_copy">कपी गर्नुहोस्</string>
+    <string name="action_copy_desc">चयन गरिएको पाठ कपी गर्छ</string>
+    <string name="action_paste">पेस्ट गर्नुहोस्</string>
+    <string name="action_paste_desc">क्लिपबोर्डको सामग्री सक्रिय पाठ फिल्डमा पेस्ट गर्छ</string>
+    <string name="action_select_all">सबै चयन गर्नुहोस्</string>
+    <string name="action_select_all_desc">सक्रिय पाठ फिल्डको सबै पाठ चयन गर्छ</string>
+    <string name="action_caffeine">स्क्रिन खुला राख्नुहोस्</string>
+    <string name="action_caffeine_desc">बन्द नगरेसम्म स्क्रिन खुला राख्छ</string>
+    <string name="caffeine_on">स्क्रिन खुला रहनेछ</string>
+    <string name="caffeine_off">स्क्रिन टाइमआउट पुनःस्थापित भयो</string>
+    <string name="action_refresh">रिफ्रेस गर्नुहोस्</string>
+    <string name="action_refresh_desc">हालको पृष्ठ वा सूची रिफ्रेस गर्न तल तान्छ</string>
+    <string name="action_swipe_left">बायाँ स्वाइप गर्नुहोस्</string>
+    <string name="action_swipe_left_desc">स्क्रिनमा बायाँतिर स्वाइप गर्छ, जस्तै अर्को ट्याब वा पृष्ठका लागि</string>
+    <string name="action_swipe_right">दायाँ स्वाइप गर्नुहोस्</string>
+    <string name="action_swipe_right_desc">स्क्रिनमा दायाँतिर स्वाइप गर्छ, जस्तै अघिल्लो ट्याब वा पृष्ठका लागि</string>
+    <string name="action_clear_clipboard">क्लिपबोर्ड खाली गर्नुहोस्</string>
+    <string name="action_clear_clipboard_desc">हाल कपी गरिएको सामग्री मेट्छ</string>
+    <string name="action_switch_keyboard">किबोर्ड बदल्नुहोस्</string>
+    <string name="action_switch_keyboard_desc">किबोर्ड छान्ने विकल्प खोल्छ</string>
+    <string name="clipboard_cleared">क्लिपबोर्ड खाली गरियो</string>
+    <string name="action_cut">काट्नुहोस्</string>
+    <string name="action_cut_desc">चयन गरिएको पाठ काट्छ</string>
+    <string name="action_web_search">वेब खोज</string>
+    <string name="action_web_search_desc">केही खोज्न खोज खोल्छ</string>
+    <string name="action_open_dialer">फोन डायलर</string>
+    <string name="action_open_dialer_desc">फोन डायलर खोल्छ</string>
+    <string name="action_open_browser">ब्राउजर</string>
+    <string name="action_open_browser_desc">तपाईंको पूर्वनिर्धारित वेब ब्राउजर खोल्छ</string>
+    <string name="action_current_app_info">हालको एप जानकारी</string>
+    <string name="action_current_app_info_desc">तपाईंले प्रयोग गरिरहेको एपको सेटिङ पृष्ठ खोल्छ</string>
     <string name="action_all_apps">सबै एपहरू</string>
     <string name="action_all_apps_desc">एप ड्रअर खोल्छ</string>
     <string name="action_accessibility_button">पहुँचयोग्यता बटन</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">ओभरले अनुमतिको सूची खोल्छ</string>
     <string name="action_write_settings">प्रणाली सेटिङहरू परिवर्तन गर्नुहोस्</string>
     <string name="action_write_settings_desc">प्रणाली सेटिङ परिवर्तन गर्ने सूची खोल्छ</string>
+    <string name="action_send_notification">सूचना पठाउनुहोस्</string>
+    <string name="action_send_notification_desc">Automate, MacroDroid वा Tasker ले प्रतिक्रिया दिन सक्ने सूचना पठाउँछ</string>
 
     <plurals name="apps_blocked">
         <item quantity="one">%d एप ब्लक गरिएको छ</item>

@@ -58,12 +58,8 @@ fun ZoneSelectCard(
         label = "zoneContentAlpha"
     )
 
-    Card(
+    TapbarCard(
         shape = zoneSelectorShape(zone),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = modifier.clickable(onClick = onClick)
     ) {
         Row(
@@ -116,12 +112,8 @@ fun ZoneToggleCard(
     val haptics = LocalHapticManager.current
     val view = LocalView.current
 
-    Card(
+    TapbarCard(
         shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomEnd = 18.dp, bottomStart = 18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         Row(

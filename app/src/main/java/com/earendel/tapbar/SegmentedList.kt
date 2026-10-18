@@ -3,6 +3,7 @@ package com.earendel.tapbar
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -10,6 +11,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
@@ -63,6 +65,18 @@ fun SegmentedCard(
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
+    if (LocalImmersive.current != null) {
+        GlassCard(
+            index = index,
+            count = count,
+            modifier = modifier,
+            onClick = onClick
+        ) {
+            Column { content() }
+        }
+        return
+    }
+
     val shape = segmentedShape(index, count)
     val colors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -84,5 +98,31 @@ fun SegmentedCard(
             )
     ) {
         content()
+    }
+}
+
+@Composable
+fun TapbarCard(
+    shape: Shape,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    if (LocalImmersive.current != null) {
+        GlassPanel(
+            shape = shape,
+            modifier = Modifier.clip(shape).then(modifier)
+        ) {
+            Column(content = content)
+        }
+    } else {
+        Card(
+            shape = shape,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            modifier = modifier,
+            content = content
+        )
     }
 }

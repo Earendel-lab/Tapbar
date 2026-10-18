@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar läuft</string>
     <string name="notif_text">Tipp-Zone aktiv. Tippen, um Einstellungen zu öffnen.</string>
     <string name="notif_channel">Tapbar-Overlay</string>
+    <string name="notif_channel_automation">Automatisierungs-Trigger</string>
     <string name="action_stop">Stoppen</string>
     <string name="accessibility_desc">Ermöglicht Tapbar das Platzieren eines Tipp-Bereichs auf der Statusleiste. Es liest keine Bildschirminhalte.</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">Automatisch</string>
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
+
+    <string name="style">Stil</string>
+    <string name="style_minimal">Minimal</string>
+    <string name="style_immersive">Immersiv</string>
 
     <string name="haptic_feedback">Haptisches Feedback</string>
     <string name="buzz_every_tap">Vibration bei jedem Tippen</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">Navigation &amp; System</string>
     <string name="group_settings">Einstellungen</string>
     <string name="group_advanced">Erweiterte Einstellungen</string>
+    <string name="group_automation">Automatisierung</string>
     <string name="cd_back">Zurück</string>
     <string name="cd_search">Suchen</string>
     <string name="cd_clear">Löschen</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">Nicht auf allen Geräten verfügbar</string>
     <string name="action_dismiss_shade">Benachrichtigungen schließen</string>
     <string name="action_dismiss_shade_desc">Schließt die Benachrichtigungen</string>
+    <string name="action_scroll_to_top">Nach oben scrollen</string>
+    <string name="action_scroll_to_top_desc">Scrollt die aktuelle Liste oder Seite ganz nach oben</string>
+    <string name="action_previous_app">Vorherige App</string>
+    <string name="action_previous_app_desc">Wechselt zur zuletzt verwendeten App</string>
+    <string name="action_scroll_to_bottom">Nach unten scrollen</string>
+    <string name="action_scroll_to_bottom_desc">Scrollt die aktuelle Liste oder Seite ganz nach unten</string>
+    <string name="action_page_up">Seite hoch</string>
+    <string name="action_page_up_desc">Scrollt die aktuelle Liste oder Seite um einen Bildschirm nach oben</string>
+    <string name="action_page_down">Seite runter</string>
+    <string name="action_page_down_desc">Scrollt die aktuelle Liste oder Seite um einen Bildschirm nach unten</string>
+    <string name="action_copy">Kopieren</string>
+    <string name="action_copy_desc">Kopiert den markierten Text</string>
+    <string name="action_paste">Einfügen</string>
+    <string name="action_paste_desc">Fügt die Zwischenablage in das aktive Textfeld ein</string>
+    <string name="action_select_all">Alles auswählen</string>
+    <string name="action_select_all_desc">Wählt den gesamten Text im aktiven Textfeld aus</string>
+    <string name="action_caffeine">Bildschirm anlassen</string>
+    <string name="action_caffeine_desc">Hält den Bildschirm an, bis du es wieder ausschaltest</string>
+    <string name="caffeine_on">Bildschirm bleibt an</string>
+    <string name="caffeine_off">Bildschirm-Timeout wiederhergestellt</string>
+    <string name="action_refresh">Aktualisieren</string>
+    <string name="action_refresh_desc">Zieht nach unten, um die aktuelle Seite oder Liste zu aktualisieren</string>
+    <string name="action_swipe_left">Nach links wischen</string>
+    <string name="action_swipe_left_desc">Wischt nach links über den Bildschirm, z. B. zum nächsten Tab oder zur nächsten Seite</string>
+    <string name="action_swipe_right">Nach rechts wischen</string>
+    <string name="action_swipe_right_desc">Wischt nach rechts über den Bildschirm, z. B. zum vorherigen Tab oder zur vorherigen Seite</string>
+    <string name="action_clear_clipboard">Zwischenablage leeren</string>
+    <string name="action_clear_clipboard_desc">Löscht den aktuell kopierten Inhalt</string>
+    <string name="action_switch_keyboard">Tastatur wechseln</string>
+    <string name="action_switch_keyboard_desc">Öffnet die Tastaturauswahl</string>
+    <string name="clipboard_cleared">Zwischenablage geleert</string>
+    <string name="action_cut">Ausschneiden</string>
+    <string name="action_cut_desc">Schneidet den markierten Text aus</string>
+    <string name="action_web_search">Websuche</string>
+    <string name="action_web_search_desc">Öffnet die Suche, um etwas nachzuschlagen</string>
+    <string name="action_open_dialer">Telefon-Wählhilfe</string>
+    <string name="action_open_dialer_desc">Öffnet die Telefon-Wähltastatur</string>
+    <string name="action_open_browser">Browser</string>
+    <string name="action_open_browser_desc">Öffnet deinen Standardbrowser</string>
+    <string name="action_current_app_info">Info zur aktuellen App</string>
+    <string name="action_current_app_info_desc">Öffnet die Einstellungsseite der gerade genutzten App</string>
     <string name="action_all_apps">Alle Apps</string>
     <string name="action_all_apps_desc">Öffnet die App-Übersicht</string>
     <string name="action_accessibility_button">Bedienungshilfen-Schaltfläche</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">Öffnet die Überlagerungsrechte</string>
     <string name="action_write_settings">Systemeinstellungen ändern</string>
     <string name="action_write_settings_desc">Öffnet die Systemänderungsrechte</string>
+    <string name="action_send_notification">Benachrichtigung senden</string>
+    <string name="action_send_notification_desc">Sendet eine Benachrichtigung, auf die Automate, MacroDroid oder Tasker reagieren können</string>
 
     <plurals name="apps_blocked">
         <item quantity="one">%d App blockiert</item>

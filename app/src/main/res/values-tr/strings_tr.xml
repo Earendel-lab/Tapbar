@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar çalışıyor</string>
     <string name="notif_text">Dokunma bölgesi etkin. Ayarları açmak için dokunun.</string>
     <string name="notif_channel">Tapbar katmanı</string>
+    <string name="notif_channel_automation">Otomasyon tetikleyicileri</string>
     <string name="action_stop">Durdur</string>
     <string name="accessibility_desc">Tapbar\'ın durum çubuğuna küçük bir dokunma alanı yerleştirmesini sağlar. Ekran içeriğini okumaz.</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">Otomatik</string>
     <string name="theme_light">Açık</string>
     <string name="theme_dark">Koyu</string>
+
+    <string name="style">Stil</string>
+    <string name="style_minimal">Minimal</string>
+    <string name="style_immersive">Sürükleyici</string>
 
     <string name="haptic_feedback">Dokunsal geri bildirim</string>
     <string name="buzz_every_tap">Her dokunuşta titreştir</string>
@@ -131,6 +136,7 @@
     <string name="group_navigation">Gezinme &amp; sistem</string>
     <string name="group_settings">Ayarlar</string>
     <string name="group_advanced">Gelişmiş ayarlar</string>
+    <string name="group_automation">Otomasyon</string>
     <string name="cd_back">Geri</string>
     <string name="cd_search">Ara</string>
     <string name="cd_clear">Temizle</string>
@@ -212,6 +218,47 @@
     <string name="action_split_screen_desc">Her telefonda çalışmayabilir</string>
     <string name="action_dismiss_shade">Bildirimleri kapat</string>
     <string name="action_dismiss_shade_desc">Bildirim panelini kapatır</string>
+    <string name="action_scroll_to_top">En üste kaydır</string>
+    <string name="action_scroll_to_top_desc">Geçerli liste veya sayfayı en üste kaydırır</string>
+    <string name="action_previous_app">Önceki uygulama</string>
+    <string name="action_previous_app_desc">Bundan önce kullandığınız uygulamaya geçer</string>
+    <string name="action_scroll_to_bottom">En alta kaydır</string>
+    <string name="action_scroll_to_bottom_desc">Geçerli liste veya sayfayı en alta kaydırır</string>
+    <string name="action_page_up">Sayfa yukarı</string>
+    <string name="action_page_up_desc">Geçerli liste veya sayfayı bir ekran yukarı kaydırır</string>
+    <string name="action_page_down">Sayfa aşağı</string>
+    <string name="action_page_down_desc">Geçerli liste veya sayfayı bir ekran aşağı kaydırır</string>
+    <string name="action_copy">Kopyala</string>
+    <string name="action_copy_desc">Seçili metni kopyalar</string>
+    <string name="action_paste">Yapıştır</string>
+    <string name="action_paste_desc">Panodaki içeriği odaktaki metin alanına yapıştırır</string>
+    <string name="action_select_all">Tümünü seç</string>
+    <string name="action_select_all_desc">Odaktaki metin alanındaki tüm metni seçer</string>
+    <string name="action_caffeine">Ekranı açık tut</string>
+    <string name="action_caffeine_desc">Siz kapatana kadar ekranı açık tutar</string>
+    <string name="caffeine_on">Ekran açık kalacak</string>
+    <string name="caffeine_off">Ekran zaman aşımı geri yüklendi</string>
+    <string name="action_refresh">Yenile</string>
+    <string name="action_refresh_desc">Geçerli sayfayı veya listeyi yenilemek için aşağı çeker</string>
+    <string name="action_swipe_left">Sola kaydır</string>
+    <string name="action_swipe_left_desc">Ekranda sola kaydırır, örneğin sonraki sekme veya sayfaya geçmek için</string>
+    <string name="action_swipe_right">Sağa kaydır</string>
+    <string name="action_swipe_right_desc">Ekranda sağa kaydırır, örneğin önceki sekme veya sayfaya geçmek için</string>
+    <string name="action_clear_clipboard">Panoyu temizle</string>
+    <string name="action_clear_clipboard_desc">Şu anda kopyalanmış olan her şeyi siler</string>
+    <string name="action_switch_keyboard">Klavyeyi değiştir</string>
+    <string name="action_switch_keyboard_desc">Klavye seçiciyi açar</string>
+    <string name="clipboard_cleared">Pano temizlendi</string>
+    <string name="action_cut">Kes</string>
+    <string name="action_cut_desc">Seçili metni keser</string>
+    <string name="action_web_search">Web araması</string>
+    <string name="action_web_search_desc">Bir şey aramak için aramayı açar</string>
+    <string name="action_open_dialer">Telefon tuş takımı</string>
+    <string name="action_open_dialer_desc">Telefon tuş takımını açar</string>
+    <string name="action_open_browser">Tarayıcı</string>
+    <string name="action_open_browser_desc">Varsayılan web tarayıcınızı açar</string>
+    <string name="action_current_app_info">Geçerli uygulama bilgisi</string>
+    <string name="action_current_app_info_desc">Kullandığınız uygulamanın ayarlar sayfasını açar</string>
     <string name="action_all_apps">Tüm uygulamalar</string>
     <string name="action_all_apps_desc">Uygulama çekmecesini açar</string>
     <string name="action_accessibility_button">Erişilebilirlik düğmesi</string>
@@ -298,6 +345,8 @@
     <string name="action_overlay_permission_desc">Diğer uygulamaların üzerinde gösterme izinleri listesini açar</string>
     <string name="action_write_settings">Sistem ayarlarını değiştir</string>
     <string name="action_write_settings_desc">Sistem ayarlarını değiştirme izinleri listesini açar</string>
+    <string name="action_send_notification">Bildirim gönder</string>
+    <string name="action_send_notification_desc">Automate, MacroDroid veya Tasker’ın tepki verebileceği bir bildirim yayınlar</string>
     <plurals name="apps_blocked">
         <item quantity="one">%d uygulama engellendi</item>
         <item quantity="other">%d uygulama engellendi</item>

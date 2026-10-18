@@ -220,28 +220,6 @@ class SwipeAdjuster(
         } catch (_: Throwable) {
             128
         }
-        val mode = try {
-            Settings.System.getInt(
-                resolver,
-                Settings.System.SCREEN_BRIGHTNESS_MODE,
-                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
-            )
-        } catch (_: Throwable) {
-            Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
-        }
-        if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
-            executor.execute {
-                try {
-                    Settings.System.putInt(
-                        resolver,
-                        Settings.System.SCREEN_BRIGHTNESS_MODE,
-                        Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
-                    )
-                } catch (_: Throwable) {
-                }
-            }
-        }
-
         scale = 100
         level = linearToGamma(raw.coerceIn(0, 255) / 255f) * 100f
         lastBrightnessRaw = raw

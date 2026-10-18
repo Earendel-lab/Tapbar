@@ -77,6 +77,7 @@ object BackupManager {
         map["zone_h"] = 'i'
         map["tap_haptic_mode"] = 'i'
         map["theme_mode"] = 'i'
+        map["ui_style"] = 'i'
         map["auto_start"] = 'b'
         map["colorful_ui"] = 'b'
         map["disable_in_landscape"] = 'b'
@@ -127,6 +128,7 @@ object BackupManager {
         val base = zoneKeyRegex.matchEntire(key)?.groupValues?.get(1) ?: key
         return when {
             base == "theme_mode" -> value in 0..2
+            base == "ui_style" -> value in 0..1
             base == "tap_haptic_mode" -> value in 0..1
             base == "swipe_target" -> value in 0..1
             base == "double_tap_speed_ms" -> value in 100..1000

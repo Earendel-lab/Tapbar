@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar работает</string>
     <string name="notif_text">Сенсорная зона активна. Нажмите, чтобы открыть настройки.</string>
     <string name="notif_channel">Наложение Tapbar</string>
+    <string name="notif_channel_automation">Триггеры автоматизации</string>
     <string name="action_stop">Остановить</string>
     <string name="accessibility_desc">Позволяет Tapbar размещать сенсорную зону в строке состояния. Он не считывает содержимое экрана.</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">Автоматически</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
+
+    <string name="style">Стиль</string>
+    <string name="style_minimal">Минимализм</string>
+    <string name="style_immersive">Погружение</string>
 
     <string name="haptic_feedback">Виброотклик</string>
     <string name="buzz_every_tap">Вибрация при каждом касании</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">Навигация и система</string>
     <string name="group_settings">Настройки</string>
     <string name="group_advanced">Дополнительные настройки</string>
+    <string name="group_automation">Автоматизация</string>
     <string name="cd_back">Назад</string>
     <string name="cd_search">Поиск</string>
     <string name="cd_clear">Очистить</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">Работает не на всех телефонах</string>
     <string name="action_dismiss_shade">Скрыть уведомления</string>
     <string name="action_dismiss_shade_desc">Закрывает шторку уведомлений</string>
+    <string name="action_scroll_to_top">Прокрутить вверх</string>
+    <string name="action_scroll_to_top_desc">Прокручивает текущий список или страницу в самое начало</string>
+    <string name="action_previous_app">Предыдущее приложение</string>
+    <string name="action_previous_app_desc">Переключает на приложение, которое использовалось до этого</string>
+    <string name="action_scroll_to_bottom">Прокрутить вниз</string>
+    <string name="action_scroll_to_bottom_desc">Прокручивает текущий список или страницу в самый конец</string>
+    <string name="action_page_up">Страница вверх</string>
+    <string name="action_page_up_desc">Прокручивает текущий список или страницу на один экран вверх</string>
+    <string name="action_page_down">Страница вниз</string>
+    <string name="action_page_down_desc">Прокручивает текущий список или страницу на один экран вниз</string>
+    <string name="action_copy">Копировать</string>
+    <string name="action_copy_desc">Копирует выделенный текст</string>
+    <string name="action_paste">Вставить</string>
+    <string name="action_paste_desc">Вставляет содержимое буфера обмена в активное текстовое поле</string>
+    <string name="action_select_all">Выделить всё</string>
+    <string name="action_select_all_desc">Выделяет весь текст в активном текстовом поле</string>
+    <string name="action_caffeine">Не гасить экран</string>
+    <string name="action_caffeine_desc">Не даёт экрану погаснуть, пока вы не отключите функцию</string>
+    <string name="caffeine_on">Экран не будет гаснуть</string>
+    <string name="caffeine_off">Время отключения экрана восстановлено</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_refresh_desc">Тянет вниз, чтобы обновить текущую страницу или список</string>
+    <string name="action_swipe_left">Свайп влево</string>
+    <string name="action_swipe_left_desc">Свайп влево по экрану, например к следующей вкладке или странице</string>
+    <string name="action_swipe_right">Свайп вправо</string>
+    <string name="action_swipe_right_desc">Свайп вправо по экрану, например к предыдущей вкладке или странице</string>
+    <string name="action_clear_clipboard">Очистить буфер обмена</string>
+    <string name="action_clear_clipboard_desc">Удаляет всё, что сейчас скопировано</string>
+    <string name="action_switch_keyboard">Сменить клавиатуру</string>
+    <string name="action_switch_keyboard_desc">Открывает выбор клавиатуры</string>
+    <string name="clipboard_cleared">Буфер обмена очищен</string>
+    <string name="action_cut">Вырезать</string>
+    <string name="action_cut_desc">Вырезает выделенный текст</string>
+    <string name="action_web_search">Поиск в интернете</string>
+    <string name="action_web_search_desc">Открывает поиск, чтобы что-нибудь найти</string>
+    <string name="action_open_dialer">Набор номера</string>
+    <string name="action_open_dialer_desc">Открывает набор номера телефона</string>
+    <string name="action_open_browser">Браузер</string>
+    <string name="action_open_browser_desc">Открывает браузер по умолчанию</string>
+    <string name="action_current_app_info">О текущем приложении</string>
+    <string name="action_current_app_info_desc">Открывает страницу настроек используемого приложения</string>
     <string name="action_all_apps">Все приложения</string>
     <string name="action_all_apps_desc">Открывает список приложений</string>
     <string name="action_accessibility_button">Кнопка специальных возможностей</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">Открывает список наложения</string>
     <string name="action_write_settings">Изменение системных настроек</string>
     <string name="action_write_settings_desc">Открывает изменение настроек</string>
+    <string name="action_send_notification">Отправить уведомление</string>
+    <string name="action_send_notification_desc">Публикует уведомление, на которое могут реагировать Automate, MacroDroid или Tasker</string>
 
     <plurals name="apps_blocked">
         <item quantity="one">Заблокировано %d приложение</item>

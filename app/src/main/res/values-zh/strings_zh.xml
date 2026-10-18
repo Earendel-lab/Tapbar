@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar 正在运行</string>
     <string name="notif_text">触摸区域已激活。点击打开设置。</string>
     <string name="notif_channel">Tapbar 悬浮层</string>
+    <string name="notif_channel_automation">自动化触发器</string>
     <string name="action_stop">停止</string>
     <string name="accessibility_desc">允许 Tapbar 在状态栏上放置触摸区域。不会读取屏幕内容。</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">跟随系统</string>
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色</string>
+
+    <string name="style">风格</string>
+    <string name="style_minimal">极简</string>
+    <string name="style_immersive">沉浸</string>
 
     <string name="haptic_feedback">触觉反馈</string>
     <string name="buzz_every_tap">每次点击震动</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">导航与系统</string>
     <string name="group_settings">设置</string>
     <string name="group_advanced">高级设置</string>
+    <string name="group_automation">自动化</string>
     <string name="cd_back">返回</string>
     <string name="cd_search">搜索</string>
     <string name="cd_clear">清除</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">并非所有手机都支持</string>
     <string name="action_dismiss_shade">收起通知</string>
     <string name="action_dismiss_shade_desc">关闭通知栏</string>
+    <string name="action_scroll_to_top">滚动到顶部</string>
+    <string name="action_scroll_to_top_desc">将当前列表或页面滚动到顶部</string>
+    <string name="action_previous_app">上一个应用</string>
+    <string name="action_previous_app_desc">切换回此前使用的应用</string>
+    <string name="action_scroll_to_bottom">滚动到底部</string>
+    <string name="action_scroll_to_bottom_desc">将当前列表或页面滚动到底部</string>
+    <string name="action_page_up">向上翻页</string>
+    <string name="action_page_up_desc">将当前列表或页面向上滚动一屏</string>
+    <string name="action_page_down">向下翻页</string>
+    <string name="action_page_down_desc">将当前列表或页面向下滚动一屏</string>
+    <string name="action_copy">复制</string>
+    <string name="action_copy_desc">复制所选文本</string>
+    <string name="action_paste">粘贴</string>
+    <string name="action_paste_desc">将剪贴板内容粘贴到当前输入框</string>
+    <string name="action_select_all">全选</string>
+    <string name="action_select_all_desc">选中当前输入框中的全部文本</string>
+    <string name="action_caffeine">保持屏幕常亮</string>
+    <string name="action_caffeine_desc">在关闭之前保持屏幕常亮</string>
+    <string name="caffeine_on">屏幕将保持常亮</string>
+    <string name="caffeine_off">已恢复屏幕超时设置</string>
+    <string name="action_refresh">刷新</string>
+    <string name="action_refresh_desc">下拉以刷新当前页面或列表</string>
+    <string name="action_swipe_left">向左滑动</string>
+    <string name="action_swipe_left_desc">在屏幕上向左滑动，例如切换到下一个标签页或页面</string>
+    <string name="action_swipe_right">向右滑动</string>
+    <string name="action_swipe_right_desc">在屏幕上向右滑动，例如切换到上一个标签页或页面</string>
+    <string name="action_clear_clipboard">清空剪贴板</string>
+    <string name="action_clear_clipboard_desc">清除当前已复制的内容</string>
+    <string name="action_switch_keyboard">切换键盘</string>
+    <string name="action_switch_keyboard_desc">打开键盘选择器</string>
+    <string name="clipboard_cleared">剪贴板已清空</string>
+    <string name="action_cut">剪切</string>
+    <string name="action_cut_desc">剪切所选文本</string>
+    <string name="action_web_search">网页搜索</string>
+    <string name="action_web_search_desc">打开搜索以查找内容</string>
+    <string name="action_open_dialer">电话拨号盘</string>
+    <string name="action_open_dialer_desc">打开电话拨号盘</string>
+    <string name="action_open_browser">浏览器</string>
+    <string name="action_open_browser_desc">打开默认网络浏览器</string>
+    <string name="action_current_app_info">当前应用信息</string>
+    <string name="action_current_app_info_desc">打开当前使用应用的设置页面</string>
     <string name="action_all_apps">所有应用</string>
     <string name="action_all_apps_desc">打开应用抽屉</string>
     <string name="action_accessibility_button">无障碍按钮</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">打开悬浮窗权限列表</string>
     <string name="action_write_settings">修改系统设置</string>
     <string name="action_write_settings_desc">打开修改系统设置列表</string>
+    <string name="action_send_notification">发送通知</string>
+    <string name="action_send_notification_desc">发布一条通知，供 Automate、MacroDroid 或 Tasker 响应</string>
 
     <plurals name="apps_blocked">
         <item quantity="other">已屏蔽 %d 个应用</item>

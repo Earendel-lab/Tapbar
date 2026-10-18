@@ -201,7 +201,12 @@ class SwipeHud(
         }
     }
 
-    private fun isDark(): Boolean = when (prefs.themeMode) {
+    private fun isDark(): Boolean = when {
+        prefs.uiStyle == STYLE_IMMERSIVE -> true
+        else -> isThemeDark()
+    }
+
+    private fun isThemeDark(): Boolean = when (prefs.themeMode) {
         1 -> false
         2 -> true
         else -> (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==

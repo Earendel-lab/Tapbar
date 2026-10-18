@@ -3,10 +3,12 @@
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -115,18 +117,47 @@ private val LightScheme = lightColorScheme(
     outlineVariant = Color(0xFFD0D0D0)
 )
 
+private fun ColorScheme.asGlass(dark: Boolean): ColorScheme =
+    if (dark) {
+        copy(
+            background = Color.Transparent,
+            surfaceContainerLowest = Color.Transparent,
+            surfaceContainerLow = Color.White.copy(alpha = 0.07f),
+            surfaceContainer = Color.White.copy(alpha = 0.07f),
+            surfaceContainerHigh = Color.White.copy(alpha = 0.11f),
+            surfaceContainerHighest = Color.White.copy(alpha = 0.14f)
+        )
+    } else {
+        copy(
+            background = Color.Transparent,
+            surfaceContainerLowest = Color.Transparent,
+            surfaceContainerLow = Color.White.copy(alpha = 0.45f),
+            surfaceContainer = Color.White.copy(alpha = 0.45f),
+            surfaceContainerHigh = Color.White.copy(alpha = 0.60f),
+            surfaceContainerHighest = Color.White.copy(alpha = 0.70f)
+        )
+    }
+
 @Composable
 fun TapbarTheme(
     themeMode: Int,
+    uiStyle: Int = STYLE_MINIMAL,
     content: @Composable () -> Unit
 ) {
-    val dark = when (themeMode) {
+    val immersive = uiStyle == STYLE_IMMERSIVE
+    val dark = immersive || when (themeMode) {
         1 -> false
         2 -> true
         else -> isSystemInDarkTheme()
     }
 
-    val scheme = remember(dark) { if (dark) DarkScheme else LightScheme }
+    val scheme = remember(dark, immersive) {
+        val base = if (dark) DarkScheme else LightScheme
+        if (immersive) base.asGlass(dark) else base
+    }
+    val palette = remember(immersive, dark) {
+        if (immersive) monoPalette(dark) else null
+    }
 
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -142,7 +173,17 @@ fun TapbarTheme(
 
     MaterialTheme(
         colorScheme = scheme,
-        typography = GeistTypography,
-        content = content
-    )
+        typography = GeistTypography
+    ) {
+        CompositionLocalProvider(
+            LocalIsDark provides dark,
+            LocalImmersive provides palette
+        ) {
+            if (palette != null) {
+                OnboardingBackdrop { content() }
+            } else {
+                content()
+            }
+        }
+    }
 }

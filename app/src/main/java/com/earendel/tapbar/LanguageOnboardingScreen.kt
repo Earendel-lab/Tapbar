@@ -1,11 +1,13 @@
 package com.earendel.tapbar
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -87,6 +89,7 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.delay
@@ -120,7 +123,7 @@ val SupportedLanguages: List<AppLanguage> =
 
 @Composable
 private fun primaryNavButtonColors(): ButtonColors {
-    val isDark = isSystemInDarkTheme()
+    val isDark = true
     val container = if (isDark) MaterialTheme.colorScheme.onSurface else Color(0xFFFCFCFC)
     val content = if (isDark) MaterialTheme.colorScheme.surface else Color.Black
     return ButtonDefaults.buttonColors(
@@ -131,7 +134,7 @@ private fun primaryNavButtonColors(): ButtonColors {
 
 @Composable
 private fun cardActionButtonColors(): ButtonColors {
-    val isDark = isSystemInDarkTheme()
+    val isDark = true
     val container = if (isDark) MaterialTheme.colorScheme.onSurface else Color(0xFFE2E2E2)
     val content = if (isDark) MaterialTheme.colorScheme.surface else Color.Black
     return ButtonDefaults.buttonColors(
@@ -202,52 +205,62 @@ fun LanguageOnboardingScreen(
         }
     }
 
-    AnimatedContent(
-        targetState = currentStep,
-        transitionSpec = {
-            val duration = 320
-            if (targetState > initialState) {
-                (slideInHorizontally(
-                    animationSpec = tween(duration, easing = FastOutSlowInEasing),
-                    initialOffsetX = { fullWidth -> (fullWidth * 0.10f).toInt() }
-                ) + fadeIn(tween(duration))).togetherWith(
-                    slideOutHorizontally(
-                        animationSpec = tween(duration, easing = FastOutSlowInEasing),
-                        targetOffsetX = { fullWidth -> (-fullWidth * 0.10f).toInt() }
-                    ) + fadeOut(tween(duration))
-                )
-            } else {
-                (slideInHorizontally(
-                    animationSpec = tween(duration, easing = FastOutSlowInEasing),
-                    initialOffsetX = { fullWidth -> (-fullWidth * 0.10f).toInt() }
-                ) + fadeIn(tween(duration))).togetherWith(
-                    slideOutHorizontally(
-                        animationSpec = tween(duration, easing = FastOutSlowInEasing),
-                        targetOffsetX = { fullWidth -> (fullWidth * 0.10f).toInt() }
-                    ) + fadeOut(tween(duration))
-                )
+    val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val outerDark = when (prefs.themeMode) {
+        1 -> false
+        2 -> true
+        else -> systemDark
+    }
+    val hostView = LocalView.current
+    DisposableEffect(outerDark) {
+        onDispose {
+            val window = (hostView.context as? Activity)?.window
+            if (window != null) {
+                val controller = WindowCompat.getInsetsController(window, hostView)
+                controller.isAppearanceLightStatusBars = !outerDark
+                controller.isAppearanceLightNavigationBars = !outerDark
             }
-        },
-        label = "OnboardingStepTransition"
-    ) { step ->
-        when (step) {
-            0 -> {
-                LanguageSelectionStep(
-                    prefs = prefs,
-                    onNext = {
-                        prefs.hasCompletedLanguageOnboarding = true
-                        currentStep = 1
+        }
+    }
+
+    TapbarTheme(themeMode = 2) {
+        OnboardingBackdrop(pulseKey = currentStep) {
+            AnimatedContent(
+                targetState = currentStep,
+                transitionSpec = {
+                    val forward = targetState > initialState
+                    EnterTransition.None togetherWith (
+                        fadeOut(tween(240, easing = FastOutSlowInEasing)) +
+                            slideOutHorizontally(
+                                animationSpec = tween(340, easing = FastOutSlowInEasing),
+                                targetOffsetX = { fullWidth ->
+                                    if (forward) -fullWidth / 14 else fullWidth / 14
+                                }
+                            )
+                        )
+                },
+                label = "OnboardingStepTransition"
+            ) { step ->
+                when (step) {
+                    0 -> {
+                        LanguageSelectionStep(
+                            prefs = prefs,
+                            onNext = {
+                                prefs.hasCompletedLanguageOnboarding = true
+                                currentStep = 1
+                            }
+                        )
                     }
-                )
-            }
-            1 -> {
-                PermissionStep(
-                    prefs = prefs,
-                    onFinish = {
-                        prefs.hasCompletedPermissionOnboarding = true
-                        onNext()
+                    1 -> {
+                        PermissionStep(
+                            prefs = prefs,
+                            onFinish = {
+                                prefs.hasCompletedPermissionOnboarding = true
+                                onNext()
+                            }
+                        )
                     }
-                )
+                }
             }
         }
     }
@@ -264,7 +277,7 @@ private fun LanguageSelectionStep(
     val view = LocalView.current
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         bottomBar = {
             Box(
                 modifier = Modifier
@@ -319,7 +332,7 @@ private fun LanguageSelectionStep(
                         label = "LangRadioScale_${lang.tag}"
                     )
 
-                    SegmentedCard(
+                    GlassCard(
                         index = index,
                         count = SupportedLanguages.size,
                         onClick = {
@@ -370,7 +383,7 @@ private fun PermissionStep(
     val hasAnyPermission = isAccessibilityEnabled || isOverlayEnabled
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         bottomBar = {
             Box(
                 modifier = Modifier
@@ -383,6 +396,7 @@ private fun PermissionStep(
                         haptics.performConfirm(view)
                         onFinish()
                     },
+                    modifier = Modifier.revealOnEnter(2),
                     colors = primaryNavButtonColors()
                 ) {
                     Text(
@@ -406,7 +420,8 @@ private fun PermissionStep(
                 text = stringResource(R.string.permissions_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.revealOnEnter(0)
             )
 
             if (hasAnyPermission) {
@@ -415,7 +430,7 @@ private fun PermissionStep(
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     if (isAccessibilityEnabled) {
-                        SegmentedCard(index = 0, count = if (isOverlayEnabled) 2 else 1) {
+                        GlassCard(index = 0, count = if (isOverlayEnabled) 2 else 1, modifier = Modifier.revealOnEnter(1)) {
                             GrantedSummaryRow(
                                 title = stringResource(R.string.perm_accessibility_title),
                                 description = stringResource(R.string.perm_accessibility_desc),
@@ -424,7 +439,7 @@ private fun PermissionStep(
                         }
                     }
                     if (isOverlayEnabled) {
-                        SegmentedCard(index = if (isAccessibilityEnabled) 1 else 0, count = if (isAccessibilityEnabled) 2 else 1) {
+                        GlassCard(index = if (isAccessibilityEnabled) 1 else 0, count = if (isAccessibilityEnabled) 2 else 1, modifier = Modifier.revealOnEnter(2)) {
                             GrantedSummaryRow(
                                 title = stringResource(R.string.perm_overlay_title),
                                 description = stringResource(R.string.perm_overlay_desc),
@@ -451,9 +466,10 @@ private fun PermissionStep(
                         .animateContentSize(),
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    SegmentedCard(
+                    GlassCard(
                         index = 0,
-                        count = 2
+                        count = 2,
+                        modifier = Modifier.revealOnEnter(1)
                     ) {
                         PermissionCardRow(
                             title = stringResource(R.string.perm_accessibility_title),
@@ -481,9 +497,10 @@ private fun PermissionStep(
                         )
                     }
 
-                    SegmentedCard(
+                    GlassCard(
                         index = 1,
-                        count = 2
+                        count = 2,
+                        modifier = Modifier.revealOnEnter(2)
                     ) {
                         PermissionCardRow(
                             title = stringResource(R.string.perm_overlay_title),
@@ -514,6 +531,7 @@ private fun PermissionStep(
                 }
 
                 RestrictedHelpCard(
+                    modifier = Modifier.revealOnEnter(3),
                     onOpenAppInfo = {
                         haptics.performLightTap(view)
                         try {
@@ -548,7 +566,7 @@ private fun GrantedSummaryRow(
     description: String,
     icon: ImageVector
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = true
     val grantedBgColor = if (isDark) MaterialTheme.colorScheme.onSurface else Color(0xFFE2E2E2)
     val grantedTextColor = if (isDark) MaterialTheme.colorScheme.surface else Color.Black
 
@@ -656,7 +674,7 @@ private fun SuccessHero(
         }
     }
 
-    val isDark = isSystemInDarkTheme()
+    val isDark = true
     val heroBgColor = if (isDark) MaterialTheme.colorScheme.onSurface else Color(0xFFFCFCFC)
     val checkColor = if (isDark) MaterialTheme.colorScheme.surface else Color.Black
     val cdText = stringResource(R.string.cd_setup_complete)
@@ -794,7 +812,7 @@ private fun PermissionCardRow(
             label = "PermissionButtonCrossfade"
         ) { granted ->
             if (granted) {
-                val grantedDark = isSystemInDarkTheme()
+                val grantedDark = true
                 Surface(
                     shape = RoundedCornerShape(100),
                     color = if (grantedDark) MaterialTheme.colorScheme.onSurface else Color(0xFFE2E2E2),
@@ -855,10 +873,11 @@ private fun PermissionCardRow(
 
 @Composable
 private fun RestrictedHelpCard(
+    modifier: Modifier = Modifier,
     onOpenAppInfo: () -> Unit,
     onViewVisualGuide: () -> Unit
 ) {
-    SegmentedCard(index = 0, count = 1) {
+    GlassCard(index = 0, count = 1, modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

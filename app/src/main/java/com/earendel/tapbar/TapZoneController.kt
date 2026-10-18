@@ -559,6 +559,25 @@ class TapZoneController(
             "back" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
             "home" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
             "recents" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
+            "scroll_to_top" -> service?.scrollToTop()
+            "previous_app" -> service?.switchToPreviousApp()
+            "scroll_to_bottom" -> service?.scrollToBottom()
+            "page_up" -> service?.pageScroll(true)
+            "page_down" -> service?.pageScroll(false)
+            "copy" -> service?.copyText()
+            "paste" -> service?.pasteText()
+            "select_all" -> service?.selectAllText()
+            "caffeine" -> service?.toggleCaffeine()
+            "refresh" -> service?.refreshPage()
+            "swipe_left" -> service?.swipeHorizontal(true)
+            "swipe_right" -> service?.swipeHorizontal(false)
+            "clear_clipboard" -> service?.clearClipboard()
+            "switch_keyboard" -> service?.showKeyboardPicker()
+            "cut" -> service?.cutText()
+            "web_search" -> openWebSearch(context)
+            "open_dialer" -> openIntent(context, Intent(Intent.ACTION_DIAL))
+            "current_app_info" -> service?.openCurrentAppInfo()
+            "open_browser" -> openCategory(context, Intent.CATEGORY_APP_BROWSER)
             "notifications" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
             "quick_settings" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
             "split_screen" -> {
@@ -597,6 +616,7 @@ class TapZoneController(
             "brightness_up" -> adjustBrightness(context, 25)
             "brightness_down" -> adjustBrightness(context, -25)
             "auto_brightness" -> toggleAutoBrightness(context)
+            "send_notification" -> AutomationNotifier.fire(context, zone, gesture)
             "camera" -> openCamera(context)
             "assistant" -> openAssistant(context)
             "display_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_DISPLAY_SETTINGS))
@@ -739,10 +759,6 @@ class TapZoneController(
                 return
             }
             val cr = context.contentResolver
-            val mode = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC)
-            if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
-                Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL)
-            }
             val current = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS, 128)
             val newBrightness = (current + delta).coerceIn(1, 255)
             Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS, newBrightness)
@@ -783,6 +799,26 @@ class TapZoneController(
             }
         } catch (t: Throwable) {
             Log.e("Tapbar", "Could not open camera", t)
+        }
+    }
+
+    private fun openIntent(context: Context, intent: Intent) {
+        try {
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (t: Throwable) {
+            Log.e("Tapbar", "Could not open intent", t)
+        }
+    }
+
+    private fun openCategory(context: Context, category: String) {
+        openIntent(context, Intent(Intent.ACTION_MAIN).addCategory(category))
+    }
+
+    private fun openWebSearch(context: Context) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_WEB_SEARCH).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (_: Throwable) {
+            openCategory(context, Intent.CATEGORY_APP_BROWSER)
         }
     }
 

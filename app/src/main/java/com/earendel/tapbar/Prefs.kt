@@ -155,6 +155,10 @@ class Prefs(context: Context) {
         get() = sp.getInt("theme_mode", 0)
         set(v) = sp.edit().putInt("theme_mode", v).apply()
 
+    var uiStyle: Int
+        get() = sp.getInt("ui_style", STYLE_MINIMAL).coerceIn(STYLE_MINIMAL, STYLE_IMMERSIVE)
+        set(v) = sp.edit().putInt("ui_style", v.coerceIn(STYLE_MINIMAL, STYLE_IMMERSIVE)).apply()
+
     var hapticFeedbackEnabled: Boolean
         get() = sp.getBoolean("haptic_feedback_enabled", true)
         set(v) = sp.edit().putBoolean("haptic_feedback_enabled", v).apply()

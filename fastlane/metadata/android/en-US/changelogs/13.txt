@@ -1,0 +1,7 @@
+Tapbar 1.8
+
+- Expanded the action library to 100+ quick actions.
+- Added automation notifications for apps like MacroDroid, Tasker, and Automate.
+- Added Immersive UI style.
+- Improved onboarding, action cards, and UI animations.
+- Updated translations.

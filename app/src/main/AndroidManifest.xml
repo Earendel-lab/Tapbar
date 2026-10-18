@@ -52,6 +52,14 @@
             android:hardwareAccelerated="true"
             android:label="@string/settings" />
 
+        <activity
+            android:name="com.earendel.tapbar.KeyboardPickerActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"

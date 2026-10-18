@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar is running</string>
     <string name="notif_text">Tap zone active. Tap to open settings.</string>
     <string name="notif_channel">Tapbar overlay</string>
+    <string name="notif_channel_automation">Automation triggers</string>
     <string name="action_stop">Stop</string>
     <string name="accessibility_desc">Lets Tapbar place a small tap target on the status bar. It does not read screen content.</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">Auto</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+
+    <string name="style">Style</string>
+    <string name="style_minimal">Minimal</string>
+    <string name="style_immersive">Immersive</string>
 
     <string name="haptic_feedback">Haptic Feedback</string>
     <string name="buzz_every_tap">Buzz on every tap</string>
@@ -131,6 +136,7 @@
     <string name="group_navigation">Navigation &amp; system</string>
     <string name="group_settings">Settings</string>
     <string name="group_advanced">Advanced settings</string>
+    <string name="group_automation">Automation</string>
     <string name="cd_back">Back</string>
     <string name="cd_search">Search</string>
     <string name="cd_clear">Clear</string>
@@ -213,6 +219,47 @@
     <string name="action_split_screen_desc">May not work on all phones</string>
     <string name="action_dismiss_shade">Dismiss notifications</string>
     <string name="action_dismiss_shade_desc">Closes notification shade</string>
+    <string name="action_scroll_to_top">Scroll to top</string>
+    <string name="action_scroll_to_top_desc">Scrolls the current list or page back to the top</string>
+    <string name="action_previous_app">Previous app</string>
+    <string name="action_previous_app_desc">Switches back to the app you used before this one</string>
+    <string name="action_scroll_to_bottom">Scroll to bottom</string>
+    <string name="action_scroll_to_bottom_desc">Scrolls the current list or page down to the end</string>
+    <string name="action_page_up">Page up</string>
+    <string name="action_page_up_desc">Scrolls the current list or page up by one screen</string>
+    <string name="action_page_down">Page down</string>
+    <string name="action_page_down_desc">Scrolls the current list or page down by one screen</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_copy_desc">Copies the selected text</string>
+    <string name="action_paste">Paste</string>
+    <string name="action_paste_desc">Pastes the clipboard into the focused text field</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_select_all_desc">Selects all text in the focused text field</string>
+    <string name="action_caffeine">Keep screen on</string>
+    <string name="action_caffeine_desc">Keeps the screen awake until you turn it off</string>
+    <string name="caffeine_on">Screen will stay on</string>
+    <string name="caffeine_off">Screen timeout restored</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_refresh_desc">Pulls down to refresh the current page or list</string>
+    <string name="action_swipe_left">Swipe left</string>
+    <string name="action_swipe_left_desc">Swipes left across the screen, such as to the next tab or page</string>
+    <string name="action_swipe_right">Swipe right</string>
+    <string name="action_swipe_right_desc">Swipes right across the screen, such as to the previous tab or page</string>
+    <string name="action_clear_clipboard">Clear clipboard</string>
+    <string name="action_clear_clipboard_desc">Erases whatever is currently copied</string>
+    <string name="action_switch_keyboard">Switch keyboard</string>
+    <string name="action_switch_keyboard_desc">Opens the keyboard picker</string>
+    <string name="clipboard_cleared">Clipboard cleared</string>
+    <string name="action_cut">Cut</string>
+    <string name="action_cut_desc">Cuts the selected text</string>
+    <string name="action_web_search">Web search</string>
+    <string name="action_web_search_desc">Opens search so you can look something up</string>
+    <string name="action_open_dialer">Phone dialer</string>
+    <string name="action_open_dialer_desc">Opens the phone dialer</string>
+    <string name="action_open_browser">Browser</string>
+    <string name="action_open_browser_desc">Opens your default web browser</string>
+    <string name="action_current_app_info">Current app info</string>
+    <string name="action_current_app_info_desc">Opens the settings page of the app you are using</string>
     <string name="action_all_apps">All apps</string>
     <string name="action_all_apps_desc">Opens application drawer</string>
     <string name="action_accessibility_button">Accessibility button</string>
@@ -299,6 +346,8 @@
     <string name="action_overlay_permission_desc">Opens overlay permission list</string>
     <string name="action_write_settings">Modify system settings</string>
     <string name="action_write_settings_desc">Opens write settings list</string>
+    <string name="action_send_notification">Send notification</string>
+    <string name="action_send_notification_desc">Posts a notification that Automate, MacroDroid or Tasker can react to</string>
 
     <plurals name="apps_blocked">
         <item quantity="one">%d app blocked</item>

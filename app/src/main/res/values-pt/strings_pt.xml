@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar está em execução</string>
     <string name="notif_text">Zona de toque ativa. Toque para abrir as configurações.</string>
     <string name="notif_channel">Sobreposição do Tapbar</string>
+    <string name="notif_channel_automation">Gatilhos de automação</string>
     <string name="action_stop">Parar</string>
     <string name="accessibility_desc">Permite ao Tapbar colocar uma área de toque na barra de status. Não lê o conteúdo da tela.</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">Automático</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Escuro</string>
+
+    <string name="style">Estilo</string>
+    <string name="style_minimal">Minimalista</string>
+    <string name="style_immersive">Imersivo</string>
 
     <string name="haptic_feedback">Resposta tátil</string>
     <string name="buzz_every_tap">Vibrar a cada toque</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">Navegação e sistema</string>
     <string name="group_settings">Configurações</string>
     <string name="group_advanced">Configurações avançadas</string>
+    <string name="group_automation">Automação</string>
     <string name="cd_back">Voltar</string>
     <string name="cd_search">Pesquisar</string>
     <string name="cd_clear">Limpar</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">Nem todos os celulares suportam</string>
     <string name="action_dismiss_shade">Dispensar notificações</string>
     <string name="action_dismiss_shade_desc">Fecha a barra de notificações</string>
+    <string name="action_scroll_to_top">Rolar para o topo</string>
+    <string name="action_scroll_to_top_desc">Rola a lista ou página atual até o topo</string>
+    <string name="action_previous_app">App anterior</string>
+    <string name="action_previous_app_desc">Volta para o app que você usava antes deste</string>
+    <string name="action_scroll_to_bottom">Rolar para o fim</string>
+    <string name="action_scroll_to_bottom_desc">Rola a lista ou página atual até o final</string>
+    <string name="action_page_up">Página acima</string>
+    <string name="action_page_up_desc">Rola a lista ou página atual uma tela para cima</string>
+    <string name="action_page_down">Página abaixo</string>
+    <string name="action_page_down_desc">Rola a lista ou página atual uma tela para baixo</string>
+    <string name="action_copy">Copiar</string>
+    <string name="action_copy_desc">Copia o texto selecionado</string>
+    <string name="action_paste">Colar</string>
+    <string name="action_paste_desc">Cola a área de transferência no campo de texto ativo</string>
+    <string name="action_select_all">Selecionar tudo</string>
+    <string name="action_select_all_desc">Seleciona todo o texto do campo de texto ativo</string>
+    <string name="action_caffeine">Manter tela ligada</string>
+    <string name="action_caffeine_desc">Mantém a tela ligada até você desativar</string>
+    <string name="caffeine_on">A tela permanecerá ligada</string>
+    <string name="caffeine_off">Tempo limite da tela restaurado</string>
+    <string name="action_refresh">Atualizar</string>
+    <string name="action_refresh_desc">Puxa para baixo para atualizar a página ou lista atual</string>
+    <string name="action_swipe_left">Deslizar para a esquerda</string>
+    <string name="action_swipe_left_desc">Desliza para a esquerda, por exemplo para a próxima aba ou página</string>
+    <string name="action_swipe_right">Deslizar para a direita</string>
+    <string name="action_swipe_right_desc">Desliza para a direita, por exemplo para a aba ou página anterior</string>
+    <string name="action_clear_clipboard">Limpar área de transferência</string>
+    <string name="action_clear_clipboard_desc">Apaga o que está copiado no momento</string>
+    <string name="action_switch_keyboard">Trocar teclado</string>
+    <string name="action_switch_keyboard_desc">Abre o seletor de teclado</string>
+    <string name="clipboard_cleared">Área de transferência limpa</string>
+    <string name="action_cut">Recortar</string>
+    <string name="action_cut_desc">Recorta o texto selecionado</string>
+    <string name="action_web_search">Pesquisa na web</string>
+    <string name="action_web_search_desc">Abre a pesquisa para você procurar algo</string>
+    <string name="action_open_dialer">Discador do telefone</string>
+    <string name="action_open_dialer_desc">Abre o discador do telefone</string>
+    <string name="action_open_browser">Navegador</string>
+    <string name="action_open_browser_desc">Abre seu navegador padrão</string>
+    <string name="action_current_app_info">Informações do app atual</string>
+    <string name="action_current_app_info_desc">Abre a página de configurações do app em uso</string>
     <string name="action_all_apps">Todos os apps</string>
     <string name="action_all_apps_desc">Abre a gaveta de aplicativos</string>
     <string name="action_accessibility_button">Botão de acessibilidade</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">Abre a lista de sobreposição</string>
     <string name="action_write_settings">Modificar configurações do sistema</string>
     <string name="action_write_settings_desc">Abre a modificação do sistema</string>
+    <string name="action_send_notification">Enviar notificação</string>
+    <string name="action_send_notification_desc">Publica uma notificação à qual Automate, MacroDroid ou Tasker podem reagir</string>
 
     <plurals name="apps_blocked">
         <item quantity="one">%d app bloqueado</item>

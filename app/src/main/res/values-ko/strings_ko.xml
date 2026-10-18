@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar가 실행 중입니다</string>
     <string name="notif_text">탭 영역 활성화됨. 설정을 열려면 탭하세요.</string>
     <string name="notif_channel">Tapbar 오버레이</string>
+    <string name="notif_channel_automation">자동화 트리거</string>
     <string name="action_stop">중지</string>
     <string name="accessibility_desc">Tapbar가 상태 표시줄에 터치 영역을 배치할 수 있도록 허용합니다. 화면 내용을 읽지 않습니다.</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">자동</string>
     <string name="theme_light">라이트</string>
     <string name="theme_dark">다크</string>
+
+    <string name="style">스타일</string>
+    <string name="style_minimal">미니멀</string>
+    <string name="style_immersive">몰입형</string>
 
     <string name="haptic_feedback">진동 피드백</string>
     <string name="buzz_every_tap">탭할 때마다 진동</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">탐색 및 시스템</string>
     <string name="group_settings">설정</string>
     <string name="group_advanced">고급 설정</string>
+    <string name="group_automation">자동화</string>
     <string name="cd_back">뒤로</string>
     <string name="cd_search">검색</string>
     <string name="cd_clear">지우기</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">일부 휴대전화에서는 작동하지 않을 수 있습니다</string>
     <string name="action_dismiss_shade">알림 닫기</string>
     <string name="action_dismiss_shade_desc">알림창을 닫습니다</string>
+    <string name="action_scroll_to_top">맨 위로 스크롤</string>
+    <string name="action_scroll_to_top_desc">현재 목록이나 페이지를 맨 위로 스크롤합니다</string>
+    <string name="action_previous_app">이전 앱</string>
+    <string name="action_previous_app_desc">직전에 사용한 앱으로 전환합니다</string>
+    <string name="action_scroll_to_bottom">맨 아래로 스크롤</string>
+    <string name="action_scroll_to_bottom_desc">현재 목록이나 페이지를 맨 아래로 스크롤합니다</string>
+    <string name="action_page_up">페이지 위로</string>
+    <string name="action_page_up_desc">현재 목록이나 페이지를 한 화면만큼 위로 스크롤합니다</string>
+    <string name="action_page_down">페이지 아래로</string>
+    <string name="action_page_down_desc">현재 목록이나 페이지를 한 화면만큼 아래로 스크롤합니다</string>
+    <string name="action_copy">복사</string>
+    <string name="action_copy_desc">선택한 텍스트를 복사합니다</string>
+    <string name="action_paste">붙여넣기</string>
+    <string name="action_paste_desc">클립보드 내용을 선택된 입력란에 붙여넣습니다</string>
+    <string name="action_select_all">모두 선택</string>
+    <string name="action_select_all_desc">선택된 입력란의 모든 텍스트를 선택합니다</string>
+    <string name="action_caffeine">화면 켜두기</string>
+    <string name="action_caffeine_desc">끄기 전까지 화면을 계속 켜둡니다</string>
+    <string name="caffeine_on">화면이 계속 켜져 있습니다</string>
+    <string name="caffeine_off">화면 시간 제한이 복원되었습니다</string>
+    <string name="action_refresh">새로고침</string>
+    <string name="action_refresh_desc">아래로 당겨 현재 페이지나 목록을 새로고침합니다</string>
+    <string name="action_swipe_left">왼쪽으로 스와이프</string>
+    <string name="action_swipe_left_desc">화면을 왼쪽으로 스와이프합니다(예: 다음 탭이나 페이지로 이동)</string>
+    <string name="action_swipe_right">오른쪽으로 스와이프</string>
+    <string name="action_swipe_right_desc">화면을 오른쪽으로 스와이프합니다(예: 이전 탭이나 페이지로 이동)</string>
+    <string name="action_clear_clipboard">클립보드 지우기</string>
+    <string name="action_clear_clipboard_desc">현재 복사된 내용을 지웁니다</string>
+    <string name="action_switch_keyboard">키보드 전환</string>
+    <string name="action_switch_keyboard_desc">키보드 선택 창을 엽니다</string>
+    <string name="clipboard_cleared">클립보드를 지웠습니다</string>
+    <string name="action_cut">잘라내기</string>
+    <string name="action_cut_desc">선택한 텍스트를 잘라냅니다</string>
+    <string name="action_web_search">웹 검색</string>
+    <string name="action_web_search_desc">검색을 열어 원하는 내용을 찾아봅니다</string>
+    <string name="action_open_dialer">전화 다이얼러</string>
+    <string name="action_open_dialer_desc">전화 다이얼러를 엽니다</string>
+    <string name="action_open_browser">브라우저</string>
+    <string name="action_open_browser_desc">기본 웹 브라우저를 엽니다</string>
+    <string name="action_current_app_info">현재 앱 정보</string>
+    <string name="action_current_app_info_desc">사용 중인 앱의 설정 페이지를 엽니다</string>
     <string name="action_all_apps">모든 앱</string>
     <string name="action_all_apps_desc">앱 서랍을 엽니다</string>
     <string name="action_accessibility_button">접근성 버튼</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">다른 앱 위에 표시 권한 목록을 엽니다</string>
     <string name="action_write_settings">시스템 설정 변경</string>
     <string name="action_write_settings_desc">시스템 설정 변경 목록을 엽니다</string>
+    <string name="action_send_notification">알림 보내기</string>
+    <string name="action_send_notification_desc">Automate, MacroDroid, Tasker가 반응할 수 있는 알림을 게시합니다</string>
 
     <plurals name="apps_blocked">
         <item quantity="other">앱 %d개 차단됨</item>

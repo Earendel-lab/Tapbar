@@ -4,6 +4,7 @@
     <string name="notif_title">Tapbar चालू है</string>
     <string name="notif_text">टैप ज़ोन सक्रिय है। सेटिंग्स खोलने के लिए टैप करें।</string>
     <string name="notif_channel">Tapbar ओवरले</string>
+    <string name="notif_channel_automation">ऑटोमेशन ट्रिगर</string>
     <string name="action_stop">रोकें</string>
     <string name="accessibility_desc">Tapbar को स्टेटस बार पर एक स्पर्श क्षेत्र रखने की अनुमति देता है। यह स्क्रीन की सामग्री नहीं पढ़ता।</string>
 
@@ -59,6 +60,10 @@
     <string name="theme_auto">स्वचालित</string>
     <string name="theme_light">लाइट</string>
     <string name="theme_dark">डार्क</string>
+
+    <string name="style">शैली</string>
+    <string name="style_minimal">मिनिमल</string>
+    <string name="style_immersive">इमर्सिव</string>
 
     <string name="haptic_feedback">कंपन फीडबैक</string>
     <string name="buzz_every_tap">हर टैप पर वाइब्रेट करें</string>
@@ -129,6 +134,7 @@
     <string name="group_navigation">नेविगेशन और सिस्टम</string>
     <string name="group_settings">सेटिंग्स</string>
     <string name="group_advanced">उन्नत सेटिंग्स</string>
+    <string name="group_automation">ऑटोमेशन</string>
     <string name="cd_back">वापस</string>
     <string name="cd_search">खोजें</string>
     <string name="cd_clear">साफ़ करें</string>
@@ -211,6 +217,47 @@
     <string name="action_split_screen_desc">हो सकता है सभी फ़ोन पर काम न करे</string>
     <string name="action_dismiss_shade">नोटिफ़िकेशन बंद करें</string>
     <string name="action_dismiss_shade_desc">नोटिफ़िकेशन शेड बंद करता है</string>
+    <string name="action_scroll_to_top">ऊपर स्क्रॉल करें</string>
+    <string name="action_scroll_to_top_desc">मौजूदा सूची या पेज को सबसे ऊपर तक स्क्रॉल करता है</string>
+    <string name="action_previous_app">पिछला ऐप</string>
+    <string name="action_previous_app_desc">इससे पहले इस्तेमाल किए गए ऐप पर वापस जाता है</string>
+    <string name="action_scroll_to_bottom">नीचे स्क्रॉल करें</string>
+    <string name="action_scroll_to_bottom_desc">मौजूदा सूची या पेज को सबसे नीचे तक स्क्रॉल करता है</string>
+    <string name="action_page_up">पेज ऊपर</string>
+    <string name="action_page_up_desc">मौजूदा सूची या पेज को एक स्क्रीन ऊपर स्क्रॉल करता है</string>
+    <string name="action_page_down">पेज नीचे</string>
+    <string name="action_page_down_desc">मौजूदा सूची या पेज को एक स्क्रीन नीचे स्क्रॉल करता है</string>
+    <string name="action_copy">कॉपी करें</string>
+    <string name="action_copy_desc">चुने हुए टेक्स्ट को कॉपी करता है</string>
+    <string name="action_paste">पेस्ट करें</string>
+    <string name="action_paste_desc">क्लिपबोर्ड की सामग्री को सक्रिय टेक्स्ट फ़ील्ड में पेस्ट करता है</string>
+    <string name="action_select_all">सब चुनें</string>
+    <string name="action_select_all_desc">सक्रिय टेक्स्ट फ़ील्ड का सारा टेक्स्ट चुनता है</string>
+    <string name="action_caffeine">स्क्रीन चालू रखें</string>
+    <string name="action_caffeine_desc">बंद करने तक स्क्रीन को चालू रखता है</string>
+    <string name="caffeine_on">स्क्रीन चालू रहेगी</string>
+    <string name="caffeine_off">स्क्रीन टाइमआउट बहाल किया गया</string>
+    <string name="action_refresh">रीफ़्रेश करें</string>
+    <string name="action_refresh_desc">मौजूदा पेज या सूची को रीफ़्रेश करने के लिए नीचे खींचता है</string>
+    <string name="action_swipe_left">बाएँ स्वाइप करें</string>
+    <string name="action_swipe_left_desc">स्क्रीन पर बाईं ओर स्वाइप करता है, जैसे अगले टैब या पेज के लिए</string>
+    <string name="action_swipe_right">दाएँ स्वाइप करें</string>
+    <string name="action_swipe_right_desc">स्क्रीन पर दाईं ओर स्वाइप करता है, जैसे पिछले टैब या पेज के लिए</string>
+    <string name="action_clear_clipboard">क्लिपबोर्ड साफ़ करें</string>
+    <string name="action_clear_clipboard_desc">फ़िलहाल कॉपी की गई सामग्री मिटाता है</string>
+    <string name="action_switch_keyboard">कीबोर्ड बदलें</string>
+    <string name="action_switch_keyboard_desc">कीबोर्ड चुनने वाला मेन्यू खोलता है</string>
+    <string name="clipboard_cleared">क्लिपबोर्ड साफ़ किया गया</string>
+    <string name="action_cut">कट करें</string>
+    <string name="action_cut_desc">चुने हुए टेक्स्ट को कट करता है</string>
+    <string name="action_web_search">वेब खोज</string>
+    <string name="action_web_search_desc">कुछ खोजने के लिए सर्च खोलता है</string>
+    <string name="action_open_dialer">फ़ोन डायलर</string>
+    <string name="action_open_dialer_desc">फ़ोन डायलर खोलता है</string>
+    <string name="action_open_browser">ब्राउज़र</string>
+    <string name="action_open_browser_desc">आपका डिफ़ॉल्ट वेब ब्राउज़र खोलता है</string>
+    <string name="action_current_app_info">मौजूदा ऐप की जानकारी</string>
+    <string name="action_current_app_info_desc">आप जिस ऐप का उपयोग कर रहे हैं उसका सेटिंग पेज खोलता है</string>
     <string name="action_all_apps">सभी ऐप्स</string>
     <string name="action_all_apps_desc">ऐप ड्रॉअर खोलता है</string>
     <string name="action_accessibility_button">एक्सेसिबिलिटी बटन</string>
@@ -297,6 +344,8 @@
     <string name="action_overlay_permission_desc">ओवरले अनुमति की सूची खोलता है</string>
     <string name="action_write_settings">सिस्टम सेटिंग्स बदलें</string>
     <string name="action_write_settings_desc">सिस्टम सेटिंग्स बदलने की सूची खोलता है</string>
+    <string name="action_send_notification">सूचना भेजें</string>
+    <string name="action_send_notification_desc">ऐसी सूचना भेजता है जिस पर Automate, MacroDroid या Tasker प्रतिक्रिया दे सकते हैं</string>
 
     <plurals name="apps_blocked">
         <item quantity="one">%d ऐप ब्लॉक है</item>

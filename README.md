@@ -6,7 +6,7 @@
 
 # Tapbar
 
-Create tappable areas on your screen. Assign single tap, double tap, triple tap, or long press to open any app or trigger quick actions like flashlight, DND, Wi-Fi, and more.
+Create tappable screen zones to open apps, trigger 100+ quick actions, and automate tasks with your favorite automation apps.
 
 <p align="center">
   <img src="https://img.shields.io/github/downloads/Earendel-lab/Tapbar/total.svg?style=for-the-badge&color=FFC700&labelColor=1e2327&logo=github&logoColor=white" alt="Downloads" height="40">
@@ -31,6 +31,7 @@ Create tappable areas on your screen. Assign single tap, double tap, triple tap,
 * Create up to **4 custom tap zones** anywhere on your screen
 * **5 gestures:** single tap, double tap, triple tap, long press and Swipe gesture
 * Assign a different app, action, or app shortcut to each gesture
+* Send a short notification (for ex: `Zone 1 - Double tap`) that automation apps like Automate, MacroDroid, and Tasker can use as a trigger
 * Use all tap zones independently
 * Start automatically when the device boots
 * Works completely **offline**
