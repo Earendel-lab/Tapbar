@@ -25,7 +25,6 @@ Create tappable screen zones to open apps, trigger 100+ quick actions, and autom
   <a href="https://f-droid.org/packages/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/f9e7cec7-f0d0-4329-af2c-589c8f4b9ef1" width="220" height="65" alt="F-Droid Download"></a>&nbsp;&nbsp;<a href="https://github.com/Earendel-lab/Tapbar/releases/latest"><img src="https://github.com/user-attachments/assets/bc5ca23a-3f33-465a-b25e-aac8cdbc3d23" width="220" height="65" alt="Tapbar Download"></a>
 </p>
 
-
 ## Features
 
 * Create up to **4 custom tap zones** anywhere on your screen
@@ -38,54 +37,10 @@ Create tappable screen zones to open apps, trigger 100+ quick actions, and autom
 * No ads, trackers, or analytics
 * Completely free & open source
 
-## Why Tapbar?
+<details>
+<summary><b>🔒 Privacy</b></summary>
 
-The idea came from a simple Android feature request:
-
-> Tap the clock in the status bar to open the Clock app.
-
-Many users have wanted this kind of shortcut because it makes the Clock app accessible with a single tap.
-
-Tapbar takes that idea further.
-
-You are not limited to the Clock app or even the status bar. You can create tappable areas anywhere on your screen and assign different actions to **single tap, double tap, triple tap, and long press**.
-
-
-
-<div align="center">
-
-https://github.com/user-attachments/assets/c076ad06-f121-417d-ba9c-3dd56d3bc7e2
-
-</div>
-
-## Installation Guide
-
-Since Tapbar isn't published on the Play Store, Android may block or flag it when installing. Here's how to get it running:
-
-**1. If Play Protect blocks the install**
-Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions to work. To install anyway:
-- Open the **Play Store**, tap your **profile icon** (top right)
-- Tap **Play Protect**, then tap the **Settings** gear icon
-- Turn off **Scan apps with Play Protect** and **Improve harmful app detection**
-- Install Tapbar, then you can turn these back on
-
-<img width="2147" height="822" alt="Tapbar Guide (1)" src="https://github.com/user-attachments/assets/592b2636-ebdc-48b0-b8c5-0b3d8a24075d" />
-
----
-
-**2. If your phone shows "Restricted setting" when enabling permissions**
-Newer Android versions block permission toggles for sideloaded apps by default. To fix this:
-- Go to **App info**
-- Tap the three-dot menu (top right) and select **Allow restricted settings**
-- Then enable the required Accessibility and Overlay permissions from Tapbar's settings screen
-
-<img width="2147" height="822" alt="Tapbar Guide" src="https://github.com/user-attachments/assets/0749c54b-53de-402b-844c-6374870b53b8" />
-
-<p align="center">
-  <font size="5"><b>Once these are set, Tapbar should install and run without issues.</b></font>
-</p>
-
-## Privacy
+<br>
 
 Tapbar is designed to be simple and private.
 
@@ -95,11 +50,68 @@ Tapbar is designed to be simple and private.
 
 Tapbar does not need your data to provide its main function.
 
+</details>
+
+## Why Tapbar?
+
+It started with a simple Android feature request: *tap the clock in the status bar to open the Clock app.*
+
+Tapbar takes that further. Create tappable areas anywhere on your screen and assign different actions to **single tap, double tap, triple tap, long press, and swipe**.
+
+<div align="center">
+
+https://github.com/user-attachments/assets/c076ad06-f121-417d-ba9c-3dd56d3bc7e2
+
+</div>
+
+## Installation Guide
+
+Since Tapbar isn't published on the Play Store, Android may block or flag it when installing. If that happens, expand the relevant fix below.
+
+<details>
+<summary><b>1. Play Protect blocks the install</b></summary>
+
+<br>
+
+Play Protect may flag Tapbar since it uses Accessibility and Overlay permissions to work. To install anyway:
+- Open the **Play Store**, tap your **profile icon** (top right)
+- Tap **Play Protect**, then tap the **Settings** gear icon
+- Turn off **Scan apps with Play Protect** and **Improve harmful app detection**
+- Install Tapbar, then you can turn these back on
+
+<img width="2147" height="822" alt="Tapbar Guide (1)" src="https://github.com/user-attachments/assets/592b2636-ebdc-48b0-b8c5-0b3d8a24075d" />
+
+</details>
+
+<details>
+<summary><b>2. "Restricted setting" when enabling permissions</b></summary>
+
+<br>
+
+Newer Android versions block permission toggles for sideloaded apps by default. To fix this:
+- Go to **App info**
+- Tap the three-dot menu (top right) and select **Allow restricted settings**
+- Then enable the required Accessibility and Overlay permissions from Tapbar's settings screen
+
+<img width="2147" height="822" alt="Tapbar Guide" src="https://github.com/user-attachments/assets/0749c54b-53de-402b-844c-6374870b53b8" />
+
+</details>
+
+<p align="center">
+  <font size="5"><b>Once these are set, Tapbar should install and run without issues.</b></font>
+</p>
+
 ## Join the Community
+
+⭐ If Tapbar is useful to you, **star the repo**. It helps others discover the project.
+
+<details>
+<summary><b>🤝 Contribute, report bugs, or share ideas</b></summary>
+
+<br>
 
 Tapbar is built in the open, and it's better with you in it.
 
-- ⭐ **Star the repo** if Tapbar's useful to you, it helps others discover the project and keeps development going
 - Found a bug? [Open an issue](https://github.com/Earendel-lab/Tapbar/issues/new/choose), every report genuinely shapes what comes next
 - Have an idea or a feature request like the one that started this whole project? [Start a discussion](https://github.com/Earendel-lab/Tapbar/discussions/new?category=ideas), we'd love to hear it
 - Have a question? Ask it in [Discussions](https://github.com/Earendel-lab/Tapbar/discussions/new?category=q-a)
@@ -107,7 +119,12 @@ Tapbar is built in the open, and it's better with you in it.
 
 No idea is too small. Tapbar exists because someone asked for a way to tap a clock.
 
-## Star History
+</details>
+
+<details>
+<summary><b>📈 Star History</b></summary>
+
+<br>
 
 <a href="https://www.star-history.com/?repos=earendel-lab%2Ftapbar&type=date&legend=top-left">
  <picture>
@@ -117,11 +134,18 @@ No idea is too small. Tapbar exists because someone asked for a way to tap a clo
  </picture>
 </a>
 
-## Clone the Project
+</details>
+
+<details>
+<summary><b>💻 Clone the Project</b></summary>
+
+<br>
 
 ```bash
 git clone https://github.com/Earendel-lab/Tapbar.git
 ```
+
+</details>
 
 ## License
 
