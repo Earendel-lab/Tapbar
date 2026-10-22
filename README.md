@@ -22,7 +22,7 @@ Create tappable screen zones to open apps, trigger 100+ quick actions, and autom
 </p>
 
 <p align="center">
-  <a href="https://f-droid.org/packages/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/f9e7cec7-f0d0-4329-af2c-589c8f4b9ef1" width="220" height="65" alt="F-Droid Download"></a>&nbsp;&nbsp;<a href="https://www.openapk.net/tapbar/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/da15548a-3c62-435a-bbaa-33951ef88120" width="220" height="65" alt="OpenAPK Download"></a>&nbsp;&nbsp;<a href="https://github.com/Earendel-lab/Tapbar/releases/latest"><img src="https://github.com/user-attachments/assets/bc5ca23a-3f33-465a-b25e-aac8cdbc3d23" width="220" height="65" alt="Tapbar Download"></a>
+  <a href="https://f-droid.org/packages/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/436538da-bed6-4452-9f95-1331ac95248f" width="220" height="65" alt="F-Droid Download"></a>&nbsp;&nbsp;<a href="https://www.openapk.net/tapbar/com.earendel.tapbar/"><img src="https://github.com/user-attachments/assets/db87c6bc-33a6-4647-8277-c313bed17714" width="220" height="65" alt="OpenAPK Download"></a>&nbsp;&nbsp;<a href="https://github.com/Earendel-lab/Tapbar/releases/latest"><img src="https://github.com/user-attachments/assets/bc5ca23a-3f33-465a-b25e-aac8cdbc3d23" width="220" height="65" alt="Tapbar Download"></a>
 </p>
 
 ## Features
