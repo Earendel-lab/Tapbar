@@ -581,6 +581,7 @@ fun HomeScreen(
     var a11yOn by remember { mutableStateOf(TapAccessibilityService.isEnabled(context)) }
     var enabled by remember { mutableStateOf(prefs.serviceEnabled) }
     var disableInLandscape by remember { mutableStateOf(prefs.disableInLandscape) }
+    var disableOnLockscreen by remember { mutableStateOf(prefs.disableOnLockscreen) }
     var autoStart by remember { mutableStateOf(prefs.autoStart) }
 
     var singleTapEnabled by remember { mutableStateOf(prefs.getSingleTapEnabled(selectedZone)) }
@@ -966,7 +967,7 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    SegmentedCard(index = 0, count = 3) {
+                    SegmentedCard(index = 0, count = 4) {
                         SwitchRow(
                             label = stringResource(R.string.enable_tap_zone),
                             checked = enabled,
@@ -983,7 +984,7 @@ fun HomeScreen(
                             }
                         )
                     }
-                    SegmentedCard(index = 1, count = 3) {
+                    SegmentedCard(index = 1, count = 4) {
                         SwitchRow(
                             label = stringResource(R.string.disable_in_landscape),
                             checked = disableInLandscape,
@@ -994,7 +995,18 @@ fun HomeScreen(
                             }
                         )
                     }
-                    SegmentedCard(index = 2, count = 3) {
+                    SegmentedCard(index = 2, count = 4) {
+                        SwitchRow(
+                            label = stringResource(R.string.disable_on_lockscreen),
+                            checked = disableOnLockscreen,
+                            onChange = {
+                                disableOnLockscreen = it
+                                prefs.disableOnLockscreen = it
+                                TapZone.active?.attach()
+                            }
+                        )
+                    }
+                    SegmentedCard(index = 3, count = 4) {
                         SwitchRow(
                             label = stringResource(R.string.start_on_boot),
                             checked = autoStart,
@@ -1324,6 +1336,7 @@ fun HomeScreen(
                     selectedZone = 0
                     zoneEnabledStates = List(ZONE_COUNT) { prefs.isZoneEnabled(it) }
                     disableInLandscape = prefs.disableInLandscape
+                    disableOnLockscreen = prefs.disableOnLockscreen
                     autoStart = prefs.autoStart
                     tapSpeedMs = prefs.tapSpeedMs
                     blockedCount = prefs.blockedPackages.size

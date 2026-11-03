@@ -81,6 +81,7 @@ object BackupManager {
         map["auto_start"] = 'b'
         map["colorful_ui"] = 'b'
         map["disable_in_landscape"] = 'b'
+        map["disable_on_lockscreen"] = 'b'
         map["haptic_feedback_enabled"] = 'b'
         map["service_enabled"] = 'b'
         map["split_shade"] = 'b'

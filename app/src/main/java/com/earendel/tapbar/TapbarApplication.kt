@@ -15,6 +15,12 @@ class TapbarApplication : Application() {
         }
     }
 
+    private val lockReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            TapZone.active?.attach()
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         val filter = IntentFilter().apply {
@@ -25,5 +31,12 @@ class TapbarApplication : Application() {
             addDataScheme("package")
         }
         ContextCompat.registerReceiver(this, packageReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+
+        val lockFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
+        ContextCompat.registerReceiver(this, lockReceiver, lockFilter, ContextCompat.RECEIVER_EXPORTED)
     }
 }
