@@ -111,7 +111,24 @@ class HapticManager(
         performPredefinedVibration(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) VibrationEffect.EFFECT_CLICK else -1, 10L)
     }
 
+    private val basicMotor: Boolean by lazy {
+        val vib = vibrator ?: return@lazy false
+        try {
+            if (!vib.hasVibrator()) return@lazy false
+            if (vib.hasAmplitudeControl()) return@lazy false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                vib.areAllEffectsSupported(VibrationEffect.EFFECT_CLICK, VibrationEffect.EFFECT_TICK) !=
+                    Vibrator.VIBRATION_EFFECT_SUPPORT_YES
+            } else {
+                true
+            }
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
     private fun performViewHaptic(view: View, constant: Int): Boolean {
+        if (basicMotor) return false
         return try {
             view.performHapticFeedback(constant)
         } catch (_: Throwable) {
@@ -124,7 +141,10 @@ class HapticManager(
         val vib = vibrator ?: return
         if (!vib.hasVibrator()) return
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && effectId >= 0) {
+            if (basicMotor) {
+                val duration = (fallbackDurationMs * 4).coerceIn(20L, 60L)
+                vib.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && effectId >= 0) {
                 vib.vibrate(VibrationEffect.createPredefined(effectId))
             } else if (fallbackDurationMs > 0) {
                 vib.vibrate(VibrationEffect.createOneShot(fallbackDurationMs, VibrationEffect.DEFAULT_AMPLITUDE))
