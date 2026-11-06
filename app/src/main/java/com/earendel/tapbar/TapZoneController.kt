@@ -2,6 +2,7 @@ package com.earendel.tapbar
 
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
@@ -126,8 +127,16 @@ class TapZoneController(
         if (prefs.disableInLandscape && ScreenMetrics.isLandscape(context)) {
             return true
         }
+        if (prefs.disableOnLockscreen && isKeyguardLocked()) {
+            return true
+        }
         val fg = TapZone.currentForegroundApp?.trim()?.lowercase() ?: return false
         return prefs.blockedPackages.contains(fg)
+    }
+
+    private fun isKeyguardLocked(): Boolean {
+        val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+        return km?.isKeyguardLocked == true
     }
 
     fun attach() {

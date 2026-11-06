@@ -188,6 +188,10 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("disable_in_landscape", false)
         set(v) = sp.edit().putBoolean("disable_in_landscape", v).apply()
 
+    var disableOnLockscreen: Boolean
+        get() = sp.getBoolean("disable_on_lockscreen", false)
+        set(v) = sp.edit().putBoolean("disable_on_lockscreen", v).apply()
+
     var splitShade: Boolean
         get() = sp.getBoolean("split_shade", false)
         set(v) = sp.edit().putBoolean("split_shade", v).apply()
