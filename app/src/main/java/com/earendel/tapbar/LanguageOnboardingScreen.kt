@@ -42,6 +42,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Layers
+import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -366,17 +367,21 @@ private fun PermissionStep(
     var isOverlayEnabled by remember {
         mutableStateOf(Settings.canDrawOverlays(context))
     }
+    var shellState by remember { mutableIntStateOf(ShellAccess.shizukuState()) }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 isAccessibilityEnabled = TapAccessibilityService.isEnabled(context)
                 isOverlayEnabled = Settings.canDrawOverlays(context)
+                shellState = ShellAccess.shizukuState()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
+        val stopObserving = ShellAccess.observeShizuku { shellState = ShellAccess.shizukuState() }
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            stopObserving()
         }
     }
 
@@ -449,15 +454,22 @@ private fun PermissionStep(
                     }
                 }
 
+                ShellOptionalCard(
+                    state = shellState,
+                    modifier = Modifier.revealOnEnter(3),
+                    onAllow = {
+                        haptics.performSelection(view)
+                        ShellAccess.requestShizukuPermission()
+                    }
+                )
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    SuccessHero(
-                        isAccessibility = isAccessibilityEnabled
-                    )
+                    SuccessHero()
                 }
             } else {
                 Column(
@@ -480,19 +492,7 @@ private fun PermissionStep(
                             isPrimary = true,
                             onTurnOn = {
                                 haptics.performSelection(view)
-                                try {
-                                    context.startActivity(
-                                        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    )
-                                } catch (_: ActivityNotFoundException) {
-                                    try {
-                                        context.startActivity(
-                                            Intent(Settings.ACTION_SETTINGS)
-                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        )
-                                    } catch (_: Throwable) {}
-                                }
+                                TapAccessibilityService.openSettings(context)
                             }
                         )
                     }
@@ -530,17 +530,20 @@ private fun PermissionStep(
                     }
                 }
 
-                RestrictedHelpCard(
+                ShellOptionalCard(
+                    state = shellState,
                     modifier = Modifier.revealOnEnter(3),
+                    onAllow = {
+                        haptics.performSelection(view)
+                        ShellAccess.requestShizukuPermission()
+                    }
+                )
+
+                RestrictedHelpCard(
+                    modifier = Modifier.revealOnEnter(4),
                     onOpenAppInfo = {
                         haptics.performLightTap(view)
-                        try {
-                            val intent = Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:${context.packageName}")
-                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(intent)
-                        } catch (_: Throwable) {}
+                        TapAccessibilityService.openAppInfo(context)
                     },
                     onViewVisualGuide = {
                         haptics.performLightTap(view)
@@ -556,6 +559,35 @@ private fun PermissionStep(
             }
 
             Spacer(Modifier.height(80.dp))
+        }
+    }
+}
+
+@Composable
+private fun ShellOptionalCard(
+    state: Int,
+    onAllow: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (state == ShellAccess.SHIZUKU_UNAVAILABLE) {
+        Text(
+            text = stringResource(R.string.perm_shell_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = modifier.padding(horizontal = 4.dp)
+        )
+    } else {
+        GlassCard(index = 0, count = 1, modifier = modifier) {
+            PermissionCardRow(
+                title = stringResource(R.string.perm_shell_title),
+                badge = stringResource(R.string.perm_optional),
+                description = stringResource(R.string.perm_shell_desc),
+                icon = Icons.Rounded.Terminal,
+                isEnabled = state == ShellAccess.SHIZUKU_READY,
+                isPrimary = false,
+                actionLabel = stringResource(R.string.perm_shell_allow),
+                onTurnOn = onAllow
+            )
         }
     }
 }
@@ -626,9 +658,7 @@ private fun GrantedSummaryRow(
 }
 
 @Composable
-private fun SuccessHero(
-    isAccessibility: Boolean
-) {
+private fun SuccessHero() {
     val context = LocalContext.current
     val haptics = LocalHapticManager.current
     val view = LocalView.current
@@ -737,13 +767,6 @@ private fun SuccessHero(
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
-            Text(
-                text = stringResource(if (isAccessibility) R.string.success_desc_a11y else R.string.success_desc_overlay),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
         }
     }
 }
@@ -756,9 +779,10 @@ private fun PermissionCardRow(
     icon: ImageVector,
     isEnabled: Boolean,
     isPrimary: Boolean,
-    onTurnOn: () -> Unit
+    onTurnOn: () -> Unit,
+    actionLabel: String = stringResource(R.string.perm_allow)
 ) {
-    val statusText = stringResource(if (isEnabled) R.string.perm_granted else R.string.perm_allow)
+    val statusText = if (isEnabled) stringResource(R.string.perm_granted) else actionLabel
     val semanticDesc = "$title. $description. $statusText"
 
     Column(
@@ -843,7 +867,7 @@ private fun PermissionCardRow(
                         colors = cardActionButtonColors()
                     ) {
                         Text(
-                            text = stringResource(R.string.perm_allow),
+                            text = actionLabel,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -860,7 +884,7 @@ private fun PermissionCardRow(
                         )
                     ) {
                         Text(
-                            text = stringResource(R.string.perm_allow),
+                            text = actionLabel,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.SemiBold
                         )

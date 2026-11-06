@@ -89,11 +89,52 @@ class Prefs(context: Context) {
         sp.edit().putInt(zk(zone, "swipe_target"), v).apply()
     }
 
+    fun getSwipeMode(zone: Int): Int = sp.getInt(zk(zone, "swipe_mode"), SWIPE_MODE_BASIC)
+    fun setSwipeMode(zone: Int, v: Int) {
+        sp.edit().putInt(zk(zone, "swipe_mode"), v).apply()
+    }
+
+    fun getSwipeDirType(zone: Int, dir: Int): Int = sp.getInt(zk(zone, "swipe_dir_${dir}_type"), SWIPE_TYPE_OFF)
+    fun setSwipeDirType(zone: Int, dir: Int, v: Int) {
+        sp.edit().putInt(zk(zone, "swipe_dir_${dir}_type"), v).apply()
+    }
+
+    fun getSwipeDirActionId(zone: Int, dir: Int): String? = sp.getString(zk(zone, "swipe_dir_${dir}_action_id"), null)
+    fun setSwipeDirActionId(zone: Int, dir: Int, v: String?) {
+        sp.edit().putString(zk(zone, "swipe_dir_${dir}_action_id"), v).apply()
+    }
+
+    fun getSwipeDirActionLabel(zone: Int, dir: Int): String? = sp.getString(zk(zone, "swipe_dir_${dir}_action_label"), null)
+    fun setSwipeDirActionLabel(zone: Int, dir: Int, v: String?) {
+        sp.edit().putString(zk(zone, "swipe_dir_${dir}_action_label"), v).apply()
+    }
+
+    fun getSwipeBrightnessHud(zone: Int): Boolean = sp.getBoolean(zk(zone, "swipe_brightness_hud"), false)
+    fun setSwipeBrightnessHud(zone: Int, v: Boolean) {
+        sp.edit().putBoolean(zk(zone, "swipe_brightness_hud"), v).apply()
+    }
+
+    fun getSwipeAutoNotice(zone: Int): Boolean = sp.getBoolean(zk(zone, "swipe_auto_notice"), false)
+    fun setSwipeAutoNotice(zone: Int, v: Boolean) {
+        sp.edit().putBoolean(zk(zone, "swipe_auto_notice"), v).apply()
+    }
+
     fun getVolumeLevel(zone: Int, gesture: Int): Int =
         sp.getInt(zk(zone, "volume_level_$gesture"), 50).coerceIn(0, 100)
 
     fun setVolumeLevel(zone: Int, gesture: Int, v: Int) {
         sp.edit().putInt(zk(zone, "volume_level_$gesture"), v.coerceIn(0, 100)).apply()
+    }
+
+    var shellMethod: Int
+        get() = sp.getInt("shell_method", 0).coerceIn(0, 2)
+        set(v) = sp.edit().putInt("shell_method", v.coerceIn(0, 2)).apply()
+
+    fun getCustomCommand(zone: Int, gesture: Int): String =
+        sp.getString(zk(zone, "custom_command_$gesture"), "") ?: ""
+
+    fun setCustomCommand(zone: Int, gesture: Int, v: String) {
+        sp.edit().putString(zk(zone, "custom_command_$gesture"), v).apply()
     }
 
     fun resetToDefaults() {

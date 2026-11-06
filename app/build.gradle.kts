@@ -16,19 +16,25 @@ android {
         applicationId = "com.earendel.tapbar"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "1.8"
+        versionCode = 14
+        versionName = "1.9"
     }
 
     buildTypes {
-        release { isMinifyEnabled = true }
+        release {
+            isMinifyEnabled = true
+            proguardFiles("proguard-rules.pro")
+        }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        aidl = true
+    }
 }
 
 dependencies {
@@ -42,4 +48,6 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
 }

@@ -69,6 +69,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -107,6 +108,8 @@ import androidx.compose.material.icons.rounded.SettingsApplications
 import androidx.compose.material.icons.rounded.QueryStats
 import androidx.compose.material.icons.rounded.DoNotDisturbOn
 import androidx.compose.material.icons.rounded.Layers
+import androidx.compose.material.icons.rounded.Terminal
+import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.Wallpaper
@@ -185,8 +188,6 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -212,6 +213,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -230,6 +232,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -378,6 +381,8 @@ val advancedSettingsActions = listOf(
     ActionEntry("locale_settings", R.string.action_locale_settings, R.string.action_locale_settings_desc, Icons.Rounded.Language),
     ActionEntry("app_info_list", R.string.action_app_info_list, R.string.action_app_info_list_desc, Icons.Rounded.AppSettingsAlt),
     ActionEntry("developer_options", R.string.action_developer_options, R.string.action_developer_options_desc, Icons.Rounded.Code),
+    ActionEntry("usb_debugging", R.string.action_usb_debugging, R.string.action_usb_debugging_desc, Icons.Rounded.Adb),
+    ActionEntry("wireless_debugging", R.string.action_wireless_debugging, R.string.action_wireless_debugging_desc, Icons.Rounded.Adb),
     ActionEntry("security_settings", R.string.action_security_settings, R.string.action_security_settings_desc, Icons.Rounded.Security),
     ActionEntry("sync_settings", R.string.action_sync_settings, R.string.action_sync_settings_desc, Icons.Rounded.Sync),
     ActionEntry("voice_input_settings", R.string.action_voice_input_settings, R.string.action_voice_input_settings_desc, Icons.Rounded.RecordVoiceOver),
@@ -393,10 +398,9 @@ val advancedSettingsActions = listOf(
 )
 
 val automationActions = listOf(
-    ActionEntry("send_notification", R.string.action_send_notification, R.string.action_send_notification_desc, Icons.Rounded.NotificationsActive)
+    ActionEntry("send_notification", R.string.action_send_notification, R.string.action_send_notification_desc, Icons.Rounded.NotificationsActive),
+    ActionEntry("custom_command", R.string.action_custom_command, R.string.action_custom_command_desc, Icons.Rounded.Terminal)
 )
-
-val glowActionIds = setOf("send_notification")
 
 val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + automationActions + settingsActions + advancedSettingsActions
 
@@ -589,7 +593,7 @@ fun HomeScreen(
     var singleTapLabel by remember {
         mutableStateOf(
             when (singleTapType) {
-                1 -> prefs.getSingleTapActionLabel(selectedZone)
+                1 -> SystemToggles.displayLabel(context, prefs.getSingleTapActionId(selectedZone), prefs.getSingleTapActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getSingleTapShortcutDisplay(selectedZone, context)
                 else -> prefs.getSingleTapTargetLabel(selectedZone, context)
             }
@@ -603,7 +607,7 @@ fun HomeScreen(
     var doubleTapLabel by remember {
         mutableStateOf(
             when (doubleTapType) {
-                1 -> prefs.getDoubleTapActionLabel(selectedZone)
+                1 -> SystemToggles.displayLabel(context, prefs.getDoubleTapActionId(selectedZone), prefs.getDoubleTapActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getDoubleTapShortcutDisplay(selectedZone)
                 else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
@@ -617,7 +621,7 @@ fun HomeScreen(
     var tripleTapLabel by remember {
         mutableStateOf(
             when (tripleTapType) {
-                1 -> prefs.getTripleTapActionLabel(selectedZone)
+                1 -> SystemToggles.displayLabel(context, prefs.getTripleTapActionId(selectedZone), prefs.getTripleTapActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getTripleTapShortcutDisplay(selectedZone)
                 else -> prefs.getTripleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
@@ -631,7 +635,7 @@ fun HomeScreen(
     var longPressLabel by remember {
         mutableStateOf(
             when (longPressType) {
-                1 -> prefs.getLongPressActionLabel(selectedZone)
+                1 -> SystemToggles.displayLabel(context, prefs.getLongPressActionId(selectedZone), prefs.getLongPressActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getLongPressShortcutDisplay(selectedZone)
                 else -> prefs.getLongPressTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
@@ -641,6 +645,12 @@ fun HomeScreen(
 
     var swipeEnabled by remember { mutableStateOf(prefs.getSwipeEnabled(selectedZone)) }
     var swipeTarget by remember { mutableIntStateOf(prefs.getSwipeTarget(selectedZone)) }
+    var swipeBrightnessHud by remember { mutableStateOf(prefs.getSwipeBrightnessHud(selectedZone)) }
+    var swipeAutoNotice by remember { mutableStateOf(prefs.getSwipeAutoNotice(selectedZone)) }
+    var swipeMode by remember { mutableIntStateOf(prefs.getSwipeMode(selectedZone)) }
+    var swipeDirTypes by remember { mutableStateOf(List(4) { prefs.getSwipeDirType(selectedZone, it) }) }
+    var swipeDirLabels by remember { mutableStateOf(List(4) { SystemToggles.displayLabel(context, prefs.getSwipeDirActionId(selectedZone, it), prefs.getSwipeDirActionLabel(selectedZone, it), prefs.shellMethod) }) }
+    var swipeEditDir by remember { mutableStateOf<Int?>(null) }
 
     var tapSpeedMs by remember { mutableIntStateOf(prefs.tapSpeedMs) }
     var blockedCount by remember { mutableIntStateOf(prefs.blockedPackages.size) }
@@ -667,7 +677,7 @@ fun HomeScreen(
         singleTapType = prefs.getSingleTapType(selectedZone)
         singleTapPkg = prefs.getSingleTapTargetPkg(selectedZone, context)
         singleTapLabel = when (singleTapType) {
-            1 -> prefs.getSingleTapActionLabel(selectedZone)
+            1 -> SystemToggles.displayLabel(context, prefs.getSingleTapActionId(selectedZone), prefs.getSingleTapActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getSingleTapShortcutDisplay(selectedZone, context)
             else -> prefs.getSingleTapTargetLabel(selectedZone, context)
         }
@@ -677,7 +687,7 @@ fun HomeScreen(
         doubleTapType = prefs.getDoubleTapType(selectedZone)
         doubleTapPkg = prefs.getDoubleTapTargetPkg(selectedZone)
         doubleTapLabel = when (doubleTapType) {
-            1 -> prefs.getDoubleTapActionLabel(selectedZone)
+            1 -> SystemToggles.displayLabel(context, prefs.getDoubleTapActionId(selectedZone), prefs.getDoubleTapActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getDoubleTapShortcutDisplay(selectedZone)
             else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
@@ -687,7 +697,7 @@ fun HomeScreen(
         tripleTapType = prefs.getTripleTapType(selectedZone)
         tripleTapPkg = prefs.getTripleTapTargetPkg(selectedZone)
         tripleTapLabel = when (tripleTapType) {
-            1 -> prefs.getTripleTapActionLabel(selectedZone)
+            1 -> SystemToggles.displayLabel(context, prefs.getTripleTapActionId(selectedZone), prefs.getTripleTapActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getTripleTapShortcutDisplay(selectedZone)
             else -> prefs.getTripleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
@@ -697,7 +707,7 @@ fun HomeScreen(
         longPressType = prefs.getLongPressType(selectedZone)
         longPressPkg = prefs.getLongPressTargetPkg(selectedZone)
         longPressLabel = when (longPressType) {
-            1 -> prefs.getLongPressActionLabel(selectedZone)
+            1 -> SystemToggles.displayLabel(context, prefs.getLongPressActionId(selectedZone), prefs.getLongPressActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getLongPressShortcutDisplay(selectedZone)
             else -> prefs.getLongPressTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
@@ -705,6 +715,15 @@ fun HomeScreen(
 
         swipeEnabled = prefs.getSwipeEnabled(selectedZone)
         swipeTarget = prefs.getSwipeTarget(selectedZone)
+        swipeBrightnessHud = prefs.getSwipeBrightnessHud(selectedZone)
+        swipeAutoNotice = prefs.getSwipeAutoNotice(selectedZone)
+        swipeMode = prefs.getSwipeMode(selectedZone)
+        swipeDirTypes = List(4) { prefs.getSwipeDirType(selectedZone, it) }
+        swipeDirLabels = List(4) { SystemToggles.displayLabel(context, prefs.getSwipeDirActionId(selectedZone, it), prefs.getSwipeDirActionLabel(selectedZone, it), prefs.shellMethod) }
+    }
+
+    LaunchedEffect(showGestureSheetFor, selectedZone) {
+        if (showGestureSheetFor == null) swipeEditDir = null
     }
 
     LaunchedEffect(Unit) {
@@ -718,9 +737,24 @@ fun HomeScreen(
         TapZone.active?.setSelectedZoneForPreview(selectedZone)
     }
 
+    DisposableEffect(Unit) {
+        TapZone.onZoneSelected = { zone ->
+            if (zone != selectedZone) {
+                haptics.performSelection(view)
+                selectedZone = zone
+            }
+        }
+        onDispose { TapZone.onZoneSelected = null }
+    }
+
     val orientationKey = LocalConfiguration.current.orientation
     LaunchedEffect(orientationKey) {
         refreshZoneState()
+    }
+
+    DisposableEffect(Unit) {
+        val stopObserving = ShellAccess.observeShizuku { refreshZoneState() }
+        onDispose { stopObserving() }
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -900,15 +934,7 @@ fun HomeScreen(
                             Button(
                                 onClick = {
                                     haptics.performConfirm(view)
-                                    val componentName = ComponentName(context, TapAccessibilityService::class.java).flattenToString()
-                                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
-                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        putExtra(":settings:fragment_args_key", componentName)
-                                        putExtra(":settings:show_fragment_args", Bundle().apply {
-                                            putString(":settings:fragment_args_key", componentName)
-                                        })
-                                    }
-                                    context.startActivity(intent)
+                                    TapAccessibilityService.openSettings(context)
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.onSurface,
@@ -1149,6 +1175,7 @@ fun HomeScreen(
                         SwipeGestureCard(
                             enabled = swipeEnabled,
                             target = swipeTarget,
+                            advanced = swipeMode == SWIPE_MODE_ADVANCED,
                             isEnabledControls = isZoneControlsEnabled,
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
@@ -1279,30 +1306,34 @@ fun HomeScreen(
                         onOpenFilterPicker()
                     }
                 ) {
-                    ListItem(
-                        headlineContent = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 72.dp)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_block_red),
+                            contentDescription = stringResource(R.string.cd_block_in_apps),
+                            modifier = Modifier.size(32.dp),
+                            tint = Color(0xFFD71921)
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 if (blockedCount == 0) stringResource(R.string.no_apps_blocked)
                                 else context.resources.getQuantityString(R.plurals.apps_blocked, blockedCount, blockedCount),
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                        },
-                        supportingContent = {
                             Text(
                                 stringResource(R.string.block_in_apps_desc),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 18.sp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                        },
-                        leadingContent = {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_block_red),
-                                contentDescription = stringResource(R.string.cd_block_in_apps),
-                                modifier = Modifier.size(32.dp),
-                                tint = Color(0xFFD71921)
-                            )
-                        },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    )
+                        }
+                    }
                 }
             }
 
@@ -1343,7 +1374,16 @@ fun HomeScreen(
 
     if (showGestureSheetFor != null) {
         val gestureMode = showGestureSheetFor!!
-        val sheetState = rememberModalBottomSheetState()
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val sheetScroll = rememberScrollState()
+
+        LaunchedEffect(sheetScroll) {
+            var previousMax = sheetScroll.maxValue
+            snapshotFlow { sheetScroll.maxValue }.collect { max ->
+                if (sheetScroll.value >= previousMax) sheetScroll.scrollTo(max)
+                previousMax = max
+            }
+        }
 
         ModalBottomSheet(
             onDismissRequest = { showGestureSheetFor = null },
@@ -1362,6 +1402,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .immersiveSheetBackdrop()
                     .fillMaxWidth()
+                    .verticalScroll(sheetScroll)
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -1425,29 +1466,55 @@ fun HomeScreen(
                             prefs.setLongPressEnabled(selectedZone, it)
                         }
                     )
-                } else if (gestureMode == 4) {
-                    SwitchRow(
-                        label = stringResource(R.string.enable_swipe),
-                        checked = swipeEnabled,
-                        onChange = {
-                            swipeEnabled = it
-                            prefs.setSwipeEnabled(selectedZone, it)
-                        }
-                    )
                 }
 
                 if (gestureMode == 4) {
-                    SwipeOptionsList(
+                    BackHandler(enabled = swipeEditDir != null) {
+                        swipeEditDir = null
+                    }
+                    SwipeSettings(
+                        header = {
+                            SwitchRow(
+                                label = stringResource(R.string.enable_swipe),
+                                checked = swipeEnabled,
+                                onChange = {
+                                    swipeEnabled = it
+                                    prefs.setSwipeEnabled(selectedZone, it)
+                                }
+                            )
+                        },
+                        mode = swipeMode,
+                        onModeChange = {
+                            swipeMode = it
+                            swipeEditDir = null
+                            prefs.setSwipeMode(selectedZone, it)
+                        },
                         target = swipeTarget,
-                        axis = SwipeAxisResolver.resolve(
-                            x, y, w, h,
-                            prefs.screenWidthDp(),
-                            prefs.screenHeightDp(),
-                            ZoneLayout.EDGE_DP
-                        ),
-                        onSelect = { picked ->
+                        onTargetChange = { picked ->
                             swipeTarget = picked
                             prefs.setSwipeTarget(selectedZone, picked)
+                        },
+                        dirTypes = swipeDirTypes,
+                        dirLabels = swipeDirLabels,
+                        editDir = swipeEditDir,
+                        onEditDir = { swipeEditDir = it },
+                        onDirType = { dir, type ->
+                            prefs.setSwipeDirType(selectedZone, dir, type)
+                            swipeDirTypes = swipeDirTypes.toMutableList().also { list -> list[dir] = type }
+                        },
+                        onPickAction = { dir ->
+                            showGestureSheetFor = null
+                            onOpenActionPicker(5 + dir)
+                        },
+                        hudEnabled = swipeBrightnessHud,
+                        noticeEnabled = swipeAutoNotice,
+                        onHudChange = {
+                            swipeBrightnessHud = it
+                            prefs.setSwipeBrightnessHud(selectedZone, it)
+                        },
+                        onNoticeChange = {
+                            swipeAutoNotice = it
+                            prefs.setSwipeAutoNotice(selectedZone, it)
                         }
                     )
                 } else {
@@ -1699,20 +1766,22 @@ fun GestureSquareCard(
 fun SwipeGestureCard(
     enabled: Boolean,
     target: Int,
+    advanced: Boolean = false,
     isEnabledControls: Boolean = true,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     val subtitleText = when {
         !enabled -> stringResource(R.string.disabled)
+        advanced -> stringResource(R.string.swipe_mode_advanced)
         target == SWIPE_TARGET_BRIGHTNESS -> stringResource(R.string.swipe_control_brightness)
         else -> stringResource(R.string.swipe_control_volume)
     }
 
-    val iconVector = if (target == SWIPE_TARGET_BRIGHTNESS) {
-        Icons.Rounded.Brightness7
-    } else {
-        Icons.Rounded.VolumeUp
+    val iconVector = when {
+        advanced -> Icons.Rounded.SwipeRight
+        target == SWIPE_TARGET_BRIGHTNESS -> Icons.Rounded.Brightness7
+        else -> Icons.Rounded.VolumeUp
     }
 
     TapbarCard(
@@ -1800,25 +1869,41 @@ fun ActionPickerScreen(
         1 -> prefs.getDoubleTapActionId(zone)
         2 -> prefs.getTripleTapActionId(zone)
         3 -> prefs.getLongPressActionId(zone)
+        in 5..8 -> prefs.getSwipeDirActionId(zone, gestureMode - 5)
         else -> prefs.getSingleTapActionId(zone)
     }
     var selectedId by remember { mutableStateOf(selectedActionId) }
     var volumeLevel by remember { mutableIntStateOf(prefs.getVolumeLevel(zone, gestureMode)) }
 
-    fun saveVolumeLabel(level: Int) {
-        val label = context.getString(R.string.action_volume_set_label, level)
+    var commandText by remember { mutableStateOf(prefs.getCustomCommand(zone, gestureMode)) }
+
+    fun saveActionLabel(label: String) {
         when (gestureMode) {
             1 -> prefs.setDoubleTapActionLabel(zone, label)
             2 -> prefs.setTripleTapActionLabel(zone, label)
             3 -> prefs.setLongPressActionLabel(zone, label)
+            in 5..8 -> prefs.setSwipeDirActionLabel(zone, gestureMode - 5, label)
             else -> prefs.setSingleTapActionLabel(zone, label)
         }
+    }
+
+    fun saveVolumeLabel(level: Int) {
+        saveActionLabel(context.getString(R.string.action_volume_set_label, level))
+    }
+
+    fun saveCommandLabel(text: String) {
+        val summary = text.trim().replace('\n', ' ').take(32)
+        saveActionLabel(
+            if (summary.isEmpty()) context.getString(R.string.action_custom_command)
+            else context.getString(R.string.action_custom_command_label, summary)
+        )
     }
 
     var searchQuery by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
     val actionGroups = remember {
+        val method = prefs.shellMethod
         listOf(
             R.string.group_automation to automationActions,
             R.string.group_quick_settings to quickSettingActions,
@@ -1827,7 +1912,7 @@ fun ActionPickerScreen(
             R.string.group_navigation to navigationActions,
             R.string.group_settings to settingsActions,
             R.string.group_advanced to advancedSettingsActions
-        )
+        ).map { (groupTitle, actions) -> groupTitle to actions.map { SystemToggles.resolve(it, method) } }
     }
 
     val filteredActionGroups = remember(actionGroups, searchQuery) {
@@ -1863,6 +1948,10 @@ fun ActionPickerScreen(
         1 -> stringResource(R.string.double_tap_action)
         2 -> stringResource(R.string.triple_tap_action)
         3 -> stringResource(R.string.long_press_action)
+        5 -> stringResource(R.string.action_swipe_left)
+        6 -> stringResource(R.string.action_swipe_right)
+        7 -> stringResource(R.string.swipe_dir_up)
+        8 -> stringResource(R.string.swipe_dir_down)
         else -> stringResource(R.string.single_tap_action)
     }
 
@@ -1961,12 +2050,22 @@ fun ActionPickerScreen(
                 ) {
                     filteredActionGroups.forEach { (groupTitle, actions) ->
                         item(key = "header_$groupTitle") {
-                            Text(
-                                text = stringResource(groupTitle),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp)
-                            )
+                            if (groupTitle == R.string.group_automation) {
+                                ShimmerText(
+                                    text = stringResource(groupTitle),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    baseColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    highlightColor = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(groupTitle),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp)
+                                )
+                            }
                         }
                         itemsIndexed(
                             items = actions,
@@ -1992,6 +2091,12 @@ fun ActionPickerScreen(
                                             prefs.setLongPressActionId(zone, action.id)
                                             prefs.setLongPressActionLabel(zone, context.getString(action.titleRes))
                                         }
+                                        in 5..8 -> {
+                                            val dir = gestureMode - 5
+                                            prefs.setSwipeDirActionId(zone, dir, action.id)
+                                            prefs.setSwipeDirActionLabel(zone, dir, context.getString(action.titleRes))
+                                            prefs.setSwipeDirType(zone, dir, SWIPE_TYPE_ACTION)
+                                        }
                                         else -> {
                                             prefs.setSingleTapActionId(zone, action.id)
                                             prefs.setSingleTapActionLabel(zone, context.getString(action.titleRes))
@@ -2008,11 +2113,49 @@ fun ActionPickerScreen(
                                     selectedId = action.id
                                     if (action.id == "volume_set") {
                                         saveVolumeLabel(volumeLevel)
+                                    } else if (action.id == "custom_command") {
+                                        saveCommandLabel(commandText)
                                     } else {
                                         onBack()
                                     }
                                 }
                             )
+                        }
+                        if (selectedId == "custom_command" && actions.any { it.id == "custom_command" }) {
+                            item(key = "custom_command_card") {
+                                SegmentedCard(
+                                    index = 0,
+                                    count = 1,
+                                    modifier = Modifier.padding(top = 10.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        OutlinedTextField(
+                                            value = commandText,
+                                            onValueChange = {
+                                                commandText = it
+                                                prefs.setCustomCommand(zone, gestureMode, it)
+                                                saveCommandLabel(it)
+                                            },
+                                            label = { Text(stringResource(R.string.custom_command_hint)) },
+                                            minLines = 2,
+                                            maxLines = 5,
+                                            colors = OutlinedTextFieldDefaults.colors(
+                                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.custom_command_note),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
                         }
                         if (selectedId == "volume_set" && actions.any { it.id == "volume_set" }) {
                             item(key = "volume_level_card") {
@@ -2052,11 +2195,7 @@ fun ActionRow(
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {
-    if (action.id in glowActionIds) {
-        GlowActionRow(action = action, isSelected = isSelected, onSelect = onSelect)
-    } else {
-        PlainActionRow(action = action, index = index, totalCount = totalCount, isSelected = isSelected, onSelect = onSelect)
-    }
+    PlainActionRow(action = action, index = index, totalCount = totalCount, isSelected = isSelected, onSelect = onSelect)
 }
 
 @Composable
@@ -2081,46 +2220,49 @@ fun PlainActionRow(
         count = totalCount,
         onClick = onSelect
     ) {
-        ListItem(
-            headlineContent = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 72.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = action.icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     stringResource(action.titleRes),
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-            },
-            supportingContent = {
                 Text(
                     stringResource(action.descRes),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 18.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
-            },
-            leadingContent = {
-                Icon(
-                    imageVector = action.icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            trailingContent = {
-                Icon(
-                    painter = painterResource(
-                        if (isSelected) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
-                    ),
-                    contentDescription = if (isSelected) stringResource(R.string.cd_selected) else stringResource(R.string.cd_not_selected),
-                    modifier = Modifier
-                        .size(24.dp)
-                        .graphicsLayer(scaleX = scale, scaleY = scale),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-        )
+            }
+            Spacer(Modifier.width(16.dp))
+            Icon(
+                painter = painterResource(
+                    if (isSelected) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+                ),
+                contentDescription = if (isSelected) stringResource(R.string.cd_selected) else stringResource(R.string.cd_not_selected),
+                modifier = Modifier
+                    .size(24.dp)
+                    .graphicsLayer(scaleX = scale, scaleY = scale),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
     }
 }
 

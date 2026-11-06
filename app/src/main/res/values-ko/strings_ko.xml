@@ -33,13 +33,15 @@
     <string name="volume">음량</string>
     <string name="brightness">밝기</string>
 
-    <string name="swipe_bright_horiz_desc">좌우로 스위프하여 밝기를 조절합니다.</string>
-    <string name="swipe_bright_vert_desc">상하로 스위프하여 밝기를 조절합니다.</string>
-    <string name="swipe_vol_horiz_desc">좌우로 스위프하여 음량을 조절합니다.</string>
-    <string name="swipe_vol_vert_desc">상하로 스위프하여 음량을 조절합니다.</string>
-
-    <string name="swipe_horiz_footnote">오른쪽은 증가, 왼쪽은 감소입니다. 아래로 스위프하면 알림창이 열립니다.</string>
-    <string name="swipe_vert_footnote">위는 증가, 아래는 감소입니다. 활성화 시 아래로 스위프해도 알림창이 열리지 않습니다.</string>
+    <string name="swipe_bright_desc">스위프하여 밝기를 조절합니다.</string>
+    <string name="swipe_vol_desc">스위프하여 음량을 조절합니다.</string>
+    <string name="swipe_hud_toggle">수치 표시</string>
+    <string name="swipe_notice_toggle">자동 밝기 알림</string>
+    <string name="swipe_auto_off_notice">자동 밝기가 꺼졌습니다</string>
+    <string name="swipe_mode_basic">기본</string>
+    <string name="swipe_mode_advanced">고급</string>
+    <string name="swipe_dir_up">위로 스와이프</string>
+    <string name="swipe_dir_down">아래로 스와이프</string>
 
     <string name="swipe_control_volume">스위프하여 음량 조절</string>
     <string name="swipe_control_brightness">스위프하여 밝기 조절</string>
@@ -320,6 +322,10 @@
     <string name="action_app_info_list_desc">앱 관리자를 엽니다</string>
     <string name="action_developer_options">개발자 옵션</string>
     <string name="action_developer_options_desc">개발자 설정을 엽니다</string>
+    <string name="action_wireless_debugging">무선 디버깅</string>
+    <string name="action_wireless_debugging_desc">무선 디버깅 페이지를 엽니다</string>
+    <string name="action_usb_debugging">USB 디버깅</string>
+    <string name="action_usb_debugging_desc">USB 디버깅 설정을 엽니다</string>
     <string name="action_security_settings">보안 및 개인정보 보호</string>
     <string name="action_security_settings_desc">보안 설정을 엽니다</string>
     <string name="action_sync_settings">계정 동기화</string>
@@ -368,13 +374,18 @@
     <string name="perm_overlay_desc">접근성 서비스가 활성화되지 않은 경우 상태 표시줄 아래에 터치 영역을 표시합니다.</string>
     <string name="perm_granted">허용됨</string>
     <string name="perm_allow">켜기</string>
+    <string name="perm_shell_title">셸 액세스</string>
+    <string name="perm_optional">선택 사항</string>
+    <string name="perm_shell_desc">패널을 열지 않고 Wi-Fi, 블루투스, 모바일 데이터 등을 바로 켜고 끌 수 있습니다. Shizuku 또는 Sui가 필요합니다.</string>
+    <string name="perm_shell_allow">액세스 허용</string>
+    <string name="perm_shell_hint">Shizuku, Sui 또는 루트를 사용하시나요? 실행한 뒤 설정의 셸 액세스에서 언제든 허용할 수 있습니다.</string>
+    <string name="cd_shell_allowed">셸 액세스 허용됨</string>
+    <string name="cd_shell_not_allowed">셸 액세스 허용되지 않음</string>
     <string name="restricted_help_title">스위치가 비활성화되어 있나요?</string>
     <string name="restricted_help_text">앱 정보를 열고 오른쪽 상단의 점 세 개 메뉴를 누른 후 \'제한된 설정 허용\'을 선택하고 다시 시도하세요.</string>
     <string name="open_app_info">앱 정보</string>
     <string name="view_visual_guide">가이드 보기</string>
     <string name="success_title">모든 준비 완료</string>
-    <string name="success_desc_a11y">탭 영역이 상태 표시줄 위에 직접 배치됩니다.</string>
-    <string name="success_desc_overlay">탭 영역이 상태 표시줄 아래에 배치됩니다. 나중에 설정에서 접근성을 켤 수 있습니다.</string>
     <string name="cd_setup_complete">설정 완료</string>
 
     <string name="backup_restore_title">백업 및 복원</string>
@@ -393,4 +404,31 @@
     <string name="restore_failed">설정을 복원하지 못했습니다</string>
     <string name="cancel">취소</string>
     <string name="notification_shade_title">알림창</string>
+    <string name="action_custom_command">셸 명령 실행</string>
+    <string name="action_custom_command_desc">Shizuku, Sui 또는 루트로 직접 만든 명령을 실행합니다</string>
+    <string name="action_custom_command_label">실행: %1$s</string>
+    <string name="custom_command_hint">셸 명령</string>
+    <string name="custom_command_note">Shizuku 또는 Sui로 셸 사용자 권한으로, 또는 루트로 실행됩니다. 방식은 설정에서 선택하세요.</string>
+    <string name="shell_access_title">셸 액세스</string>
+    <string name="shell_method_auto">자동</string>
+    <string name="shell_method_shizuku">Shizuku / Sui</string>
+    <string name="shell_method_root">Root (su)</string>
+    <string name="shell_status_ready">Shizuku / Sui 연결됨</string>
+    <string name="shell_status_permission">Shizuku / Sui 권한이 필요합니다</string>
+    <string name="shell_status_permission_desc">탭하여 Tapbar의 사용을 허용</string>
+    <string name="shell_status_unavailable">Shizuku / Sui가 실행 중이 아닙니다</string>
+    <string name="shell_status_unavailable_desc">실행하면 Wi-Fi, 블루투스, 모바일 데이터 등을 실제로 켜고 끌 수 있습니다</string>
+    <string name="shell_failed">명령이 실패했습니다. Shizuku, Sui 또는 루트 접근을 확인하세요.</string>
+    <string name="shell_no_command">이 제스처에 설정된 명령이 없습니다</string>
+    <string name="action_wifi_toggle">Wi-Fi</string>
+    <string name="action_bluetooth_toggle">블루투스</string>
+    <string name="action_data_toggle">모바일 데이터</string>
+    <string name="action_nfc_toggle">NFC</string>
+    <string name="action_wifi_toggle_desc">Wi-Fi를 켜거나 끕니다</string>
+    <string name="action_bluetooth_toggle_desc">블루투스를 켜거나 끕니다</string>
+    <string name="action_data_toggle_desc">모바일 데이터를 켜거나 끕니다</string>
+    <string name="action_nfc_toggle_desc">NFC를 켜거나 끕니다</string>
+    <string name="action_airplane_toggle_desc">비행기 모드를 켜거나 끕니다</string>
+    <string name="action_battery_saver_toggle_desc">절전 모드를 켜거나 끕니다</string>
+    <string name="action_night_light_toggle_desc">야간 조명을 켜거나 끕니다</string>
 </resources>

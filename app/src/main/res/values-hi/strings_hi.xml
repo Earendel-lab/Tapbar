@@ -33,13 +33,15 @@
     <string name="volume">आवाज़</string>
     <string name="brightness">ब्राइटनेस</string>
 
-    <string name="swipe_bright_horiz_desc">ब्राइटनेस बदलने के लिए बाएं या दाएं स्वाइप करें।</string>
-    <string name="swipe_bright_vert_desc">ब्राइटनेस बदलने के लिए ऊपर या नीचे स्वाइप करें।</string>
-    <string name="swipe_vol_horiz_desc">आवाज़ बदलने के लिए बाएं या दाएं स्वाइप करें।</string>
-    <string name="swipe_vol_vert_desc">आवाज़ बदलने के लिए ऊपर या नीचे स्वाइप करें।</string>
-
-    <string name="swipe_horiz_footnote">दाएं से बढ़ता है, बाएं से घटता है। नीचे स्वाइप करने पर नोटिफिकेशन खुलेंगे।</string>
-    <string name="swipe_vert_footnote">ऊपर से बढ़ता है, नीचे से घटता है। चालू रहने पर नीचे स्वाइप करने पर नोटिफिकेशन नहीं खुलेंगे।</string>
+    <string name="swipe_bright_desc">ब्राइटनेस बदलने के लिए स्वाइप करें।</string>
+    <string name="swipe_vol_desc">आवाज़ बदलने के लिए स्वाइप करें।</string>
+    <string name="swipe_hud_toggle">स्तर दिखाएं</string>
+    <string name="swipe_notice_toggle">ऑटो ब्राइटनेस सूचना</string>
+    <string name="swipe_auto_off_notice">ऑटो ब्राइटनेस बंद हो गई</string>
+    <string name="swipe_mode_basic">बेसिक</string>
+    <string name="swipe_mode_advanced">एडवांस्ड</string>
+    <string name="swipe_dir_up">ऊपर स्वाइप करें</string>
+    <string name="swipe_dir_down">नीचे स्वाइप करें</string>
 
     <string name="swipe_control_volume">आवाज़ नियंत्रित करने के लिए स्वाइप करें</string>
     <string name="swipe_control_brightness">ब्राइटनेस नियंत्रित करने के लिए स्वाइप करें</string>
@@ -320,6 +322,10 @@
     <string name="action_app_info_list_desc">ऐप मैनेजर खोलता है</string>
     <string name="action_developer_options">डेवलपर विकल्प</string>
     <string name="action_developer_options_desc">डेवलपर सेटिंग्स खोलता है</string>
+    <string name="action_wireless_debugging">वायरलेस डीबगिंग</string>
+    <string name="action_wireless_debugging_desc">वायरलेस डीबगिंग पेज खोलता है</string>
+    <string name="action_usb_debugging">यूएसबी डीबगिंग</string>
+    <string name="action_usb_debugging_desc">यूएसबी डीबगिंग सेटिंग खोलता है</string>
     <string name="action_security_settings">सुरक्षा और निजता</string>
     <string name="action_security_settings_desc">सुरक्षा सेटिंग्स खोलता है</string>
     <string name="action_sync_settings">खाता सिंक</string>
@@ -370,13 +376,18 @@
     <string name="perm_overlay_desc">एक्सेसिबिलिटी सेवा सक्रिय न होने पर स्टेटस बार के नीचे टच ज़ोन दिखाता है।</string>
     <string name="perm_granted">अनुमति दी गई</string>
     <string name="perm_allow">चालू करें</string>
+    <string name="perm_shell_title">शेल एक्सेस</string>
+    <string name="perm_optional">वैकल्पिक</string>
+    <string name="perm_shell_desc">पैनल खोलने के बजाय वाई-फ़ाई, ब्लूटूथ, मोबाइल डेटा और बहुत कुछ तुरंत चालू या बंद करता है। इसके लिए Shizuku या Sui चाहिए।</string>
+    <string name="perm_shell_allow">एक्सेस दें</string>
+    <string name="perm_shell_hint">Shizuku, Sui या रूट इस्तेमाल करते हैं? उसे शुरू करें, फिर कभी भी सेटिंग्स में शेल एक्सेस से अनुमति दें।</string>
+    <string name="cd_shell_allowed">शेल एक्सेस की अनुमति है</string>
+    <string name="cd_shell_not_allowed">शेल एक्सेस की अनुमति नहीं है</string>
     <string name="restricted_help_title">स्विच धुंधला है?</string>
     <string name="restricted_help_text">ऐप जानकारी खोलें, ऊपरी दाएं तीन-बिंदु वाले मेनू को टैप करें, प्रतिबंधित सेटिंग्स की अनुमति दें चुनें और फिर से प्रयास करें।</string>
     <string name="open_app_info">ऐप जानकारी</string>
     <string name="view_visual_guide">गाइड देखें</string>
     <string name="success_title">सब तैयार है</string>
-    <string name="success_desc_a11y">टैप ज़ोन सीधे स्टेटस बार पर स्थित है।</string>
-    <string name="success_desc_overlay">टैप ज़ोन स्टेटस बार के नीचे स्थित है। आप बाद में सेटिंग्स में एक्सेसिबिलिटी चालू कर सकते हैं।</string>
     <string name="cd_setup_complete">सेटअप पूरा हुआ</string>
 
     <string name="backup_restore_title">बैकअप और रीस्टोर</string>
@@ -395,4 +406,31 @@
     <string name="restore_failed">सेटिंग्स रीस्टोर नहीं हो सकीं</string>
     <string name="cancel">रद्द करें</string>
     <string name="notification_shade_title">नोटिफिकेशन शेड</string>
+    <string name="action_custom_command">शेल कमांड चलाएँ</string>
+    <string name="action_custom_command_desc">Shizuku, Sui या रूट के ज़रिए आपकी अपनी कमांड चलाता है</string>
+    <string name="action_custom_command_label">चलाएँ: %1$s</string>
+    <string name="custom_command_hint">शेल कमांड</string>
+    <string name="custom_command_note">Shizuku या Sui के साथ शेल उपयोगकर्ता के रूप में, या रूट के रूप में चलता है। तरीका सेटिंग में चुनें।</string>
+    <string name="shell_access_title">शेल एक्सेस</string>
+    <string name="shell_method_auto">स्वचालित</string>
+    <string name="shell_method_shizuku">Shizuku / Sui</string>
+    <string name="shell_method_root">Root (su)</string>
+    <string name="shell_status_ready">Shizuku / Sui कनेक्ट है</string>
+    <string name="shell_status_permission">Shizuku / Sui को अनुमति चाहिए</string>
+    <string name="shell_status_permission_desc">Tapbar को इसका उपयोग करने देने के लिए टैप करें</string>
+    <string name="shell_status_unavailable">Shizuku / Sui चालू नहीं है</string>
+    <string name="shell_status_unavailable_desc">इसे शुरू करें ताकि Wi-Fi, ब्लूटूथ, मोबाइल डेटा और अन्य के असली टॉगल मिलें</string>
+    <string name="shell_failed">कमांड विफल रही। अपना Shizuku, Sui या रूट एक्सेस जाँचें।</string>
+    <string name="shell_no_command">इस जेस्चर के लिए कोई कमांड सेट नहीं है</string>
+    <string name="action_wifi_toggle">वाई-फ़ाई</string>
+    <string name="action_bluetooth_toggle">ब्लूटूथ</string>
+    <string name="action_data_toggle">मोबाइल डेटा</string>
+    <string name="action_nfc_toggle">NFC</string>
+    <string name="action_wifi_toggle_desc">वाई-फ़ाई चालू या बंद करता है</string>
+    <string name="action_bluetooth_toggle_desc">ब्लूटूथ चालू या बंद करता है</string>
+    <string name="action_data_toggle_desc">मोबाइल डेटा चालू या बंद करता है</string>
+    <string name="action_nfc_toggle_desc">NFC चालू या बंद करता है</string>
+    <string name="action_airplane_toggle_desc">हवाई जहाज़ मोड चालू या बंद करता है</string>
+    <string name="action_battery_saver_toggle_desc">बैटरी सेवर चालू या बंद करता है</string>
+    <string name="action_night_light_toggle_desc">नाइट लाइट चालू या बंद करता है</string>
 </resources>

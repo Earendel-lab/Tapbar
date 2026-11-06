@@ -33,13 +33,15 @@
     <string name="volume">音量</string>
     <string name="brightness">明るさ</string>
 
-    <string name="swipe_bright_horiz_desc">左右にスワイプして明るさを変更します。</string>
-    <string name="swipe_bright_vert_desc">上下にスワイプして明るさを変更します。</string>
-    <string name="swipe_vol_horiz_desc">左右にスワイプして音量を変更します。</string>
-    <string name="swipe_vol_vert_desc">上下にスワイプして音量を変更します。</string>
-
-    <string name="swipe_horiz_footnote">右で増加、左で減少。下スワイプで通知シェードが開きます。</string>
-    <string name="swipe_vert_footnote">上で増加、下で減少。有効時、下スワイプで通知シェードは開きません。</string>
+    <string name="swipe_bright_desc">スワイプして明るさを変更します。</string>
+    <string name="swipe_vol_desc">スワイプして音量を変更します。</string>
+    <string name="swipe_hud_toggle">レベルを表示</string>
+    <string name="swipe_notice_toggle">明るさの自動調節の通知</string>
+    <string name="swipe_auto_off_notice">明るさの自動調節をオフにしました</string>
+    <string name="swipe_mode_basic">基本</string>
+    <string name="swipe_mode_advanced">詳細</string>
+    <string name="swipe_dir_up">上にスワイプ</string>
+    <string name="swipe_dir_down">下にスワイプ</string>
 
     <string name="swipe_control_volume">スワイプで音量を調整</string>
     <string name="swipe_control_brightness">スワイプで明るさを調整</string>
@@ -320,6 +322,10 @@
     <string name="action_app_info_list_desc">アプリ管理を開きます</string>
     <string name="action_developer_options">開発者向けオプション</string>
     <string name="action_developer_options_desc">開発者向け設定を開きます</string>
+    <string name="action_wireless_debugging">ワイヤレスデバッグ</string>
+    <string name="action_wireless_debugging_desc">ワイヤレスデバッグのページを開きます</string>
+    <string name="action_usb_debugging">USBデバッグ</string>
+    <string name="action_usb_debugging_desc">USBデバッグの設定を開きます</string>
     <string name="action_security_settings">セキュリティとプライバシー</string>
     <string name="action_security_settings_desc">セキュリティ設定を開きます</string>
     <string name="action_sync_settings">アカウントの同期</string>
@@ -368,13 +374,18 @@
     <string name="perm_overlay_desc">アクセシビリティサービスが無効な場合、ステータスバーの下にタッチゾーンを表示します。</string>
     <string name="perm_granted">許可済み</string>
     <string name="perm_allow">オンにする</string>
+    <string name="perm_shell_title">シェルアクセス</string>
+    <string name="perm_optional">任意</string>
+    <string name="perm_shell_desc">パネルを開かずに、Wi-Fi、Bluetooth、モバイルデータなどをすぐに切り替えられます。ShizukuまたはSuiが必要です。</string>
+    <string name="perm_shell_allow">アクセスを許可</string>
+    <string name="perm_shell_hint">Shizuku、Sui、またはrootをお使いですか？起動してから、設定のシェルアクセスでいつでも許可できます。</string>
+    <string name="cd_shell_allowed">シェルアクセスは許可済み</string>
+    <string name="cd_shell_not_allowed">シェルアクセスは未許可</string>
     <string name="restricted_help_title">スイッチがグレーアウトしていますか？</string>
     <string name="restricted_help_text">「アプリ情報」を開き、右上の3点メニューをタップして「制限付き設定を許可」を選択してから再度お試しください。</string>
     <string name="open_app_info">アプリ情報</string>
     <string name="view_visual_guide">ガイドを見る</string>
     <string name="success_title">準備完了</string>
-    <string name="success_desc_a11y">タップゾーンはステータスバーの上に配置されています。</string>
-    <string name="success_desc_overlay">タップゾーンはステータスバーの下に配置されています。後で設定からアクセシビリティを有効にできます。</string>
     <string name="cd_setup_complete">セットアップ完了</string>
 
     <string name="backup_restore_title">バックアップと復元</string>
@@ -393,4 +404,31 @@
     <string name="restore_failed">設定を復元できませんでした</string>
     <string name="cancel">キャンセル</string>
     <string name="notification_shade_title">通知シェード</string>
+    <string name="action_custom_command">シェルコマンドを実行</string>
+    <string name="action_custom_command_desc">Shizuku、Sui、またはrootで独自のコマンドを実行します</string>
+    <string name="action_custom_command_label">実行: %1$s</string>
+    <string name="custom_command_hint">シェルコマンド</string>
+    <string name="custom_command_note">ShizukuまたはSuiではshellユーザーとして、またはrootとして実行します。方法は設定で選べます。</string>
+    <string name="shell_access_title">シェルアクセス</string>
+    <string name="shell_method_auto">自動</string>
+    <string name="shell_method_shizuku">Shizuku / Sui</string>
+    <string name="shell_method_root">Root (su)</string>
+    <string name="shell_status_ready">Shizuku / Sui に接続済み</string>
+    <string name="shell_status_permission">Shizuku / Sui の許可が必要です</string>
+    <string name="shell_status_permission_desc">タップしてTapbarの使用を許可</string>
+    <string name="shell_status_unavailable">Shizuku / Sui が起動していません</string>
+    <string name="shell_status_unavailable_desc">起動すると、Wi-Fi、Bluetooth、モバイルデータなどを実際に切り替えられます</string>
+    <string name="shell_failed">コマンドに失敗しました。Shizuku、Sui、またはrootのアクセスを確認してください。</string>
+    <string name="shell_no_command">このジェスチャーにはコマンドが設定されていません</string>
+    <string name="action_wifi_toggle">Wi-Fi</string>
+    <string name="action_bluetooth_toggle">Bluetooth</string>
+    <string name="action_data_toggle">モバイルデータ</string>
+    <string name="action_nfc_toggle">NFC</string>
+    <string name="action_wifi_toggle_desc">Wi-Fi をオン／オフします</string>
+    <string name="action_bluetooth_toggle_desc">Bluetooth をオン／オフします</string>
+    <string name="action_data_toggle_desc">モバイルデータをオン／オフします</string>
+    <string name="action_nfc_toggle_desc">NFC をオン／オフします</string>
+    <string name="action_airplane_toggle_desc">機内モードをオン／オフします</string>
+    <string name="action_battery_saver_toggle_desc">バッテリーセーバーをオン／オフします</string>
+    <string name="action_night_light_toggle_desc">ナイトライトをオン／オフします</string>
 </resources>

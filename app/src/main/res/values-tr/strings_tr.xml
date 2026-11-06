@@ -33,13 +33,15 @@
     <string name="volume">Ses düzeyi</string>
     <string name="brightness">Parlaklık</string>
 
-    <string name="swipe_bright_horiz_desc">Parlaklığı değiştirmek için sağa veya sola kaydırın.</string>
-    <string name="swipe_bright_vert_desc">Parlaklığı değiştirmek için yukarı veya aşağı kaydırın.</string>
-    <string name="swipe_vol_horiz_desc">Ses düzeyini değiştirmek için sağa veya sola kaydırın.</string>
-    <string name="swipe_vol_vert_desc">Ses düzeyini değiştirmek için yukarı veya aşağı kaydırın.</string>
-
-    <string name="swipe_horiz_footnote">Sağa kaydırmak değeri artırır, sola kaydırmak azaltır. Bu bölgede aşağı kaydırdığınızda bildirim paneli açılmaya devam eder.</string>
-    <string name="swipe_vert_footnote">Yukarı kaydırmak değeri artırır, aşağı kaydırmak azaltır. Bu özellik etkinleştirildiğinde, bu bölgede aşağı kaydırmak artık bildirim panelini açmaz.</string>
+    <string name="swipe_bright_desc">Parlaklığı değiştirmek için kaydırın.</string>
+    <string name="swipe_vol_desc">Ses düzeyini değiştirmek için kaydırın.</string>
+    <string name="swipe_hud_toggle">Düzeyi göster</string>
+    <string name="swipe_notice_toggle">Otomatik parlaklık bildirimi</string>
+    <string name="swipe_auto_off_notice">Otomatik parlaklık kapatıldı</string>
+    <string name="swipe_mode_basic">Temel</string>
+    <string name="swipe_mode_advanced">Gelişmiş</string>
+    <string name="swipe_dir_up">Yukarı kaydır</string>
+    <string name="swipe_dir_down">Aşağı kaydır</string>
 
     <string name="swipe_control_volume">Kaydırarak ses düzeyini kontrol et</string>
     <string name="swipe_control_brightness">Kaydırarak parlaklığı kontrol et</string>
@@ -321,6 +323,10 @@
     <string name="action_app_info_list_desc">Uygulama yöneticisini açar</string>
     <string name="action_developer_options">Geliştirici seçenekleri</string>
     <string name="action_developer_options_desc">Geliştirici ayarlarını açar</string>
+    <string name="action_wireless_debugging">Kablosuz hata ayıklama</string>
+    <string name="action_wireless_debugging_desc">Kablosuz hata ayıklama sayfasını açar</string>
+    <string name="action_usb_debugging">USB hata ayıklama</string>
+    <string name="action_usb_debugging_desc">USB hata ayıklama ayarını açar</string>
     <string name="action_security_settings">Güvenlik &amp; gizlilik</string>
     <string name="action_security_settings_desc">Güvenlik ayarlarını açar</string>
     <string name="action_sync_settings">Hesap senkronizasyonu</string>
@@ -368,13 +374,18 @@
     <string name="perm_overlay_desc">Erişilebilirlik hizmeti etkin olmadığında dokunma bölgesini durum çubuğunun altında gösterir.</string>
     <string name="perm_granted">İzin verildi</string>
     <string name="perm_allow">Aç</string>
+    <string name="perm_shell_title">Kabuk erişimi</string>
+    <string name="perm_optional">İsteğe bağlı</string>
+    <string name="perm_shell_desc">Panel açmak yerine Wi-Fi, Bluetooth, mobil veri ve daha fazlasını anında açıp kapatır. Shizuku veya Sui gerekir.</string>
+    <string name="perm_shell_allow">Erişime izin ver</string>
+    <string name="perm_shell_hint">Shizuku, Sui veya root mu kullanıyorsunuz? Başlatın, ardından Ayarlar’daki Kabuk erişimi bölümünden istediğiniz zaman izin verin.</string>
+    <string name="cd_shell_allowed">Kabuk erişimine izin verildi</string>
+    <string name="cd_shell_not_allowed">Kabuk erişimine izin verilmedi</string>
     <string name="restricted_help_title">Ayar gri renkte mi?</string>
     <string name="restricted_help_text">Uygulama Bilgisi öğesini açın, sağ üstteki üç nokta menüsüne dokunun, Kısıtlanmış ayarlara izin ver seçeneğini belirleyin ve tekrar deneyin.</string>
     <string name="open_app_info">Uygulama bilgisi</string>
     <string name="view_visual_guide">Görsel rehber</string>
     <string name="success_title">Her şey hazır</string>
-    <string name="success_desc_a11y">Dokunma bölgesi doğrudan durum çubuğu üzerindedir.</string>
-    <string name="success_desc_overlay">Dokunma bölgesi durum çubuğunun altındadır. Erişilebilirliği daha sonra Ayarlar\'dan açabilirsiniz.</string>
     <string name="cd_setup_complete">Kurulum tamamlandı</string>
 
     <string name="backup_restore_title">Yedekle ve geri yükle</string>
@@ -393,4 +404,31 @@
     <string name="restore_failed">Ayarlar geri yüklenemedi</string>
     <string name="cancel">İptal</string>
     <string name="notification_shade_title">Bildirim paneli</string>
+    <string name="action_custom_command">Kabuk komutu çalıştır</string>
+    <string name="action_custom_command_desc">Kendi komutunu Shizuku, Sui veya root ile çalıştırır</string>
+    <string name="action_custom_command_label">Çalıştır: %1$s</string>
+    <string name="custom_command_hint">Kabuk komutu</string>
+    <string name="custom_command_note">Shizuku veya Sui ile kabuk kullanıcısı olarak ya da root olarak çalışır. Yöntemi Ayarlar’dan seç.</string>
+    <string name="shell_access_title">Kabuk erişimi</string>
+    <string name="shell_method_auto">Otomatik</string>
+    <string name="shell_method_shizuku">Shizuku / Sui</string>
+    <string name="shell_method_root">Root (su)</string>
+    <string name="shell_status_ready">Shizuku / Sui bağlı</string>
+    <string name="shell_status_permission">Shizuku / Sui izin istiyor</string>
+    <string name="shell_status_permission_desc">Tapbar’ın kullanmasına izin vermek için dokun</string>
+    <string name="shell_status_unavailable">Shizuku / Sui çalışmıyor</string>
+    <string name="shell_status_unavailable_desc">Wi-Fi, Bluetooth, mobil veri ve daha fazlası için gerçek anahtarları açmak üzere başlat</string>
+    <string name="shell_failed">Komut başarısız oldu. Shizuku, Sui veya root erişimini kontrol et.</string>
+    <string name="shell_no_command">Bu hareket için komut ayarlanmadı</string>
+    <string name="action_wifi_toggle">Wi-Fi</string>
+    <string name="action_bluetooth_toggle">Bluetooth</string>
+    <string name="action_data_toggle">Mobil veri</string>
+    <string name="action_nfc_toggle">NFC</string>
+    <string name="action_wifi_toggle_desc">Wi-Fi’yi açar veya kapatır</string>
+    <string name="action_bluetooth_toggle_desc">Bluetooth’u açar veya kapatır</string>
+    <string name="action_data_toggle_desc">Mobil veriyi açar veya kapatır</string>
+    <string name="action_nfc_toggle_desc">NFC’yi açar veya kapatır</string>
+    <string name="action_airplane_toggle_desc">Uçak modunu açar veya kapatır</string>
+    <string name="action_battery_saver_toggle_desc">Pil tasarrufunu açar veya kapatır</string>
+    <string name="action_night_light_toggle_desc">Gece ışığını açar veya kapatır</string>
 </resources>

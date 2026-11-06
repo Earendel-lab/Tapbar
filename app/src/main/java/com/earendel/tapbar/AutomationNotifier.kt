@@ -21,7 +21,7 @@ object AutomationNotifier {
 
     private val counter = AtomicInteger(0)
     private val handler = Handler(Looper.getMainLooper())
-    private val gestureNames = arrayOf("Single tap", "Double tap", "Triple tap", "Long press")
+    private val gestureNames = arrayOf("Single tap", "Double tap", "Triple tap", "Long press", "Swipe", "Swipe left", "Swipe right", "Swipe up", "Swipe down")
 
     fun message(zone: Int, gesture: Int): String {
         val gestureName = gestureNames.getOrElse(gesture) { gestureNames[0] }

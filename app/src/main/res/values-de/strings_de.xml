@@ -33,13 +33,15 @@
     <string name="volume">Lautstärke</string>
     <string name="brightness">Helligkeit</string>
 
-    <string name="swipe_bright_horiz_desc">Nach links oder rechts wischen, um die Helligkeit zu ändern.</string>
-    <string name="swipe_bright_vert_desc">Nach oben oder unten wischen, um die Helligkeit zu ändern.</string>
-    <string name="swipe_vol_horiz_desc">Nach links oder rechts wischen, um die Lautstärke zu ändern.</string>
-    <string name="swipe_vol_vert_desc">Nach oben oder unten wischen, um die Lautstärke zu ändern.</string>
-
-    <string name="swipe_horiz_footnote">Rechts erhöht, links verringert. Nach unten wischen öffnet weiterhin die Benachrichtigungen.</string>
-    <string name="swipe_vert_footnote">Oben erhöht, unten verringert. Aktiviert öffnet Wischen nach unten keine Benachrichtigungen mehr.</string>
+    <string name="swipe_bright_desc">Wischen, um die Helligkeit zu ändern.</string>
+    <string name="swipe_vol_desc">Wischen, um die Lautstärke zu ändern.</string>
+    <string name="swipe_hud_toggle">Wert anzeigen</string>
+    <string name="swipe_notice_toggle">Hinweis zu automatischer Helligkeit</string>
+    <string name="swipe_auto_off_notice">Automatische Helligkeit ausgeschaltet</string>
+    <string name="swipe_mode_basic">Einfach</string>
+    <string name="swipe_mode_advanced">Erweitert</string>
+    <string name="swipe_dir_up">Nach oben wischen</string>
+    <string name="swipe_dir_down">Nach unten wischen</string>
 
     <string name="swipe_control_volume">Wischen zur Lautstärkeregelung</string>
     <string name="swipe_control_brightness">Wischen zur Helligkeitsregelung</string>
@@ -320,6 +322,10 @@
     <string name="action_app_info_list_desc">Öffnet die App-Verwaltung</string>
     <string name="action_developer_options">Entwickleroptionen</string>
     <string name="action_developer_options_desc">Öffnet die Entwicklereinstellungen</string>
+    <string name="action_wireless_debugging">Drahtloses Debugging</string>
+    <string name="action_wireless_debugging_desc">Öffnet die Seite für drahtloses Debugging</string>
+    <string name="action_usb_debugging">USB-Debugging</string>
+    <string name="action_usb_debugging_desc">Öffnet die Einstellung für USB-Debugging</string>
     <string name="action_security_settings">Sicherheit &amp; Datenschutz</string>
     <string name="action_security_settings_desc">Öffnet die Sicherheitsoptionen</string>
     <string name="action_sync_settings">Kontosynchronisierung</string>
@@ -370,13 +376,18 @@
     <string name="perm_overlay_desc">Zeigt die Tippzone unterhalb der Statusleiste an, wenn der Barrierefreiheit-Dienst nicht aktiv ist.</string>
     <string name="perm_granted">Gewährt</string>
     <string name="perm_allow">Einschalten</string>
+    <string name="perm_shell_title">Shell-Zugriff</string>
+    <string name="perm_optional">Optional</string>
+    <string name="perm_shell_desc">Schaltet WLAN, Bluetooth, mobile Daten und mehr sofort um, statt ein Panel zu öffnen. Erfordert Shizuku oder Sui.</string>
+    <string name="perm_shell_allow">Zugriff erlauben</string>
+    <string name="perm_shell_hint">Shizuku, Sui oder Root im Einsatz? Starte es und erlaube den Zugriff jederzeit in den Einstellungen unter Shell-Zugriff.</string>
+    <string name="cd_shell_allowed">Shell-Zugriff erlaubt</string>
+    <string name="cd_shell_not_allowed">Shell-Zugriff nicht erlaubt</string>
     <string name="restricted_help_title">Schalter ausgegraut?</string>
     <string name="restricted_help_text">Öffnen Sie die App-Info, tippen Sie oben rechts auf das Dreipunkt-Menü, wählen Sie Eingeschränkte Einstellungen zulassen und versuchen Sie es erneut.</string>
     <string name="open_app_info">App-Info</string>
     <string name="view_visual_guide">Anleitung</string>
     <string name="success_title">Alles bereit</string>
-    <string name="success_desc_a11y">Die Tippzone liegt direkt auf der Statusleiste.</string>
-    <string name="success_desc_overlay">Die Tippzone liegt unterhalb der Statusleiste. Sie können die Barrierefreiheit später in den Einstellungen aktivieren.</string>
     <string name="cd_setup_complete">Einrichtung abgeschlossen</string>
 
     <string name="backup_restore_title">Sicherung &amp; Wiederherstellung</string>
@@ -395,4 +406,31 @@
     <string name="restore_failed">Einstellungen konnten nicht wiederhergestellt werden</string>
     <string name="cancel">Abbrechen</string>
     <string name="notification_shade_title">Benachrichtigungsleiste</string>
+    <string name="action_custom_command">Shell-Befehl ausführen</string>
+    <string name="action_custom_command_desc">Führt deinen eigenen Befehl über Shizuku, Sui oder Root aus</string>
+    <string name="action_custom_command_label">Ausführen: %1$s</string>
+    <string name="custom_command_hint">Shell-Befehl</string>
+    <string name="custom_command_note">Wird mit Shizuku oder Sui als Shell-Benutzer oder als Root ausgeführt. Die Methode wählst du in den Einstellungen.</string>
+    <string name="shell_access_title">Shell-Zugriff</string>
+    <string name="shell_method_auto">Automatisch</string>
+    <string name="shell_method_shizuku">Shizuku / Sui</string>
+    <string name="shell_method_root">Root (su)</string>
+    <string name="shell_status_ready">Shizuku / Sui verbunden</string>
+    <string name="shell_status_permission">Shizuku / Sui braucht eine Berechtigung</string>
+    <string name="shell_status_permission_desc">Tippe, um Tapbar die Nutzung zu erlauben</string>
+    <string name="shell_status_unavailable">Shizuku / Sui läuft nicht</string>
+    <string name="shell_status_unavailable_desc">Starte es, um echte Schalter für WLAN, Bluetooth, mobile Daten und mehr zu aktivieren</string>
+    <string name="shell_failed">Befehl fehlgeschlagen. Prüfe deinen Shizuku-, Sui- oder Root-Zugriff.</string>
+    <string name="shell_no_command">Für diese Geste ist kein Befehl festgelegt</string>
+    <string name="action_wifi_toggle">WLAN</string>
+    <string name="action_bluetooth_toggle">Bluetooth</string>
+    <string name="action_data_toggle">Mobile Daten</string>
+    <string name="action_nfc_toggle">NFC</string>
+    <string name="action_wifi_toggle_desc">Schaltet WLAN ein oder aus</string>
+    <string name="action_bluetooth_toggle_desc">Schaltet Bluetooth ein oder aus</string>
+    <string name="action_data_toggle_desc">Schaltet mobile Daten ein oder aus</string>
+    <string name="action_nfc_toggle_desc">Schaltet NFC ein oder aus</string>
+    <string name="action_airplane_toggle_desc">Schaltet den Flugmodus ein oder aus</string>
+    <string name="action_battery_saver_toggle_desc">Schaltet den Energiesparmodus ein oder aus</string>
+    <string name="action_night_light_toggle_desc">Schaltet das Nachtlicht ein oder aus</string>
 </resources>

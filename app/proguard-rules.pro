@@ -1,0 +1,2 @@
+-keep class com.earendel.tapbar.ShellUserService { *; }
+-keep class com.earendel.tapbar.IShellService** { *; }

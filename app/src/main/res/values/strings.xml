@@ -33,13 +33,15 @@
     <string name="volume">Volume</string>
     <string name="brightness">Brightness</string>
 
-    <string name="swipe_bright_horiz_desc">Swipe left or right to change brightness.</string>
-    <string name="swipe_bright_vert_desc">Swipe up or down to change brightness.</string>
-    <string name="swipe_vol_horiz_desc">Swipe left or right to change volume.</string>
-    <string name="swipe_vol_vert_desc">Swipe up or down to change volume.</string>
-
-    <string name="swipe_horiz_footnote">Right increases, left decreases. Swiping down in this zone still opens the notification shade.</string>
-    <string name="swipe_vert_footnote">Up increases, down decreases. While enabled, swiping down in this zone no longer opens the notification shade.</string>
+    <string name="swipe_bright_desc">Swipe to change brightness.</string>
+    <string name="swipe_vol_desc">Swipe to change volume.</string>
+    <string name="swipe_hud_toggle">Show level</string>
+    <string name="swipe_notice_toggle">Auto-brightness notice</string>
+    <string name="swipe_auto_off_notice">Auto-brightness turned off</string>
+    <string name="swipe_mode_basic">Basic</string>
+    <string name="swipe_mode_advanced">Advanced</string>
+    <string name="swipe_dir_up">Swipe up</string>
+    <string name="swipe_dir_down">Swipe down</string>
 
     <string name="swipe_control_volume">Swipe to control volume</string>
     <string name="swipe_control_brightness">Swipe to control brightness</string>
@@ -322,6 +324,10 @@
     <string name="action_app_info_list_desc">Opens the app manager</string>
     <string name="action_developer_options">Developer options</string>
     <string name="action_developer_options_desc">Opens developer settings</string>
+    <string name="action_wireless_debugging">Wireless debugging</string>
+    <string name="action_wireless_debugging_desc">Opens the wireless debugging page</string>
+    <string name="action_usb_debugging">USB debugging</string>
+    <string name="action_usb_debugging_desc">Opens the USB debugging setting</string>
     <string name="action_security_settings">Security &amp; privacy</string>
     <string name="action_security_settings_desc">Opens security settings</string>
     <string name="action_sync_settings">Account sync</string>
@@ -370,13 +376,18 @@
     <string name="perm_overlay_desc">Draws the tap zone below the status bar when the Accessibility service is not active.</string>
     <string name="perm_granted">Granted</string>
     <string name="perm_allow">Turn on</string>
+    <string name="perm_shell_title">Shell access</string>
+    <string name="perm_optional">Optional</string>
+    <string name="perm_shell_desc">Lets Wi-Fi, Bluetooth, mobile data and more switch instantly instead of opening a panel. Needs Shizuku or Sui.</string>
+    <string name="perm_shell_allow">Allow access</string>
+    <string name="perm_shell_hint">Use Shizuku, Sui or root? Start it, then allow access anytime in Settings under Shell access.</string>
+    <string name="cd_shell_allowed">Shell access allowed</string>
+    <string name="cd_shell_not_allowed">Shell access not allowed</string>
     <string name="restricted_help_title">If the accessibility switch is greyed out:</string>
     <string name="restricted_help_text">Open App info, tap the three-dot menu at the top right, choose Allow restricted settings, then try again.</string>
     <string name="open_app_info">Open app info</string>
     <string name="view_visual_guide">View visual guide</string>
     <string name="success_title">You\'re all set</string>
-    <string name="success_desc_a11y">The tap zone sits directly on the status bar.</string>
-    <string name="success_desc_overlay">The tap zone sits below the status bar. You can enable accessibility later in Settings.</string>
     <string name="cd_setup_complete">Setup complete</string>
 
     <string name="backup_restore_title">Backup &amp; restore</string>
@@ -395,4 +406,31 @@
     <string name="restore_failed">Couldn’t restore settings</string>
     <string name="cancel">Cancel</string>
     <string name="notification_shade_title">Notification shade</string>
+    <string name="action_custom_command">Run shell command</string>
+    <string name="action_custom_command_desc">Runs your own command through Shizuku, Sui or root</string>
+    <string name="action_custom_command_label">Run: %1$s</string>
+    <string name="custom_command_hint">Shell command</string>
+    <string name="custom_command_note">Runs as the shell user with Shizuku or Sui, or as root. Choose the method in Settings.</string>
+    <string name="shell_access_title">Shell access</string>
+    <string name="shell_method_auto">Automatic</string>
+    <string name="shell_method_shizuku">Shizuku / Sui</string>
+    <string name="shell_method_root">Root (su)</string>
+    <string name="shell_status_ready">Shizuku / Sui connected</string>
+    <string name="shell_status_permission">Shizuku / Sui needs permission</string>
+    <string name="shell_status_permission_desc">Tap to allow Tapbar to use it</string>
+    <string name="shell_status_unavailable">Shizuku / Sui is not running</string>
+    <string name="shell_status_unavailable_desc">Start it to turn on real toggles for Wi-Fi, Bluetooth, mobile data and more</string>
+    <string name="shell_failed">Command failed. Check your Shizuku, Sui or root access.</string>
+    <string name="shell_no_command">No command set for this gesture</string>
+    <string name="action_wifi_toggle">Wi-Fi</string>
+    <string name="action_bluetooth_toggle">Bluetooth</string>
+    <string name="action_data_toggle">Mobile data</string>
+    <string name="action_nfc_toggle">NFC</string>
+    <string name="action_wifi_toggle_desc">Turns Wi-Fi on or off</string>
+    <string name="action_bluetooth_toggle_desc">Turns Bluetooth on or off</string>
+    <string name="action_data_toggle_desc">Turns mobile data on or off</string>
+    <string name="action_nfc_toggle_desc">Turns NFC on or off</string>
+    <string name="action_airplane_toggle_desc">Turns airplane mode on or off</string>
+    <string name="action_battery_saver_toggle_desc">Turns battery saver on or off</string>
+    <string name="action_night_light_toggle_desc">Turns night light on or off</string>
 </resources>

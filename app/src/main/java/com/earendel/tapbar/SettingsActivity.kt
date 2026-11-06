@@ -44,6 +44,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.icons.rounded.VerticalSplit
@@ -69,6 +70,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -447,6 +449,8 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                     }
                 }
 
+                ShellAccessSection(prefs)
+
                 BackupRestoreSection(prefs)
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -485,6 +489,124 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         textAlign = TextAlign.Center
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShellAccessSection(prefs: Prefs) {
+    val haptics = LocalHapticManager.current
+    val view = LocalView.current
+    var method by remember { mutableIntStateOf(prefs.shellMethod) }
+    var state by remember { mutableIntStateOf(ShellAccess.shizukuState()) }
+
+    DisposableEffect(Unit) {
+        val stopObserving = ShellAccess.observeShizuku { state = ShellAccess.shizukuState() }
+        onDispose { stopObserving() }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            stringResource(R.string.shell_access_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            ThemeRow(
+                icon = Icons.Rounded.AutoAwesome,
+                label = stringResource(R.string.shell_method_auto),
+                selected = method == ShellAccess.METHOD_AUTO,
+                index = 0,
+                count = 4,
+                onClick = {
+                    if (method != ShellAccess.METHOD_AUTO) {
+                        haptics.performSelection(view)
+                        method = ShellAccess.METHOD_AUTO
+                        prefs.shellMethod = ShellAccess.METHOD_AUTO
+                    }
+                }
+            )
+            ThemeRow(
+                icon = Icons.Rounded.Code,
+                label = stringResource(R.string.shell_method_shizuku),
+                selected = method == ShellAccess.METHOD_SHIZUKU,
+                index = 1,
+                count = 4,
+                onClick = {
+                    if (method != ShellAccess.METHOD_SHIZUKU) {
+                        haptics.performSelection(view)
+                        method = ShellAccess.METHOD_SHIZUKU
+                        prefs.shellMethod = ShellAccess.METHOD_SHIZUKU
+                    }
+                }
+            )
+            ThemeRow(
+                icon = Icons.Rounded.Terminal,
+                label = stringResource(R.string.shell_method_root),
+                selected = method == ShellAccess.METHOD_ROOT,
+                index = 2,
+                count = 4,
+                onClick = {
+                    if (method != ShellAccess.METHOD_ROOT) {
+                        haptics.performSelection(view)
+                        method = ShellAccess.METHOD_ROOT
+                        prefs.shellMethod = ShellAccess.METHOD_ROOT
+                    }
+                }
+            )
+            SegmentedCard(
+                index = 3,
+                count = 4,
+                onClick = if (state == ShellAccess.SHIZUKU_NEEDS_PERMISSION) {
+                    {
+                        haptics.performLightTap(view)
+                        ShellAccess.requestShizukuPermission()
+                    }
+                } else null
+            ) {
+                val allowed = state == ShellAccess.SHIZUKU_READY
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(if (allowed) R.drawable.ic_status_allowed else R.drawable.ic_status_denied),
+                        contentDescription = stringResource(if (allowed) R.string.cd_shell_allowed else R.string.cd_shell_not_allowed),
+                        modifier = Modifier.size(24.dp),
+                        tint = if (allowed) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.width(16.dp))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = when (state) {
+                                ShellAccess.SHIZUKU_READY -> stringResource(R.string.shell_status_ready)
+                                ShellAccess.SHIZUKU_NEEDS_PERMISSION -> stringResource(R.string.shell_status_permission)
+                                else -> stringResource(R.string.shell_status_unavailable)
+                            },
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (!allowed) {
+                            Text(
+                                text = if (state == ShellAccess.SHIZUKU_NEEDS_PERMISSION) {
+                                    stringResource(R.string.shell_status_permission_desc)
+                                } else {
+                                    stringResource(R.string.shell_status_unavailable_desc)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
         }

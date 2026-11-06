@@ -33,13 +33,15 @@
     <string name="volume">Громкость</string>
     <string name="brightness">Яркость</string>
 
-    <string name="swipe_bright_horiz_desc">Свайп влево или вправо для изменения яркости.</string>
-    <string name="swipe_bright_vert_desc">Свайп вверх или вниз для изменения яркости.</string>
-    <string name="swipe_vol_horiz_desc">Свайп влево или вправо для изменения громкости.</string>
-    <string name="swipe_vol_vert_desc">Свайп вверх или вниз для изменения громкости.</string>
-
-    <string name="swipe_horiz_footnote">Вправо — увеличение, влево — уменьшение. Свайп вниз откроет шторку.</string>
-    <string name="swipe_vert_footnote">Вверх — увеличение, вниз — уменьшение. При включении свайп вниз не откроет шторку.</string>
+    <string name="swipe_bright_desc">Свайп для изменения яркости.</string>
+    <string name="swipe_vol_desc">Свайп для изменения громкости.</string>
+    <string name="swipe_hud_toggle">Показывать уровень</string>
+    <string name="swipe_notice_toggle">Уведомление об автояркости</string>
+    <string name="swipe_auto_off_notice">Автояркость отключена</string>
+    <string name="swipe_mode_basic">Базовый</string>
+    <string name="swipe_mode_advanced">Расширенный</string>
+    <string name="swipe_dir_up">Свайп вверх</string>
+    <string name="swipe_dir_down">Свайп вниз</string>
 
     <string name="swipe_control_volume">Свайп для настройки громкости</string>
     <string name="swipe_control_brightness">Свайп для настройки яркости</string>
@@ -320,6 +322,10 @@
     <string name="action_app_info_list_desc">Открывает диспетчер приложений</string>
     <string name="action_developer_options">Для разработчиков</string>
     <string name="action_developer_options_desc">Открывает для разработчиков</string>
+    <string name="action_wireless_debugging">Отладка по Wi‑Fi</string>
+    <string name="action_wireless_debugging_desc">Открывает страницу отладки по Wi‑Fi</string>
+    <string name="action_usb_debugging">Отладка по USB</string>
+    <string name="action_usb_debugging_desc">Открывает настройку отладки по USB</string>
     <string name="action_security_settings">Безопасность и конфиденциальность</string>
     <string name="action_security_settings_desc">Открывает настройки безопасности</string>
     <string name="action_sync_settings">Синхронизация аккаунтов</string>
@@ -374,13 +380,18 @@
     <string name="perm_overlay_desc">Отображает сенсорную зону под строкой состояния, когда служба специальных возможностей не активна.</string>
     <string name="perm_granted">Предоставлено</string>
     <string name="perm_allow">Включить</string>
+    <string name="perm_shell_title">Доступ к shell</string>
+    <string name="perm_optional">Необязательно</string>
+    <string name="perm_shell_desc">Мгновенно включает и выключает Wi-Fi, Bluetooth, мобильные данные и другое, не открывая панель. Требуется Shizuku или Sui.</string>
+    <string name="perm_shell_allow">Разрешить доступ</string>
+    <string name="perm_shell_hint">Используете Shizuku, Sui или root? Запустите его и разрешите доступ в любой момент в Настройках, в разделе «Доступ к shell».</string>
+    <string name="cd_shell_allowed">Доступ к shell разрешён</string>
+    <string name="cd_shell_not_allowed">Доступ к shell не разрешён</string>
     <string name="restricted_help_title">Переключатель неактивен?</string>
     <string name="restricted_help_text">Откройте информацию о приложении, нажмите меню из трех точек вверху справа, выберите Разрешить ограниченные настройки и попробуйте снова.</string>
     <string name="open_app_info">О приложении</string>
     <string name="view_visual_guide">Инструкция</string>
     <string name="success_title">Всё готово</string>
-    <string name="success_desc_a11y">Сенсорная зона расположена прямо на строке состояния.</string>
-    <string name="success_desc_overlay">Сенсорная зона расположена под строкой состояния. Вы можете включить специальные возможности позже в настройках.</string>
     <string name="cd_setup_complete">Настройка завершена</string>
 
     <string name="backup_restore_title">Резервная копия и восстановление</string>
@@ -399,4 +410,31 @@
     <string name="restore_failed">Не удалось восстановить настройки</string>
     <string name="cancel">Отмена</string>
     <string name="notification_shade_title">Шторка уведомлений</string>
+    <string name="action_custom_command">Выполнить команду оболочки</string>
+    <string name="action_custom_command_desc">Запускает вашу команду через Shizuku, Sui или root</string>
+    <string name="action_custom_command_label">Выполнить: %1$s</string>
+    <string name="custom_command_hint">Команда оболочки</string>
+    <string name="custom_command_note">Выполняется от имени shell через Shizuku или Sui либо от root. Способ выбирается в настройках.</string>
+    <string name="shell_access_title">Доступ к оболочке</string>
+    <string name="shell_method_auto">Автоматически</string>
+    <string name="shell_method_shizuku">Shizuku / Sui</string>
+    <string name="shell_method_root">Root (su)</string>
+    <string name="shell_status_ready">Shizuku / Sui подключён</string>
+    <string name="shell_status_permission">Shizuku / Sui требуется разрешение</string>
+    <string name="shell_status_permission_desc">Нажмите, чтобы разрешить Tapbar использовать его</string>
+    <string name="shell_status_unavailable">Shizuku / Sui не запущен</string>
+    <string name="shell_status_unavailable_desc">Запустите его, чтобы включить настоящие переключатели Wi-Fi, Bluetooth, мобильных данных и другого</string>
+    <string name="shell_failed">Не удалось выполнить команду. Проверьте доступ к Shizuku, Sui или root.</string>
+    <string name="shell_no_command">Для этого жеста команда не задана</string>
+    <string name="action_wifi_toggle">Wi-Fi</string>
+    <string name="action_bluetooth_toggle">Bluetooth</string>
+    <string name="action_data_toggle">Мобильные данные</string>
+    <string name="action_nfc_toggle">NFC</string>
+    <string name="action_wifi_toggle_desc">Включает или выключает Wi-Fi</string>
+    <string name="action_bluetooth_toggle_desc">Включает или выключает Bluetooth</string>
+    <string name="action_data_toggle_desc">Включает или выключает мобильные данные</string>
+    <string name="action_nfc_toggle_desc">Включает или выключает NFC</string>
+    <string name="action_airplane_toggle_desc">Включает или выключает режим полёта</string>
+    <string name="action_battery_saver_toggle_desc">Включает или выключает режим энергосбережения</string>
+    <string name="action_night_light_toggle_desc">Включает или выключает ночной режим</string>
 </resources>

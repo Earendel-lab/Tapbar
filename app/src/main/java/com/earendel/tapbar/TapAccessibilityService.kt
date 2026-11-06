@@ -5,6 +5,7 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.GestureDescription
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -32,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 object TapAccessibilityServiceHolder {
     @Volatile
     var service: TapAccessibilityService? = null
+
 }
 
 class TapAccessibilityService : AccessibilityService() {
@@ -549,6 +551,37 @@ class TapAccessibilityService : AccessibilityService() {
         private const val FLING_MAX_STALLS = 3
         private const val FLING_START_FRACTION = 0.2f
         private const val FLING_END_FRACTION = 0.85f
+
+        fun openSettings(context: Context) {
+            val component = ComponentName(context, TapAccessibilityService::class.java).flattenToString()
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .putExtra(":settings:fragment_args_key", component)
+                .putExtra(":settings:show_fragment_args", Bundle().apply {
+                    putString(":settings:fragment_args_key", component)
+                })
+            try {
+                context.startActivity(intent)
+            } catch (_: Throwable) {
+                try {
+                    context.startActivity(
+                        Intent(Settings.ACTION_SETTINGS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    )
+                } catch (_: Throwable) {
+                }
+            }
+        }
+
+        fun openAppInfo(context: Context) {
+            try {
+                context.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + context.packageName))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                )
+            } catch (_: Throwable) {
+            }
+        }
 
         fun isEnabled(context: Context): Boolean {
             val am = context.getSystemService(ACCESSIBILITY_SERVICE) as? AccessibilityManager

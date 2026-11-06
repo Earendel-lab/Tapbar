@@ -44,6 +44,9 @@ object TapZone {
     var previewRequested: Boolean = false
 
     @Volatile
+    var onZoneSelected: ((Int) -> Unit)? = null
+
+    @Volatile
     var currentForegroundApp: String? = null
 }
 
@@ -296,6 +299,10 @@ class TapZoneController(
         private var swipeLastX = 0f
         private var swipeLastY = 0f
         private var swipeLastT = 0L
+        private var swipeAdvanced = false
+        private var actionDir = -1
+        private var actionReady = false
+        private val actionThreshold = dp(40).toFloat()
 
         private var tapCount = 0
         private val gestureHandler = Handler(Looper.getMainLooper())
@@ -322,7 +329,7 @@ class TapZoneController(
             cancelMultiTapTimer()
             tapCount = 0
             consumed = true
-            if (!swipe.begin(swipeTarget, horizontal, this)) return
+            if (!swipe.begin(swipeTarget, horizontal, this, zone)) return
             swipeEngaged = true
             swipeHorizontal = horizontal
             swipeLastX = downX
@@ -330,6 +337,58 @@ class TapZoneController(
             swipeLastT = event.eventTime
             haptics.performGesture(this)
             swipeMove(event, true)
+        }
+
+        private fun advancedSwipe(event: MotionEvent): Boolean {
+            val sdx = event.rawX - downX
+            val sdy = event.rawY - downY
+            val adx = abs(sdx)
+            val ady = abs(sdy)
+            if (maxOf(adx, ady) <= swipeSlop) return false
+            val horizontal = adx >= ady
+            val dir = if (horizontal) {
+                if (sdx < 0f) SWIPE_DIR_LEFT else SWIPE_DIR_RIGHT
+            } else {
+                if (sdy < 0f) SWIPE_DIR_UP else SWIPE_DIR_DOWN
+            }
+            when (prefs.getSwipeDirType(zone, dir)) {
+                SWIPE_TYPE_VOLUME -> {
+                    swipeTarget = SWIPE_TARGET_VOLUME
+                    engageSwipe(event, horizontal)
+                    return true
+                }
+                SWIPE_TYPE_BRIGHTNESS -> {
+                    swipeTarget = SWIPE_TARGET_BRIGHTNESS
+                    engageSwipe(event, horizontal)
+                    return true
+                }
+                SWIPE_TYPE_ACTION -> {
+                    if (prefs.getSwipeDirActionId(zone, dir).isNullOrEmpty()) return false
+                    actionDir = dir
+                    actionReady = false
+                    consumed = true
+                    cancelLongPressTimer()
+                    cancelMultiTapTimer()
+                    tapCount = 0
+                    haptics.performGesture(this)
+                    return true
+                }
+            }
+            return false
+        }
+
+        private fun trackAction(event: MotionEvent) {
+            val sdx = event.rawX - downX
+            val sdy = event.rawY - downY
+            val progress = when (actionDir) {
+                SWIPE_DIR_LEFT -> -sdx
+                SWIPE_DIR_RIGHT -> sdx
+                SWIPE_DIR_UP -> -sdy
+                else -> sdy
+            }
+            val ready = progress >= actionThreshold
+            if (ready && !actionReady) haptics.performSliderTick(this)
+            actionReady = ready
         }
 
         private fun swipeMove(event: MotionEvent, first: Boolean) {
@@ -365,6 +424,9 @@ class TapZoneController(
                     swipeArmed = prefs.getSwipeEnabled(zone)
                     swipeTarget = prefs.getSwipeTarget(zone)
                     swipeHorizontal = axisFor(zone) == SwipeAxis.HORIZONTAL
+                    swipeAdvanced = prefs.getSwipeMode(zone) == SWIPE_MODE_ADVANCED
+                    actionDir = -1
+                    actionReady = false
 
                     cancelLongPressTimer()
                     if (prefs.getLongPressEnabled(zone)) {
@@ -387,6 +449,10 @@ class TapZoneController(
                         swipeMove(event, false)
                         return true
                     }
+                    if (actionDir >= 0) {
+                        trackAction(event)
+                        return true
+                    }
                     if (consumed) return true
                     val dy = event.rawY - downY
                     val dx = abs(event.rawX - downX)
@@ -396,15 +462,19 @@ class TapZoneController(
                     }
 
                     if (swipeArmed) {
-                        val ady = abs(dy)
-                        val onAxis = if (swipeHorizontal) {
-                            dx > swipeSlop && dx >= ady
+                        if (swipeAdvanced) {
+                            if (advancedSwipe(event)) return true
                         } else {
-                            ady > swipeSlop && ady > dx
-                        }
-                        if (onAxis) {
-                            engageSwipe(event, swipeHorizontal)
-                            return true
+                            val ady = abs(dy)
+                            val onAxis = if (swipeHorizontal) {
+                                dx > swipeSlop && dx >= ady
+                            } else {
+                                ady > swipeSlop && ady > dx
+                            }
+                            if (onAxis) {
+                                engageSwipe(event, swipeHorizontal)
+                                return true
+                            }
                         }
                     }
 
@@ -421,6 +491,23 @@ class TapZoneController(
                 MotionEvent.ACTION_UP -> {
                     cancelLongPressTimer()
                     endSwipe()
+                    if (actionDir >= 0) {
+                        val dir = actionDir
+                        val ready = actionReady
+                        actionDir = -1
+                        actionReady = false
+                        consumed = false
+                        if (ready) executeSwipeAction(zone, dir)
+                        return true
+                    }
+                    if (preview && !consumed) {
+                        val pdx = abs(event.rawX - downX)
+                        val pdy = abs(event.rawY - downY)
+                        if (pdx < slop && pdy < slop && SystemClock.uptimeMillis() - downAt < 600) {
+                            TapZone.onZoneSelected?.invoke(zone)
+                        }
+                        return true
+                    }
                     if (consumed || preview || longPressTriggered) {
                         consumed = false
                         return true
@@ -439,6 +526,8 @@ class TapZoneController(
                 MotionEvent.ACTION_CANCEL -> {
                     cancelLongPressTimer()
                     endSwipe()
+                    actionDir = -1
+                    actionReady = false
                     consumed = false
                     return true
                 }
@@ -515,8 +604,14 @@ class TapZoneController(
         }
     }
 
+    private fun executeSwipeAction(zone: Int, dir: Int) {
+        if (preview || isBlocked() || !prefs.isZoneEnabled(zone) || !prefs.getSwipeEnabled(zone)) return
+        haptics.performConfirm(views[zone])
+        executeAction(prefs.getSwipeDirActionId(zone, dir), zone, 5 + dir)
+    }
+
     private fun executeLongPress(zone: Int) {
-        if (isBlocked() || !prefs.getLongPressEnabled(zone)) return
+        if (preview || isBlocked() || !prefs.getLongPressEnabled(zone)) return
         if (!prefs.isZoneEnabled(zone)) return
         val view = views[zone]
         haptics.performConfirm(view)
@@ -596,15 +691,28 @@ class TapZoneController(
             "flashlight" -> toggleFlashlight(context)
             "auto_rotate" -> toggleAutoRotate(context)
             "dnd" -> toggleDnd(context)
-            "wifi" -> openPanel(context, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Settings.Panel.ACTION_WIFI else Settings.ACTION_WIRELESS_SETTINGS)
-            "bluetooth" -> openBluetooth(context)
-            "data" -> openPanel(context, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Settings.Panel.ACTION_INTERNET_CONNECTIVITY else Settings.ACTION_WIRELESS_SETTINGS)
+            "wifi" -> SystemToggles.toggle(context, "wifi", prefs.shellMethod) {
+                openPanel(context, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Settings.Panel.ACTION_WIFI else Settings.ACTION_WIRELESS_SETTINGS)
+            }
+            "bluetooth" -> SystemToggles.toggle(context, "bluetooth", prefs.shellMethod) { openBluetooth(context) }
+            "data" -> SystemToggles.toggle(context, "data", prefs.shellMethod) {
+                openPanel(context, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Settings.Panel.ACTION_INTERNET_CONNECTIVITY else Settings.ACTION_WIRELESS_SETTINGS)
+            }
             "volume" -> openPanel(context, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Settings.Panel.ACTION_VOLUME else Settings.ACTION_SOUND_SETTINGS)
             "hotspot" -> openSettingsIntent(context, Intent("android.settings.TETHER_SETTINGS"))
-            "battery_saver" -> openSettingsIntent(context, Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS))
-            "nfc" -> openSettingsIntent(context, Intent(Settings.ACTION_NFC_SETTINGS))
-            "night_light" -> openSettingsIntent(context, Intent("android.settings.NIGHT_DISPLAY_SETTINGS"))
-            "airplane" -> openSettingsIntent(context, Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS))
+            "battery_saver" -> SystemToggles.toggle(context, "battery_saver", prefs.shellMethod) {
+                openSettingsIntent(context, Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS))
+            }
+            "nfc" -> SystemToggles.toggle(context, "nfc", prefs.shellMethod) {
+                openSettingsIntent(context, Intent(Settings.ACTION_NFC_SETTINGS))
+            }
+            "night_light" -> SystemToggles.toggle(context, "night_light", prefs.shellMethod) {
+                openSettingsIntent(context, Intent("android.settings.NIGHT_DISPLAY_SETTINGS"))
+            }
+            "airplane" -> SystemToggles.toggle(context, "airplane", prefs.shellMethod) {
+                openSettingsIntent(context, Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS))
+            }
+            "custom_command" -> ShellAccess.runCustom(context, prefs.getCustomCommand(zone, gesture), prefs.shellMethod)
             "media_play_pause" -> dispatchMediaKey(context, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
             "media_next" -> dispatchMediaKey(context, KeyEvent.KEYCODE_MEDIA_NEXT)
             "media_previous" -> dispatchMediaKey(context, KeyEvent.KEYCODE_MEDIA_PREVIOUS)
@@ -630,6 +738,8 @@ class TapZoneController(
             "locale_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_LOCALE_SETTINGS))
             "app_info_list" -> openSettingsIntent(context, Intent(Settings.ACTION_APPLICATION_SETTINGS))
             "developer_options" -> openSettingsIntent(context, Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+            "usb_debugging" -> openDeveloperSetting(context, "enable_adb")
+            "wireless_debugging" -> openWirelessDebugging(context)
             "security_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_SECURITY_SETTINGS))
             "sync_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_SYNC_SETTINGS))
             "voice_input_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_VOICE_INPUT_SETTINGS))
@@ -903,6 +1013,31 @@ class TapZoneController(
             Log.e("Tapbar", "Could not open settings intent", t)
         }
     }
+
+    private fun openWirelessDebugging(context: Context) {
+        val candidates = ArrayList<Intent>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            candidates.add(
+                Intent().setClassName("com.android.settings", "com.android.settings.SubSettings")
+                    .putExtra(":settings:show_fragment", "com.android.settings.development.WirelessDebuggingFragment")
+            )
+        }
+        candidates.addAll(developerSettingIntents("toggle_adb_wireless"))
+        val usable = candidates.filter { it.resolveActivity(context.packageManager) != null }
+        openFirstAvailable(context, usable)
+    }
+
+    private fun openDeveloperSetting(context: Context, key: String) {
+        val usable = developerSettingIntents(key).filter { it.resolveActivity(context.packageManager) != null }
+        openFirstAvailable(context, usable)
+    }
+
+    private fun developerSettingIntents(key: String): List<Intent> = listOf(
+        Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+            .putExtra(":settings:fragment_args_key", key)
+            .putExtra(":settings:show_fragment_args", Bundle().apply { putString(":settings:fragment_args_key", key) }),
+        Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+    )
 
     private fun openFirstAvailable(context: Context, intents: List<Intent>) {
         for (intent in intents) {

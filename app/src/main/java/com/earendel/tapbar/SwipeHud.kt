@@ -30,8 +30,8 @@ class SwipeHud(
     private val prefs = Prefs(context)
     private val main = Handler(Looper.getMainLooper())
     private val density = context.resources.displayMetrics.density
-    private val sizePx = (46 * density).toInt()
-    private val bottomPx = (56 * density).toInt()
+    private val sizePx = (38 * density).toInt()
+    private val bottomPx = (52 * density).toInt()
     private val blurPx = (16 * density).toInt()
 
     private var dialog: Dialog? = null
@@ -53,7 +53,7 @@ class SwipeHud(
         label?.let { text ->
             val formatted = formatHudValue(value)
             text.text = formatted
-            text.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (formatted.length > 2) 12f else 15f)
+            text.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (formatted.length > 2) 10f else 13f)
         }
         if (animTarget != 1f) animateTo(1f, 120L)
         main.postDelayed(hideRunnable, 4000L)
@@ -185,7 +185,7 @@ class SwipeHud(
             includeFontPadding = false
             setSingleLine(true)
             setTextColor(if (dark) Color.WHITE else Color.rgb(17, 17, 17))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
             layoutParams = ViewGroup.LayoutParams(sizePx, sizePx)
             val base = try {
                 ResourcesCompat.getFont(context, R.font.geist_variable) ?: Typeface.DEFAULT
