@@ -39,6 +39,7 @@ const val SWIPE_TYPE_OFF = 0
 const val SWIPE_TYPE_VOLUME = 1
 const val SWIPE_TYPE_BRIGHTNESS = 2
 const val SWIPE_TYPE_ACTION = 3
+const val SWIPE_TYPE_APP = 4
 
 fun swipeTargetLabel(target: Int): String =
     if (target == SWIPE_TARGET_BRIGHTNESS) "Brightness" else "Volume"
@@ -71,6 +72,7 @@ private fun linearToGamma(linear: Float): Float {
 private const val STATE_PREFS = "swipe_adjuster_state"
 private const val KEY_AUTO_SUSPENDED = "auto_brightness_suspended"
 private const val VOLUME_HYSTERESIS = 0.6f
+private const val RAYS_DEGREES_PER_RANGE = 540f
 
 class SwipeAdjuster(
     private val context: Context,
@@ -125,8 +127,11 @@ class SwipeAdjuster(
     private var noticeOn = false
     private var view: View? = null
 
-    @Volatile
-    private var autoSuspended = statePrefs.getBoolean(KEY_AUTO_SUSPENDED, false)
+    private var autoSuspended: Boolean
+        get() = statePrefs.getBoolean(KEY_AUTO_SUSPENDED, false)
+        set(value) {
+            statePrefs.edit().putBoolean(KEY_AUTO_SUSPENDED, value).apply()
+        }
     private var receiverRegistered = false
 
     private val screenOffReceiver = object : BroadcastReceiver() {
@@ -160,7 +165,7 @@ class SwipeAdjuster(
         lastBucket = (level / 5f).toInt()
         active = true
         if (target == SWIPE_TARGET_VOLUME || hudOn) {
-            hud.show(shown)
+            hud.show(shown, target == SWIPE_TARGET_BRIGHTNESS)
         }
         return true
     }
@@ -168,7 +173,9 @@ class SwipeAdjuster(
     fun move(deltaPx: Float, dtMs: Long) {
         if (!active || rangePx <= 0f) return
         if (dtMs <= 0L) return
+        val before = level
         level = (level + deltaPx / rangePx * scale).coerceIn(0f, scale.toFloat())
+        if (hudOn) hud.rotateRays((level - before) / scale * RAYS_DEGREES_PER_RANGE)
         if (target == SWIPE_TARGET_BRIGHTNESS) moveBrightness() else moveVolume()
     }
 
@@ -196,7 +203,7 @@ class SwipeAdjuster(
         val percent = level.roundToInt()
         if (percent != shown) {
             shown = percent
-            if (hudOn) hud.show(percent)
+            if (hudOn) hud.show(percent, true)
         }
 
         val v = view
@@ -262,7 +269,6 @@ class SwipeAdjuster(
     }
 
     private fun suspendAutoBrightness() {
-        if (autoSuspended) return
         try {
             val mode = Settings.System.getInt(
                 resolver,
@@ -277,7 +283,6 @@ class SwipeAdjuster(
                 )
                 autoSuspended = true
                 if (noticeOn) showAutoOffNotice()
-                statePrefs.edit().putBoolean(KEY_AUTO_SUSPENDED, true).apply()
                 registerScreenOffReceiver()
             }
         } catch (_: Throwable) {
@@ -306,7 +311,6 @@ class SwipeAdjuster(
             return
         }
         autoSuspended = false
-        statePrefs.edit().putBoolean(KEY_AUTO_SUSPENDED, false).apply()
         unregisterScreenOffReceiver()
     }
 
@@ -389,6 +393,15 @@ class SwipeAdjuster(
         level = current.toFloat()
         lastVolumeIndex = current
         return true
+    }
+
+    companion object {
+        fun clearAutoSuspension(context: Context) {
+            context.getSharedPreferences(STATE_PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_AUTO_SUSPENDED, false)
+                .apply()
+        }
     }
 
     private fun prepareBrightness(): Boolean {

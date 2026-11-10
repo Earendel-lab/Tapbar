@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.hardware.camera2.CameraManager
@@ -27,9 +28,14 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
+
+private const val RESCUE_WINDOW_MS = 700L
+private const val RESCUE_TICK_MS = 2000L
+private const val RESCUE_TICKS = 5
 
 object TapZone {
     @Volatile
@@ -49,6 +55,7 @@ object TapZone {
 
     @Volatile
     var currentForegroundApp: String? = null
+    var currentForegroundRaw: String? = null
 }
 
 fun hasNotificationPolicyAccess(context: Context): Boolean {
@@ -87,11 +94,14 @@ class TapZoneController(
     private val params = arrayOfNulls<WindowManager.LayoutParams>(ZONE_COUNT)
     private var preview = false
     private var selectedZone = 0
-    private val density = context.resources.displayMetrics.density
+    private val density: Float
+        get() = ScreenMetrics.density(context)
     private val mainHandler = Handler(Looper.getMainLooper())
     private val settleRunnable = Runnable { attach() }
     private val yOffsetPx: Int
         get() = yOffsetProvider()
+    private var keyguardCheckedAt = 0L
+    private var keyguardCached = false
 
     private val previewDrawableActive by lazy {
         GradientDrawable().apply {
@@ -127,7 +137,10 @@ class TapZoneController(
         if (prefs.disableInLandscape && ScreenMetrics.isLandscape(context)) {
             return true
         }
-        if (prefs.disableOnLockscreen && isKeyguardLocked()) {
+        val keyguardLocked = isKeyguardLocked()
+        if (prefs.disableOnHome) {
+            if (!keyguardLocked) return true
+        } else if (prefs.disableOnLockscreen && keyguardLocked) {
             return true
         }
         val fg = TapZone.currentForegroundApp?.trim()?.lowercase() ?: return false
@@ -135,11 +148,16 @@ class TapZoneController(
     }
 
     private fun isKeyguardLocked(): Boolean {
+        val now = SystemClock.uptimeMillis()
+        if (now - keyguardCheckedAt < KEYGUARD_CACHE_MS) return keyguardCached
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-        return km?.isKeyguardLocked == true
+        keyguardCached = km?.isKeyguardLocked == true
+        keyguardCheckedAt = now
+        return keyguardCached
     }
 
     fun attach() {
+        keyguardCheckedAt = 0L
         if (isBlocked()) {
             detach()
             return
@@ -207,6 +225,7 @@ class TapZoneController(
         attach()
         mainHandler.removeCallbacks(settleRunnable)
         mainHandler.postDelayed(settleRunnable, 300L)
+        mainHandler.postDelayed(settleRunnable, 1000L)
     }
 
     private fun placedY(yPx: Int, heightPx: Int): Int {
@@ -237,10 +256,7 @@ class TapZoneController(
     }
 
     fun updateGeometry(zone: Int, x: Int, y: Int, w: Int, h: Int) {
-        prefs.setPosX(zone, x)
-        prefs.setPosY(zone, y)
-        prefs.setZoneWidth(zone, w)
-        prefs.setZoneHeight(zone, h)
+        prefs.setGeometry(zone, ZoneGeometry(x, y, w, h))
         attach()
     }
 
@@ -299,6 +315,9 @@ class TapZoneController(
         private var downAt = 0L
         private var consumed = false
         private var longPressTriggered = false
+        private var lastTapUpAt = 0L
+        private var rescueArmed = false
+        private var rescueRunnable: Runnable? = null
         private val slop = dp(18).toFloat()
         private val swipeSlop = dp(10).toFloat()
         private var swipeArmed = false
@@ -312,6 +331,32 @@ class TapZoneController(
         private var actionDir = -1
         private var actionReady = false
         private val actionThreshold = dp(40).toFloat()
+        private val minTravel = dp(3).toFloat()
+        private var screenW = 0f
+        private var screenH = 0f
+
+        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+            super.onLayout(changed, left, top, right, bottom)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    systemGestureExclusionRects = listOf(Rect(0, 0, right - left, bottom - top))
+                } catch (_: Throwable) {
+                }
+            }
+        }
+
+        private fun availableTravel(dir: Int): Float = when (dir) {
+            SWIPE_DIR_LEFT -> downX
+            SWIPE_DIR_RIGHT -> screenW - downX
+            SWIPE_DIR_UP -> downY
+            else -> screenH - downY
+        }.coerceAtLeast(0f)
+
+        private fun travelCap(dir: Int): Float =
+            minOf(actionThreshold, (availableTravel(dir) * 0.6f).coerceAtLeast(minTravel))
+
+        private fun travelBias(dir: Int): Float =
+            (actionThreshold / travelCap(dir)).coerceIn(1f, 2f)
 
         private var tapCount = 0
         private val gestureHandler = Handler(Looper.getMainLooper())
@@ -326,6 +371,39 @@ class TapZoneController(
         private fun cancelLongPressTimer() {
             longPressRunnable?.let { gestureHandler.removeCallbacks(it) }
             longPressRunnable = null
+        }
+
+        private fun cancelRescue() {
+            rescueRunnable?.let { gestureHandler.removeCallbacks(it) }
+            rescueRunnable = null
+            rescueArmed = false
+        }
+
+        private fun startRescue() {
+            var ticks = 0
+            val runnable = object : Runnable {
+                override fun run() {
+                    ticks++
+                    if (ticks >= RESCUE_TICKS) {
+                        rescueRunnable = null
+                        rescueArmed = false
+                        lastTapUpAt = 0L
+                        haptics.performConfirm(this@TapView)
+                        prefs.setZoneEnabled(zone, false)
+                        try {
+                            val text = LocaleHelper.wrap(context).getString(R.string.zone_turned_off)
+                            Toast.makeText(context.applicationContext, text, Toast.LENGTH_SHORT).show()
+                        } catch (_: Throwable) {
+                        }
+                        attach()
+                    } else {
+                        haptics.performLightTap(this@TapView)
+                        gestureHandler.postDelayed(this, RESCUE_TICK_MS)
+                    }
+                }
+            }
+            rescueRunnable = runnable
+            gestureHandler.postDelayed(runnable, RESCUE_TICK_MS)
         }
 
         private fun cancelMultiTapTimer() {
@@ -353,13 +431,13 @@ class TapZoneController(
             val sdy = event.rawY - downY
             val adx = abs(sdx)
             val ady = abs(sdy)
-            if (maxOf(adx, ady) <= swipeSlop) return false
-            val horizontal = adx >= ady
-            val dir = if (horizontal) {
-                if (sdx < 0f) SWIPE_DIR_LEFT else SWIPE_DIR_RIGHT
-            } else {
-                if (sdy < 0f) SWIPE_DIR_UP else SWIPE_DIR_DOWN
-            }
+            val dirX = if (sdx < 0f) SWIPE_DIR_LEFT else SWIPE_DIR_RIGHT
+            val dirY = if (sdy < 0f) SWIPE_DIR_UP else SWIPE_DIR_DOWN
+            val scoreX = adx * travelBias(dirX)
+            val scoreY = ady * travelBias(dirY)
+            if (maxOf(scoreX, scoreY) <= swipeSlop) return false
+            val horizontal = scoreX >= scoreY
+            val dir = if (horizontal) dirX else dirY
             when (prefs.getSwipeDirType(zone, dir)) {
                 SWIPE_TYPE_VOLUME -> {
                     swipeTarget = SWIPE_TARGET_VOLUME
@@ -371,8 +449,13 @@ class TapZoneController(
                     engageSwipe(event, horizontal)
                     return true
                 }
-                SWIPE_TYPE_ACTION -> {
-                    if (prefs.getSwipeDirActionId(zone, dir).isNullOrEmpty()) return false
+                SWIPE_TYPE_ACTION, SWIPE_TYPE_APP -> {
+                    val configured = if (prefs.getSwipeDirType(zone, dir) == SWIPE_TYPE_APP) {
+                        !prefs.getSwipeDirTargetPkg(zone, dir).isNullOrEmpty()
+                    } else {
+                        !prefs.getSwipeDirActionId(zone, dir).isNullOrEmpty()
+                    }
+                    if (!configured) return false
                     actionDir = dir
                     actionReady = false
                     consumed = true
@@ -395,7 +478,7 @@ class TapZoneController(
                 SWIPE_DIR_UP -> -sdy
                 else -> sdy
             }
-            val ready = progress >= actionThreshold
+            val ready = progress >= travelCap(actionDir)
             if (ready && !actionReady) haptics.performSliderTick(this)
             actionReady = ready
         }
@@ -426,6 +509,9 @@ class TapZoneController(
                 MotionEvent.ACTION_DOWN -> {
                     downX = event.rawX
                     downY = event.rawY
+                    val screenSize = ScreenMetrics.sizePx(context)
+                    screenW = screenSize.first.toFloat()
+                    screenH = screenSize.second.toFloat()
                     downAt = SystemClock.uptimeMillis()
                     consumed = false
                     longPressTriggered = false
@@ -438,7 +524,12 @@ class TapZoneController(
                     actionReady = false
 
                     cancelLongPressTimer()
-                    if (prefs.getLongPressEnabled(zone)) {
+                    cancelRescue()
+                    if (!preview && lastTapUpAt != 0L && downAt - lastTapUpAt <= RESCUE_WINDOW_MS) {
+                        rescueArmed = true
+                        startRescue()
+                    }
+                    if (prefs.getLongPressEnabled(zone) && !rescueArmed) {
                         val lpRunnable = Runnable {
                             if (!consumed && !longPressTriggered) {
                                 longPressTriggered = true
@@ -448,7 +539,7 @@ class TapZoneController(
                             }
                         }
                         longPressRunnable = lpRunnable
-                        gestureHandler.postDelayed(lpRunnable, 400L)
+                        gestureHandler.postDelayed(lpRunnable, prefs.longPressMs.toLong())
                     }
                     return true
                 }
@@ -468,6 +559,7 @@ class TapZoneController(
 
                     if (dx > slop || abs(dy) > slop) {
                         cancelLongPressTimer()
+                        cancelRescue()
                     }
 
                     if (swipeArmed) {
@@ -499,6 +591,7 @@ class TapZoneController(
                 }
                 MotionEvent.ACTION_UP -> {
                     cancelLongPressTimer()
+                    cancelRescue()
                     endSwipe()
                     if (actionDir >= 0) {
                         val dir = actionDir
@@ -525,6 +618,7 @@ class TapZoneController(
                     val dy = abs(event.rawY - downY)
                     val dt = SystemClock.uptimeMillis() - downAt
                     if (dx < slop && dy < slop && dt < 600) {
+                        lastTapUpAt = SystemClock.uptimeMillis()
                         if (prefs.tapHapticMode == 0) haptics.performLightTap(this)
                         performClick()
                         handleTapGesture()
@@ -534,6 +628,7 @@ class TapZoneController(
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     cancelLongPressTimer()
+                    cancelRescue()
                     endSwipe()
                     actionDir = -1
                     actionReady = false
@@ -615,8 +710,29 @@ class TapZoneController(
 
     private fun executeSwipeAction(zone: Int, dir: Int) {
         if (preview || isBlocked() || !prefs.isZoneEnabled(zone) || !prefs.getSwipeEnabled(zone)) return
+        if (prefs.getSwipeDirType(zone, dir) == SWIPE_TYPE_APP) {
+            val pkg = prefs.getSwipeDirTargetPkg(zone, dir)
+            if (pkg.isNullOrEmpty()) return
+            haptics.performConfirm(views[zone])
+            launchAppStrict(pkg)
+            return
+        }
         haptics.performConfirm(views[zone])
         executeAction(prefs.getSwipeDirActionId(zone, dir), zone, 5 + dir)
+    }
+
+    private fun launchAppStrict(pkg: String) {
+        val intent = try {
+            context.packageManager.getLaunchIntentForPackage(pkg)
+        } catch (_: Throwable) {
+            null
+        } ?: return
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+        try {
+            context.startActivity(intent)
+        } catch (t: Throwable) {
+            Log.e("Tapbar", "Could not launch swipe app", t)
+        }
     }
 
     private fun executeLongPress(zone: Int) {
@@ -655,10 +771,15 @@ class TapZoneController(
     @SuppressLint("NewApi")
     private fun executeAction(actionId: String?, zone: Int = 0, gesture: Int = 0) {
         if (actionId.isNullOrEmpty()) return
+        if (ShellActions.handles(actionId)) {
+            ShellActions.run(context, actionId, prefs.shellMethod)
+            return
+        }
         val service = TapAccessibilityServiceHolder.service
         when (actionId) {
             "lock_screen" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
             "screenshot" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
+            "screen_record" -> ScreenRecordService.toggle(context)
             "power_menu" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
             "back" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
             "home" -> service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
@@ -699,6 +820,8 @@ class TapZoneController(
             "headset_hook" -> if (Build.VERSION.SDK_INT >= 29) service?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_KEYCODE_HEADSETHOOK)
             "flashlight" -> toggleFlashlight(context)
             "auto_rotate" -> toggleAutoRotate(context)
+            "force_orientation" -> cycleOrientation(context)
+            "font_size" -> cycleFontSize(context)
             "dnd" -> toggleDnd(context)
             "wifi" -> SystemToggles.toggle(context, "wifi", prefs.shellMethod) {
                 openPanel(context, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Settings.Panel.ACTION_WIFI else Settings.ACTION_WIRELESS_SETTINGS)
@@ -732,9 +855,12 @@ class TapZoneController(
             "ringer_mode" -> cycleRingerMode(context)
             "brightness_up" -> adjustBrightness(context, 25)
             "brightness_down" -> adjustBrightness(context, -25)
-            "auto_brightness" -> toggleAutoBrightness(context)
+            "auto_brightness" -> changeAutoBrightness(context, null)
+            "auto_brightness_on" -> changeAutoBrightness(context, true)
+            "open_files" -> openFileManager(context)
             "send_notification" -> AutomationNotifier.fire(context, zone, gesture)
             "camera" -> openCamera(context)
+            "camera_video" -> openVideoCamera(context)
             "assistant" -> openAssistant(context)
             "display_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_DISPLAY_SETTINGS))
             "accessibility_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -747,8 +873,12 @@ class TapZoneController(
             "locale_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_LOCALE_SETTINGS))
             "app_info_list" -> openSettingsIntent(context, Intent(Settings.ACTION_APPLICATION_SETTINGS))
             "developer_options" -> openSettingsIntent(context, Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-            "usb_debugging" -> openDeveloperSetting(context, "enable_adb")
-            "wireless_debugging" -> openWirelessDebugging(context)
+            "usb_debugging" -> SystemToggles.toggle(context, "usb_debugging", prefs.shellMethod) {
+                openDeveloperSetting(context, "enable_adb")
+            }
+            "wireless_debugging" -> SystemToggles.toggle(context, "wireless_debugging", prefs.shellMethod) {
+                openWirelessDebugging(context)
+            }
             "security_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_SECURITY_SETTINGS))
             "sync_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_SYNC_SETTINGS))
             "voice_input_settings" -> openSettingsIntent(context, Intent(Settings.ACTION_VOICE_INPUT_SETTINGS))
@@ -886,7 +1016,7 @@ class TapZoneController(
         }
     }
 
-    private fun toggleAutoBrightness(context: Context) {
+    private fun changeAutoBrightness(context: Context, turnOn: Boolean?) {
         try {
             if (!Settings.System.canWrite(context)) {
                 val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:${context.packageName}"))
@@ -896,29 +1026,60 @@ class TapZoneController(
             }
             val cr = context.contentResolver
             val mode = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC)
-            val newMode = if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
-                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
-            } else {
-                Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+            val isOn = mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+            val targetOn = turnOn ?: !isOn
+            if (targetOn != isOn) {
+                Settings.System.putInt(
+                    cr,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                    if (targetOn) Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC else Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                )
             }
-            Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, newMode)
+            SwipeAdjuster.clearAutoSuspension(context)
+            val text = LocaleHelper.wrap(context).getString(
+                if (targetOn) R.string.auto_brightness_on_notice else R.string.swipe_auto_off_notice
+            )
+            Toast.makeText(context.applicationContext, text, Toast.LENGTH_SHORT).show()
         } catch (t: Throwable) {
-            Log.e("Tapbar", "Could not toggle auto brightness", t)
+            Log.e("Tapbar", "Could not change auto brightness", t)
         }
     }
 
-    private fun openCamera(context: Context) {
-        try {
-            val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            if (captureIntent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(captureIntent)
-            } else {
-                val mainCameraIntent = Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_CAMERA").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(mainCameraIntent)
+    private fun openFileManager(context: Context) {
+        val pm = context.packageManager
+        val candidates = ArrayList<Intent>()
+        candidates.add(
+            Intent(Intent.ACTION_VIEW)
+                .setDataAndType(Uri.parse("content://com.android.externalstorage.documents/root/primary"), "vnd.android.document/root")
+        )
+        candidates.add(Intent("android.intent.action.VIEW_DOWNLOADS"))
+        for (pkg in FILE_MANAGER_PACKAGES) {
+            val launch = try {
+                pm.getLaunchIntentForPackage(pkg)
+            } catch (_: Throwable) {
+                null
             }
-        } catch (t: Throwable) {
-            Log.e("Tapbar", "Could not open camera", t)
+            if (launch != null) candidates.add(launch)
         }
+        candidates.add(Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE))
+        openFirstAvailable(context, candidates)
+    }
+
+    private fun openCamera(context: Context) {
+        val candidates = listOf(
+            Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA),
+            Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_CAMERA"),
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        )
+        openFirstAvailable(context, candidates)
+    }
+
+    private fun openVideoCamera(context: Context) {
+        val candidates = listOf(
+            Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA),
+            Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        )
+        openFirstAvailable(context, candidates)
     }
 
     private fun openIntent(context: Context, intent: Intent) {
@@ -965,6 +1126,64 @@ class TapZoneController(
         } catch (t: Throwable) {
             Log.e("Tapbar", "Could not open Bluetooth settings", t)
         }
+    }
+
+    private fun cycleOrientation(context: Context) {
+        try {
+            if (!requireWriteSettings(context)) return
+            val resolver = context.contentResolver
+            val auto = Settings.System.getInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
+            val rotation = Settings.System.getInt(resolver, Settings.System.USER_ROTATION, 0)
+            val next = when {
+                auto -> 1
+                rotation == 0 -> 2
+                else -> 0
+            }
+            when (next) {
+                0 -> Settings.System.putInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 1)
+                1 -> {
+                    Settings.System.putInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 0)
+                    Settings.System.putInt(resolver, Settings.System.USER_ROTATION, 0)
+                }
+                else -> {
+                    Settings.System.putInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 0)
+                    Settings.System.putInt(resolver, Settings.System.USER_ROTATION, 1)
+                }
+            }
+            val localized = LocaleHelper.wrap(context)
+            val name = localized.getString(
+                when (next) {
+                    0 -> R.string.orientation_auto
+                    1 -> R.string.orientation_portrait
+                    else -> R.string.orientation_landscape
+                }
+            )
+            Toast.makeText(context, localized.getString(R.string.orientation_toast, name), Toast.LENGTH_SHORT).show()
+        } catch (t: Throwable) {
+            Log.e("Tapbar", "Could not change orientation", t)
+        }
+    }
+
+    private fun cycleFontSize(context: Context) {
+        try {
+            if (!requireWriteSettings(context)) return
+            val steps = floatArrayOf(0.85f, 1.0f, 1.15f, 1.3f)
+            val current = Settings.System.getFloat(context.contentResolver, Settings.System.FONT_SCALE, 1.0f)
+            val next = steps.firstOrNull { it > current + 0.01f } ?: steps.first()
+            Settings.System.putFloat(context.contentResolver, Settings.System.FONT_SCALE, next)
+            val localized = LocaleHelper.wrap(context)
+            Toast.makeText(context, localized.getString(R.string.font_size_toast, Math.round(next * 100)), Toast.LENGTH_SHORT).show()
+        } catch (t: Throwable) {
+            Log.e("Tapbar", "Could not change font size", t)
+        }
+    }
+
+    private fun requireWriteSettings(context: Context): Boolean {
+        if (Settings.System.canWrite(context)) return true
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:${context.packageName}"))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+        return false
     }
 
     private fun toggleAutoRotate(context: Context) {
@@ -1064,6 +1283,23 @@ class TapZoneController(
 
     companion object {
         private val flashlightStateMap = ConcurrentHashMap<String, Boolean>()
+
+        private const val KEYGUARD_CACHE_MS = 250L
+
+        private val FILE_MANAGER_PACKAGES = listOf(
+            "com.google.android.documentsui",
+            "com.android.documentsui",
+            "com.google.android.apps.nbu.files",
+            "com.sec.android.app.myfiles",
+            "com.mi.android.globalFileexplorer",
+            "com.android.fileexplorer",
+            "com.coloros.filemanager",
+            "com.oplus.filemanager",
+            "com.vivo.filemanager",
+            "com.huawei.filemanager",
+            "com.asus.filemanager",
+            "com.lenovo.FileBrowser2"
+        )
 
         private fun toggleFlashlight(context: Context) {
             try {

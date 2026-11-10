@@ -10,6 +10,13 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
         val prefs = Prefs(context)
+        if (prefs.hardDisableApps.isNotEmpty()) {
+            try {
+                AppWatcherService.syncState(context)
+            } catch (t: Throwable) {
+                Log.e("Tapbar", "Could not start watcher on boot")
+            }
+        }
         if (TapAccessibilityService.isEnabled(context)) return
         if (prefs.autoStart && prefs.serviceEnabled && Settings.canDrawOverlays(context)) {
             try {

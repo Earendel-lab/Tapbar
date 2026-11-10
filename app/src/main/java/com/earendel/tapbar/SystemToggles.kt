@@ -2,6 +2,7 @@ package com.earendel.tapbar
 
 import android.content.Context
 import android.nfc.NfcAdapter
+import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 
@@ -21,7 +22,9 @@ object SystemToggles {
         "nfc" to R.string.action_nfc_toggle_desc,
         "airplane" to R.string.action_airplane_toggle_desc,
         "battery_saver" to R.string.action_battery_saver_toggle_desc,
-        "night_light" to R.string.action_night_light_toggle_desc
+        "night_light" to R.string.action_night_light_toggle_desc,
+        "usb_debugging" to R.string.action_usb_debugging_toggle_desc,
+        "wireless_debugging" to R.string.action_wireless_debugging_toggle_desc
     )
 
     fun available(method: Int): Boolean =
@@ -61,6 +64,12 @@ object SystemToggles {
             "airplane" -> Settings.Global.getInt(resolver, Settings.Global.AIRPLANE_MODE_ON, 0) == 1
             "battery_saver" -> (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isPowerSaveMode
             "night_light" -> Settings.Secure.getInt(resolver, "night_display_activated", 0) == 1
+            "usb_debugging" -> Settings.Global.getInt(resolver, "adb_enabled", 0) == 1
+            "wireless_debugging" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Settings.Global.getInt(resolver, "adb_wifi_enabled", 0) == 1
+            } else {
+                null
+            }
             else -> null
         }
     } catch (t: Throwable) {
@@ -77,6 +86,8 @@ object SystemToggles {
             "bluetooth" -> "cmd bluetooth_manager $word || svc bluetooth $word"
             "airplane" -> "cmd connectivity airplane-mode $word || { settings put global airplane_mode_on $bit && am broadcast -a android.intent.action.AIRPLANE_MODE --ez state $enable; }"
             "battery_saver" -> "settings put global low_power $bit"
+            "usb_debugging" -> "settings put global adb_enabled $bit"
+            "wireless_debugging" -> "settings put global adb_wifi_enabled $bit"
             else -> "settings put secure night_display_activated $bit"
         }
     }

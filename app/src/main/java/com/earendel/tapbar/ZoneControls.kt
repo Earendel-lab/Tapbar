@@ -137,7 +137,7 @@ fun ZoneToggleCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Switch(
+            TapbarSwitch(
                 checked = zoneOn,
                 onCheckedChange = { newState ->
                     haptics.performToggle(view, newState)

@@ -41,7 +41,9 @@ class TapAccessibilityService : AccessibilityService() {
     private val prefs by lazy { Prefs(this) }
     private var controller: TapZoneController? = null
     private var lastPkg: String? = null
-    private var previousPkg: String? = null
+    private val recentApps = ArrayList<String>()
+    private val settingsPackage: String? by lazy { resolveSettingsPackage() }
+    private val recheckForeground = Runnable { evaluateForeground() }
     private val scrolling = AtomicBoolean(false)
     @Volatile private var scrollCancelled = false
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -84,31 +86,66 @@ class TapAccessibilityService : AccessibilityService() {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val eventPkg = event.packageName?.toString()?.trim() ?: return
             if (eventPkg == packageName && event.className?.toString() != "$packageName.MainActivity") return
-            val raw = activeApplicationPackage() ?: return
-            val pkg = raw.lowercase()
-            if (!isTransientSystemPackage(pkg) && isLaunchableApp(raw) && pkg != lastPkg) {
-                val outgoing = lastPkg
-                if (outgoing != null && !isHomePackage(outgoing)) previousPkg = outgoing
-                lastPkg = pkg
-                TapZone.currentForegroundApp = pkg
-                controller?.attach()
-            }
+            evaluateForeground(eventPkg)
+            mainHandler.removeCallbacks(recheckForeground)
+            mainHandler.postDelayed(recheckForeground, FOREGROUND_RECHECK_MS)
+            mainHandler.postDelayed(recheckForeground, FOREGROUND_RECHECK_MS * 3)
         }
     }
 
-    fun switchToPreviousApp() {
-        val target = previousPkg ?: return
-        if (target == lastPkg || isHomePackage(target)) return
-        val intent = try {
-            packageManager.getLaunchIntentForPackage(target)
+    private fun evaluateForeground(hint: String? = null) {
+        val raw = activeApplicationPackage() ?: hint?.takeIf { isSettingsPackage(it) } ?: return
+        val pkg = raw.lowercase()
+        if (!isTransientSystemPackage(pkg) && isLaunchableApp(raw) && pkg != lastPkg) {
+            lastPkg = pkg
+            if (!isHomePackage(raw)) rememberApp(raw)
+            TapZone.currentForegroundApp = pkg
+            TapZone.currentForegroundRaw = raw
+            controller?.attach()
+        }
+    }
+
+    private fun rememberApp(pkg: String) {
+        recentApps.removeAll { it.equals(pkg, ignoreCase = true) }
+        recentApps.add(0, pkg)
+        while (recentApps.size > MAX_RECENT_APPS) recentApps.removeAt(recentApps.size - 1)
+    }
+
+    private fun launchIntentFor(pkg: String): Intent? {
+        val direct = try {
+            packageManager.getLaunchIntentForPackage(pkg)
         } catch (_: Throwable) {
             null
-        } ?: return
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        try {
-            startActivity(intent)
-        } catch (t: Throwable) {
-            Log.e("Tapbar", "Could not switch to previous app", t)
+        }
+        if (direct != null) return direct
+        return if (isSettingsPackage(pkg)) Intent(Settings.ACTION_SETTINGS) else null
+    }
+
+    fun switchToPreviousApp() {
+        evaluateForeground()
+        val current = lastPkg
+        val candidates = recentApps.filter { !it.equals(current, ignoreCase = true) }
+        for (target in candidates) {
+            val intent = launchIntentFor(target)
+            if (intent == null) {
+                recentApps.removeAll { it.equals(target, ignoreCase = true) }
+                continue
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try {
+                startActivity(intent)
+                return
+            } catch (t: Throwable) {
+                Log.e("Tapbar", "Could not switch to previous app", t)
+                if (isSettingsPackage(target)) {
+                    try {
+                        startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        return
+                    } catch (t2: Throwable) {
+                        Log.e("Tapbar", "Could not open settings as previous app", t2)
+                    }
+                }
+            }
         }
     }
 
@@ -460,18 +497,19 @@ class TapAccessibilityService : AccessibilityService() {
     private class ScrollTarget(val node: AccessibilityNodeInfo, val web: Boolean)
 
     private fun activeApplicationPackage(): String? {
-        return try {
-            val list = windows
-            if (list.isNullOrEmpty()) return null
+        val fromWindows = try {
             var found: String? = null
-            for (w in list) {
-                if (w.type == AccessibilityWindowInfo.TYPE_APPLICATION && (w.isActive || w.isFocused)) {
-                    val root = w.root
-                    val p = root?.packageName?.toString()?.trim()
-                    root?.recycle()
-                    if (!p.isNullOrEmpty()) {
-                        found = p
-                        break
+            val list = windows
+            if (!list.isNullOrEmpty()) {
+                for (w in list) {
+                    if (w.type == AccessibilityWindowInfo.TYPE_APPLICATION && (w.isActive || w.isFocused)) {
+                        val root = w.root
+                        val p = root?.packageName?.toString()?.trim()
+                        root?.recycle()
+                        if (!p.isNullOrEmpty()) {
+                            found = p
+                            break
+                        }
                     }
                 }
             }
@@ -479,17 +517,41 @@ class TapAccessibilityService : AccessibilityService() {
         } catch (_: Throwable) {
             null
         }
+        if (fromWindows != null) return fromWindows
+        return try {
+            val root = rootInActiveWindow
+            val p = root?.packageName?.toString()?.trim()
+            root?.recycle()
+            if (p.isNullOrEmpty()) null else p
+        } catch (_: Throwable) {
+            null
+        }
     }
 
     private fun isLaunchableApp(pkg: String): Boolean {
         return try {
-            packageManager.getLaunchIntentForPackage(pkg) != null || isHomePackage(pkg)
+            packageManager.getLaunchIntentForPackage(pkg) != null || isHomePackage(pkg) || isSettingsPackage(pkg)
         } catch (_: Throwable) {
             false
         }
     }
 
+    private fun resolveSettingsPackage(): String? {
+        return try {
+            packageManager.resolveActivity(Intent(Settings.ACTION_SETTINGS), 0)?.activityInfo?.packageName
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun isSettingsPackage(pkg: String): Boolean {
+        val resolved = settingsPackage
+        if (resolved != null && resolved != "android" && pkg.equals(resolved, ignoreCase = true)) return true
+        return pkg.equals(DEFAULT_SETTINGS_PACKAGE, ignoreCase = true)
+    }
+
     private fun isHomePackage(pkg: String): Boolean {
+        if (isSettingsPackage(pkg)) return false
         val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
         return packageManager.queryIntentActivities(home, 0).any {
             it.activityInfo?.packageName.equals(pkg, ignoreCase = true)
@@ -525,16 +587,20 @@ class TapAccessibilityService : AccessibilityService() {
     }
 
     private fun teardown() {
+        mainHandler.removeCallbacks(recheckForeground)
         stopFling()
         removeCaffeine()
         controller?.detach()
         if (TapZone.active === controller) TapZone.active = null
         controller = null
         lastPkg = null
-        previousPkg = null
+        recentApps.clear()
     }
 
     companion object {
+        private const val MAX_RECENT_APPS = 10
+        private const val FOREGROUND_RECHECK_MS = 350L
+        private const val DEFAULT_SETTINGS_PACKAGE = "com.android.settings"
         private const val SCROLL_STEP_MS = 80L
         private const val SCROLL_MAX_MS = 15000L
         private const val SCROLL_STEP_WEB_MS = 350L

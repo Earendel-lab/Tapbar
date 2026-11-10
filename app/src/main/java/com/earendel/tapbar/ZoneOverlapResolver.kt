@@ -108,10 +108,9 @@ object ZoneOverlapResolver {
         val best = if (useTop) topCut else bottomCut
         if (best < ZoneLayout.MIN_TRIM) return false
         if (useTop) {
-            prefs.setPosY(zone, oEnd)
-            prefs.setZoneHeight(zone, topCut)
+            prefs.setGeometry(zone, t.copy(y = oEnd, h = topCut))
         } else {
-            prefs.setZoneHeight(zone, bottomCut)
+            prefs.setGeometry(zone, t.copy(h = bottomCut))
         }
         return true
     }
@@ -125,10 +124,9 @@ object ZoneOverlapResolver {
         val best = if (useLeft) leftCut else rightCut
         if (best < ZoneLayout.MIN_TRIM) return false
         if (useLeft) {
-            prefs.setPosX(zone, oEnd)
-            prefs.setZoneWidth(zone, leftCut)
+            prefs.setGeometry(zone, t.copy(x = oEnd, w = leftCut))
         } else {
-            prefs.setZoneWidth(zone, rightCut)
+            prefs.setGeometry(zone, t.copy(w = rightCut))
         }
         return true
     }
@@ -147,10 +145,10 @@ object ZoneOverlapResolver {
         val screenH = prefs.screenHeightDp()
         val shiftedX = hit.x + hit.w + GAP
         if (shiftedX + g.w <= screenW) {
-            prefs.setPosX(zone, shiftedX)
+            prefs.setGeometry(zone, g.copy(x = shiftedX))
         } else {
             val maxY = (screenH - g.h).coerceAtLeast(0)
-            prefs.setPosY(zone, (hit.y + hit.h + GAP).coerceAtMost(maxY))
+            prefs.setGeometry(zone, g.copy(y = (hit.y + hit.h + GAP).coerceAtMost(maxY)))
         }
     }
 

@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -151,9 +152,26 @@ fun TapbarTheme(
         else -> isSystemInDarkTheme()
     }
 
-    val scheme = remember(dark, immersive) {
-        val base = if (dark) DarkScheme else LightScheme
-        if (immersive) base.asGlass(dark) else base
+    val scheme = remember(dark, uiStyle) {
+        when (uiStyle) {
+            STYLE_ONEUI -> oneUiColorScheme(dark)
+            else -> {
+                val base = if (dark) DarkScheme else LightScheme
+                if (immersive) base.asGlass(dark) else base
+            }
+        }
+    }
+    val typography = remember(uiStyle) {
+        when (uiStyle) {
+            STYLE_ONEUI -> oneUiTypography()
+            else -> GeistTypography
+        }
+    }
+    val shapes = remember(uiStyle) {
+        when (uiStyle) {
+            STYLE_ONEUI -> OneUiShapes
+            else -> Shapes()
+        }
     }
     val palette = remember(immersive, dark) {
         if (immersive) monoPalette(dark) else null
@@ -173,10 +191,12 @@ fun TapbarTheme(
 
     MaterialTheme(
         colorScheme = scheme,
-        typography = GeistTypography
+        typography = typography,
+        shapes = shapes
     ) {
         CompositionLocalProvider(
             LocalIsDark provides dark,
+            LocalUiStyle provides uiStyle,
             LocalImmersive provides palette
         ) {
             if (palette != null) {

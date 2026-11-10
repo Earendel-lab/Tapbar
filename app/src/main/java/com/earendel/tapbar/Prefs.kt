@@ -2,6 +2,7 @@ package com.earendel.tapbar
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.provider.AlarmClock
 import android.provider.MediaStore
 
@@ -109,6 +110,16 @@ class Prefs(context: Context) {
         sp.edit().putString(zk(zone, "swipe_dir_${dir}_action_label"), v).apply()
     }
 
+    fun getSwipeDirTargetPkg(zone: Int, dir: Int): String? = sp.getString(zk(zone, "swipe_dir_${dir}_target_pkg"), null)
+    fun setSwipeDirTargetPkg(zone: Int, dir: Int, v: String?) {
+        sp.edit().putString(zk(zone, "swipe_dir_${dir}_target_pkg"), v).apply()
+    }
+
+    fun getSwipeDirTargetLabel(zone: Int, dir: Int): String? = sp.getString(zk(zone, "swipe_dir_${dir}_target_label"), null)
+    fun setSwipeDirTargetLabel(zone: Int, dir: Int, v: String?) {
+        sp.edit().putString(zk(zone, "swipe_dir_${dir}_target_label"), v).apply()
+    }
+
     fun getSwipeBrightnessHud(zone: Int): Boolean = sp.getBoolean(zk(zone, "swipe_brightness_hud"), false)
     fun setSwipeBrightnessHud(zone: Int, v: Boolean) {
         sp.edit().putBoolean(zk(zone, "swipe_brightness_hud"), v).apply()
@@ -192,17 +203,25 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("disable_on_lockscreen", false)
         set(v) = sp.edit().putBoolean("disable_on_lockscreen", v).apply()
 
+    var disableOnHome: Boolean
+        get() = sp.getBoolean("disable_on_home", false)
+        set(v) = sp.edit().putBoolean("disable_on_home", v).apply()
+
     var splitShade: Boolean
         get() = sp.getBoolean("split_shade", false)
         set(v) = sp.edit().putBoolean("split_shade", v).apply()
+
+    var screenRecordAudio: Boolean
+        get() = sp.getBoolean("screen_record_audio", true)
+        set(v) = sp.edit().putBoolean("screen_record_audio", v).apply()
 
     var themeMode: Int
         get() = sp.getInt("theme_mode", 0)
         set(v) = sp.edit().putInt("theme_mode", v).apply()
 
     var uiStyle: Int
-        get() = sp.getInt("ui_style", STYLE_MINIMAL).coerceIn(STYLE_MINIMAL, STYLE_IMMERSIVE)
-        set(v) = sp.edit().putInt("ui_style", v.coerceIn(STYLE_MINIMAL, STYLE_IMMERSIVE)).apply()
+        get() = sp.getInt("ui_style", STYLE_MINIMAL).coerceIn(STYLE_MINIMAL, STYLE_ONEUI)
+        set(v) = sp.edit().putInt("ui_style", v.coerceIn(STYLE_MINIMAL, STYLE_ONEUI)).apply()
 
     var hapticFeedbackEnabled: Boolean
         get() = sp.getBoolean("haptic_feedback_enabled", true)
@@ -268,6 +287,29 @@ class Prefs(context: Context) {
             sp.edit().putString("blocked_pkgs_str", str).apply()
         }
 
+    var hardDisableApps: Set<String>
+        get() {
+            val raw = sp.getString("hard_disable_pkgs_str", "") ?: ""
+            if (raw.isBlank()) return emptySet()
+            return raw.split(',').map { it.trim().lowercase() }.filter { it.isNotEmpty() }.toSet()
+        }
+        set(v) {
+            val cleanSet = v.map { it.trim().lowercase() }.filter { it.isNotEmpty() }.toSet()
+            sp.edit().putString("hard_disable_pkgs_str", cleanSet.joinToString(",")).apply()
+        }
+
+    var hardDisableSavedServices: String?
+        get() = sp.getString("hard_disable_saved_services", null)
+        set(v) = sp.edit().putString("hard_disable_saved_services", v).apply()
+
+    var hardDisableSavedEnabled: Boolean
+        get() = sp.getBoolean("hard_disable_saved_enabled", true)
+        set(v) = sp.edit().putBoolean("hard_disable_saved_enabled", v).apply()
+
+    var hardDisableActive: Boolean
+        get() = sp.getBoolean("hard_disable_active", false)
+        set(v) = sp.edit().putBoolean("hard_disable_active", v).apply()
+
     var zone2Enabled: Boolean
         get() = sp.getBoolean("zone2_enabled", false)
         set(v) = sp.edit().putBoolean("zone2_enabled", v).apply()
@@ -276,21 +318,35 @@ class Prefs(context: Context) {
 
     private fun landKey(zone: Int, base: String): String = zk(zone, "land_$base")
 
-    private fun portraitGeometry(zone: Int): ZoneGeometry = ZoneGeometry(
-        sp.getInt(geoKey(zone, "pos_x"), defaultPosX(zone)),
-        sp.getInt(geoKey(zone, "pos_y"), defaultPosY(zone)),
-        sp.getInt(geoKey(zone, "zone_w"), 96),
-        sp.getInt(geoKey(zone, "zone_h"), 28)
-    )
+    private fun slotKey(zone: Int, base: String, landscape: Boolean): String =
+        if (landscape) landKey(zone, base) else geoKey(zone, base)
 
-    private fun storedLandscapeGeometry(zone: Int): ZoneGeometry? {
-        if (!sp.contains(landKey(zone, "pos_x"))) return null
-        return ZoneGeometry(
-            sp.getInt(landKey(zone, "pos_x"), 0),
-            sp.getInt(landKey(zone, "pos_y"), 0),
-            sp.getInt(landKey(zone, "zone_w"), 96),
-            sp.getInt(landKey(zone, "zone_h"), 28)
-        )
+    private fun readEnd(key: String): Int? = if (sp.contains(key)) sp.getInt(key, 0) else null
+
+    private fun readSlot(zone: Int, landscape: Boolean, spanW: Int, spanH: Int): StoredZone {
+        val x = sp.getInt(slotKey(zone, "pos_x", landscape), if (landscape) 0 else defaultPosX(zone))
+        val y = sp.getInt(slotKey(zone, "pos_y", landscape), if (landscape) 0 else defaultPosY(zone))
+        val w = sp.getInt(slotKey(zone, "zone_w", landscape), 96)
+        val h = sp.getInt(slotKey(zone, "zone_h", landscape), 28)
+        val endXKey = slotKey(zone, "end_x", landscape)
+        val endYKey = slotKey(zone, "end_y", landscape)
+        var endX = readEnd(endXKey)
+        var endY = readEnd(endYKey)
+        if (endX == null) {
+            val gap = ZoneLayout.edgeGap(x, w, spanW)
+            if (gap != null) {
+                endX = gap
+                sp.edit().putInt(endXKey, gap).apply()
+            }
+        }
+        if (endY == null) {
+            val gap = ZoneLayout.edgeGap(y, h, spanH)
+            if (gap != null) {
+                endY = gap
+                sp.edit().putInt(endYKey, gap).apply()
+            }
+        }
+        return StoredZone(x, y, w, h, endX, endY)
     }
 
     fun screenWidthDp(): Int = ScreenMetrics.sizeDp(appContext).first
@@ -299,48 +355,45 @@ class Prefs(context: Context) {
 
     fun geometry(zone: Int): ZoneGeometry {
         val (sw, sh) = ScreenMetrics.sizeDp(appContext)
-        val shortSide = minOf(sw, sh)
-        val longSide = maxOf(sw, sh)
-        val raw = if (sw > sh) {
-            storedLandscapeGeometry(zone) ?: ZoneLayout.toLandscape(
-                ZoneLayout.clamp(portraitGeometry(zone), shortSide, longSide),
-                shortSide,
-                longSide
-            )
-        } else {
-            portraitGeometry(zone)
+        if (sw > sh) {
+            if (sp.contains(landKey(zone, "pos_x"))) {
+                return ZoneLayout.place(readSlot(zone, true, sw, sh), sw, sh)
+            }
+            val portrait = ZoneLayout.place(readSlot(zone, false, sh, sw), sh, sw)
+            return ZoneLayout.clamp(ZoneLayout.toLandscape(portrait, sh, sw), sw, sh)
         }
-        return ZoneLayout.clamp(raw, sw, sh)
+        return ZoneLayout.place(readSlot(zone, false, sw, sh), sw, sh)
     }
 
-    private fun writeGeometry(zone: Int, base: String, v: Int) {
-        if (ScreenMetrics.isLandscape(appContext)) {
-            if (!sp.contains(landKey(zone, "pos_x"))) {
-                val g = geometry(zone)
-                sp.edit()
-                    .putInt(landKey(zone, "pos_x"), g.x)
-                    .putInt(landKey(zone, "pos_y"), g.y)
-                    .putInt(landKey(zone, "zone_w"), g.w)
-                    .putInt(landKey(zone, "zone_h"), g.h)
-                    .apply()
-            }
-            sp.edit().putInt(landKey(zone, base), v).apply()
-        } else {
-            sp.edit().putInt(geoKey(zone, base), v).apply()
-        }
+    private fun putEnd(editor: SharedPreferences.Editor, key: String, gap: Int?) {
+        if (gap != null) editor.putInt(key, gap) else editor.remove(key)
+    }
+
+    fun setGeometry(zone: Int, g: ZoneGeometry) {
+        val (sw, sh) = ScreenMetrics.sizeDp(appContext)
+        val landscape = sw > sh
+        val c = ZoneLayout.clamp(g, sw, sh)
+        val editor = sp.edit()
+            .putInt(slotKey(zone, "pos_x", landscape), c.x)
+            .putInt(slotKey(zone, "pos_y", landscape), c.y)
+            .putInt(slotKey(zone, "zone_w", landscape), c.w)
+            .putInt(slotKey(zone, "zone_h", landscape), c.h)
+        putEnd(editor, slotKey(zone, "end_x", landscape), ZoneLayout.edgeGap(c.x, c.w, sw))
+        putEnd(editor, slotKey(zone, "end_y", landscape), ZoneLayout.edgeGap(c.y, c.h, sh))
+        editor.apply()
     }
 
     fun getPosX(zone: Int): Int = geometry(zone).x
-    fun setPosX(zone: Int, v: Int) = writeGeometry(zone, "pos_x", v)
+    fun setPosX(zone: Int, v: Int) = setGeometry(zone, geometry(zone).copy(x = v))
 
     fun getPosY(zone: Int): Int = geometry(zone).y
-    fun setPosY(zone: Int, v: Int) = writeGeometry(zone, "pos_y", v)
+    fun setPosY(zone: Int, v: Int) = setGeometry(zone, geometry(zone).copy(y = v))
 
     fun getZoneWidth(zone: Int): Int = geometry(zone).w
-    fun setZoneWidth(zone: Int, v: Int) = writeGeometry(zone, "zone_w", v)
+    fun setZoneWidth(zone: Int, v: Int) = setGeometry(zone, geometry(zone).copy(w = v))
 
     fun getZoneHeight(zone: Int): Int = geometry(zone).h
-    fun setZoneHeight(zone: Int, v: Int) = writeGeometry(zone, "zone_h", v)
+    fun setZoneHeight(zone: Int, v: Int) = setGeometry(zone, geometry(zone).copy(h = v))
 
     var singleTapType: Int
         get() = sp.getInt("single_tap_type", 0)
@@ -433,6 +486,10 @@ class Prefs(context: Context) {
     var doubleTapSpeedMs: Int
         get() = sp.getInt("double_tap_speed_ms", 300)
         set(v) = sp.edit().putInt("double_tap_speed_ms", v).apply()
+
+    var longPressMs: Int
+        get() = sp.getInt("long_press_ms", 400)
+        set(v) = sp.edit().putInt("long_press_ms", v).apply()
 
     var tapSpeedMs: Int
         get() = doubleTapSpeedMs

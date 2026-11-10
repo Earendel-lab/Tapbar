@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.ContextCompat
 
 class TapbarApplication : Application() {
@@ -15,9 +17,15 @@ class TapbarApplication : Application() {
         }
     }
 
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    private val reattach = Runnable { TapZone.active?.attach() }
+
     private val lockReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             TapZone.active?.attach()
+            mainHandler.removeCallbacks(reattach)
+            mainHandler.postDelayed(reattach, 600L)
         }
     }
 

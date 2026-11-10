@@ -1,6 +1,12 @@
 package com.earendel.tapbar
 
 import android.content.Context
+import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyColumn
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -43,6 +49,7 @@ import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.TouchApp
@@ -135,30 +142,36 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
     var tapHapticMode by remember { mutableIntStateOf(prefs.tapHapticMode) }
     val haptics = LocalHapticManager.current
     val view = LocalView.current
+    val settingsScroll = rememberScrollState()
 
     TapbarTheme(
         themeMode = themeMode,
         uiStyle = uiStyle
     ) {
+        val backButton: @Composable () -> Unit = {
+            IconButton(onClick = {
+                haptics.performLightTap(view)
+                onBack()
+            }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = stringResource(R.string.cd_back),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(R.string.settings)) },
+                    title = { CollapsingTitle(stringResource(R.string.settings), settingsScroll) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = androidx.compose.ui.graphics.Color.Transparent,
                         scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
                     ),
                     navigationIcon = {
-                        IconButton(onClick = {
-                            haptics.performLightTap(view)
-                            onBack()
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = stringResource(R.string.cd_back),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                        Box(Modifier.collapsedToolbarFade(settingsScroll)) { backButton() }
                     }
                 )
             }
@@ -167,16 +180,18 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(pad)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .verticalScroll(settingsScroll)
+                    .padding(if (uiStyle == STYLE_ONEUI) 20.dp else 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                ExpandedAppBarTitle(stringResource(R.string.settings), settingsScroll, navigation = backButton)
                 if (uiStyle != STYLE_IMMERSIVE) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.appearance),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -229,8 +244,9 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.style),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -239,7 +255,7 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                             label = stringResource(R.string.style_minimal),
                             selected = uiStyle == STYLE_MINIMAL,
                             index = 0,
-                            count = 2,
+                            count = 3,
                             onClick = {
                                 if (uiStyle != STYLE_MINIMAL) {
                                     haptics.performSelection(view)
@@ -253,12 +269,26 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                             label = stringResource(R.string.style_immersive),
                             selected = uiStyle == STYLE_IMMERSIVE,
                             index = 1,
-                            count = 2,
+                            count = 3,
                             onClick = {
                                 if (uiStyle != STYLE_IMMERSIVE) {
                                     haptics.performSelection(view)
                                     uiStyle = STYLE_IMMERSIVE
                                     prefs.uiStyle = STYLE_IMMERSIVE
+                                }
+                            }
+                        )
+                        ThemeRow(
+                            icon = Icons.Rounded.Smartphone,
+                            label = stringResource(R.string.style_oneui),
+                            selected = uiStyle == STYLE_ONEUI,
+                            index = 2,
+                            count = 3,
+                            onClick = {
+                                if (uiStyle != STYLE_ONEUI) {
+                                    haptics.performSelection(view)
+                                    uiStyle = STYLE_ONEUI
+                                    prefs.uiStyle = STYLE_ONEUI
                                 }
                             }
                         )
@@ -268,8 +298,9 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.language),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
 
                     val context = LocalContext.current
@@ -374,8 +405,9 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.haptic_feedback),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -433,8 +465,9 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.notification_shade_title),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
 
                     SegmentedCard(index = 0, count = 1) {
@@ -456,8 +489,9 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.about),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
 
                     AboutSection()
@@ -510,8 +544,9 @@ fun ShellAccessSection(prefs: Prefs) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             stringResource(R.string.shell_access_title),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = sectionHeaderStyle(),
+            color = sectionHeaderColor(),
+            modifier = Modifier.sectionHeaderInset()
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -578,7 +613,7 @@ fun ShellAccessSection(prefs: Prefs) {
                         painter = painterResource(if (allowed) R.drawable.ic_status_allowed else R.drawable.ic_status_denied),
                         contentDescription = stringResource(if (allowed) R.string.cd_shell_allowed else R.string.cd_shell_not_allowed),
                         modifier = Modifier.size(24.dp),
-                        tint = if (allowed) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(Modifier.width(16.dp))
                     Column(
@@ -669,8 +704,9 @@ fun BackupRestoreSection(prefs: Prefs) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             stringResource(R.string.backup_restore_title),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = sectionHeaderStyle(),
+            color = sectionHeaderColor(),
+            modifier = Modifier.sectionHeaderInset()
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -714,7 +750,7 @@ fun BackupRestoreSection(prefs: Prefs) {
     pending?.let { backup ->
         Dialog(onDismissRequest = { pending = null }) {
             androidx.compose.material3.Surface(
-                shape = RoundedCornerShape(28.dp),
+                shape = MaterialTheme.shapes.extraLarge,
                 color = if (LocalImmersive.current != null) {
                     androidx.compose.ui.graphics.Color.Transparent
                 } else {
@@ -919,7 +955,7 @@ fun HapticToggleRow(
             modifier = Modifier.weight(1f)
         )
         Spacer(Modifier.width(12.dp))
-        Switch(
+        TapbarSwitch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
@@ -967,7 +1003,7 @@ fun SplitShadeToggleRow(
             )
         }
         Spacer(Modifier.width(12.dp))
-        Switch(
+        TapbarSwitch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
@@ -1019,7 +1055,7 @@ fun ThemeRow(
                     painter = painterResource(R.drawable.ic_check_bold),
                     contentDescription = stringResource(R.string.cd_selected),
                     modifier = Modifier.size(22.dp),
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = selectedIconTint()
                 )
             }
         }

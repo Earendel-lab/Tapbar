@@ -6,7 +6,9 @@ import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -15,12 +17,64 @@ import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 
 private fun formatHudValue(value: Int): String = value.toString()
+
+private class SunRaysView(
+    context: Context,
+    private val circleRadiusPx: Float,
+    private val rayColor: Int
+) : View(context) {
+    private val density = context.resources.displayMetrics.density
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+    }
+    private val gapPx = 4f * density
+    private val minLenPx = 3f * density
+    private val maxLenPx = 11f * density
+    private val minStrokePx = 1.6f * density
+    private val maxStrokePx = 2.6f * density
+    private var level = 0f
+    private var angle = 0f
+
+    fun setLevel(value: Float) {
+        level = value.coerceIn(0f, 1f)
+        invalidate()
+    }
+
+    fun rotateBy(degrees: Float) {
+        angle = (angle + degrees) % 360f
+        invalidate()
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        val cx = width / 2f
+        val cy = height / 2f
+        val innerRadius = circleRadiusPx + gapPx
+        val longLen = minLenPx + (maxLenPx - minLenPx) * level
+        val shortLen = minLenPx + (longLen - minLenPx) * (0.35f + 0.4f * level)
+        paint.strokeWidth = minStrokePx + (maxStrokePx - minStrokePx) * level
+        val alpha = (255 * (0.5f + 0.4f * level)).toInt()
+        paint.color = Color.argb(alpha, Color.red(rayColor), Color.green(rayColor), Color.blue(rayColor))
+        for (i in 0 until RAY_COUNT) {
+            val len = if (i % 2 == 0) longLen else shortLen
+            canvas.save()
+            canvas.rotate(angle + i * (360f / RAY_COUNT), cx, cy)
+            canvas.drawLine(cx, cy - innerRadius, cx, cy - innerRadius - len, paint)
+            canvas.restore()
+        }
+    }
+
+    private companion object {
+        const val RAY_COUNT = 12
+    }
+}
 
 class SwipeHud(
     private val context: Context,
@@ -34,8 +88,11 @@ class SwipeHud(
     private val bottomPx = (52 * density).toInt()
     private val blurPx = (16 * density).toInt()
 
+    private val raysSizePx = (76 * density).toInt()
+
     private var dialog: Dialog? = null
     private var plain: TextView? = null
+    private var rays: SunRaysView? = null
     private var label: TextView? = null
     private var blurOn = false
     private var attached = false
@@ -47,7 +104,7 @@ class SwipeHud(
         animateTo(0f, 220L) { dismissNow() }
     }
 
-    fun show(value: Int) {
+    fun show(value: Int, brightness: Boolean = false) {
         main.removeCallbacks(hideRunnable)
         if (!attached) attach()
         label?.let { text ->
@@ -55,8 +112,18 @@ class SwipeHud(
             text.text = formatted
             text.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (formatted.length > 2) 10f else 13f)
         }
+        if (brightness) {
+            if (rays == null) attachRays()
+            rays?.setLevel(value / 100f)
+        } else if (rays != null) {
+            detachRays()
+        }
         if (animTarget != 1f) animateTo(1f, 120L)
         main.postDelayed(hideRunnable, 4000L)
+    }
+
+    fun rotateRays(degrees: Float) {
+        rays?.rotateBy(degrees)
     }
 
     fun hideSoon() {
@@ -80,9 +147,44 @@ class SwipeHud(
         }
         plain = null
         label = null
+        detachRays()
         attached = false
         progress = 0f
         animTarget = 0f
+    }
+
+    private fun attachRays() {
+        try {
+            val view = SunRaysView(context, sizePx / 2f, if (isDark()) Color.rgb(28, 28, 30) else Color.rgb(17, 17, 17))
+            view.alpha = progress
+            val lp = WindowManager.LayoutParams(
+                raysSizePx,
+                raysSizePx,
+                windowType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                        WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                y = (bottomPx - (raysSizePx - sizePx) / 2).coerceAtLeast(0)
+            }
+            wm.addView(view, lp)
+            rays = view
+        } catch (_: Throwable) {
+            rays = null
+        }
+    }
+
+    private fun detachRays() {
+        val view = rays ?: return
+        rays = null
+        try {
+            wm.removeView(view)
+        } catch (_: Throwable) {
+        }
     }
 
     private fun attach() {
@@ -231,6 +333,7 @@ class SwipeHud(
     }
 
     private fun applyProgress(t: Float) {
+        rays?.alpha = t
         val d = dialog
         if (d != null) {
             val w = d.window ?: return

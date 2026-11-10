@@ -77,6 +77,18 @@ fun SegmentedCard(
         return
     }
 
+    val style = LocalUiStyle.current
+    if (style == STYLE_ONEUI) {
+        OneUiGroupCard(
+            index = index,
+            count = count,
+            modifier = modifier,
+            onClick = onClick,
+            content = content
+        )
+        return
+    }
+
     val shape = segmentedShape(index, count)
     val colors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow

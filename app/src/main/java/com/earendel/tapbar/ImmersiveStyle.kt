@@ -12,8 +12,11 @@ import androidx.compose.ui.graphics.Color
 
 const val STYLE_MINIMAL = 0
 const val STYLE_IMMERSIVE = 1
+const val STYLE_ONEUI = 2
 
 val LocalIsDark = compositionLocalOf { true }
+
+val LocalUiStyle = compositionLocalOf { STYLE_MINIMAL }
 
 val LocalImmersive = compositionLocalOf<BlobPalette?> { null }
 
@@ -62,10 +65,12 @@ fun monoPalette(dark: Boolean): BlobPalette =
 
 @Composable
 fun overlayContainerColor(): Color =
-    if (LocalImmersive.current != null) {
-        if (LocalIsDark.current) Color(0xFF1A1A1A) else Color(0xFFF7F7F7)
-    } else {
-        MaterialTheme.colorScheme.surfaceContainer
+    when {
+        LocalImmersive.current != null ->
+            if (LocalIsDark.current) Color(0xFF1A1A1A) else Color(0xFFF7F7F7)
+        LocalUiStyle.current == STYLE_ONEUI ->
+            if (LocalIsDark.current) OneUiColors.DialogDark else OneUiColors.DialogLight
+        else -> MaterialTheme.colorScheme.surfaceContainer
     }
 
 @Stable

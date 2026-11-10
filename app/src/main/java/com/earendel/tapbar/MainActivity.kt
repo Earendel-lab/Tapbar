@@ -11,6 +11,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.AlarmClock
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
 import android.util.LruCache
@@ -98,6 +101,7 @@ import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Router
 import androidx.compose.material.icons.rounded.SimCard
+import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Payment
 import androidx.compose.material.icons.rounded.Tv
@@ -145,6 +149,7 @@ import androidx.compose.material.icons.rounded.PowerSettingsNew
 import androidx.compose.material.icons.rounded.PrivacyTip
 import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material.icons.rounded.ScreenLockRotation
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SettingsAccessibility
@@ -174,6 +179,20 @@ import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.VerticalAlignTop
 import androidx.compose.material.icons.rounded.VerticalSplit
+import androidx.compose.material.icons.rounded.TextFields
+import androidx.compose.material.icons.rounded.Videocam
+import androidx.compose.material.icons.rounded.Animation
+import androidx.compose.material.icons.rounded.BrightnessLow
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Contrast
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.InvertColors
+import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.NearMe
+import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.SettingsBackupRestore
+import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VolumeDown
 import androidx.compose.material.icons.rounded.VolumeOff
 import androidx.compose.material.icons.rounded.VolumeUp
@@ -244,7 +263,41 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
-private var cachedApps: List<AppEntry>? = null
+private fun swipeSummaryLines(context: Context, types: List<Int>, labels: List<String?>): List<String> {
+    val order = listOf(SWIPE_DIR_UP, SWIPE_DIR_DOWN, SWIPE_DIR_LEFT, SWIPE_DIR_RIGHT)
+    val lines = ArrayList<String>()
+    for (dir in order) {
+        val summary = when (types.getOrNull(dir)) {
+            SWIPE_TYPE_VOLUME -> context.getString(R.string.volume)
+            SWIPE_TYPE_BRIGHTNESS -> context.getString(R.string.brightness)
+            SWIPE_TYPE_ACTION -> labels.getOrNull(dir)?.takeIf { it.isNotEmpty() } ?: context.getString(R.string.perform_action)
+            SWIPE_TYPE_APP -> labels.getOrNull(dir)?.takeIf { it.isNotEmpty() } ?: context.getString(R.string.swipe_open_app)
+            else -> null
+        } ?: continue
+        val title = when (dir) {
+            SWIPE_DIR_LEFT -> context.getString(R.string.action_swipe_left)
+            SWIPE_DIR_RIGHT -> context.getString(R.string.action_swipe_right)
+            SWIPE_DIR_UP -> context.getString(R.string.swipe_dir_up)
+            else -> context.getString(R.string.swipe_dir_down)
+        }
+        lines.add(context.getString(R.string.swipe_summary_line, title, summary))
+    }
+    return lines
+}
+
+private fun swipeDirDisplayLabel(context: Context, prefs: Prefs, zone: Int, dir: Int): String? =
+    if (prefs.getSwipeDirType(zone, dir) == SWIPE_TYPE_APP) {
+        prefs.getSwipeDirTargetLabel(zone, dir) ?: prefs.getSwipeDirTargetPkg(zone, dir)
+    } else {
+        SystemToggles.displayLabel(
+            context,
+            prefs.getSwipeDirActionId(zone, dir),
+            prefs.getSwipeDirActionLabel(zone, dir),
+            prefs.shellMethod
+        )
+    }
+
+var cachedApps: List<AppEntry>? = null
 private val iconCache = LruCache<String, ImageBitmap>(250)
 
 fun invalidateAppCache(packageName: String? = null) {
@@ -253,7 +306,7 @@ fun invalidateAppCache(packageName: String? = null) {
     AppShortcuts.invalidate()
 }
 
-private suspend fun validCachedApps(context: Context): List<AppEntry>? = withContext(Dispatchers.IO) {
+suspend fun validCachedApps(context: Context): List<AppEntry>? = withContext(Dispatchers.IO) {
     val cached = cachedApps ?: return@withContext null
     val pm = context.packageManager
     val valid = cached.filter { pm.getLaunchIntentForPackage(it.packageName) != null }
@@ -276,7 +329,7 @@ object DeviceCapability {
 data class ActionEntry(
     val id: String,
     @StringRes val titleRes: Int,
-    @StringRes val descRes: Int,
+    @StringRes val descRes: Int = 0,
     val icon: ImageVector
 )
 
@@ -286,6 +339,7 @@ val quickSettingActions = listOf(
     ActionEntry("data", R.string.action_data, R.string.action_data_desc, Icons.Rounded.SignalCellularAlt),
     ActionEntry("flashlight", R.string.action_flashlight, R.string.action_flashlight_desc, Icons.Rounded.FlashOn),
     ActionEntry("auto_rotate", R.string.action_auto_rotate, R.string.action_auto_rotate_desc, Icons.Rounded.ScreenRotation),
+    ActionEntry("force_orientation", R.string.action_force_orientation, R.string.action_force_orientation_desc, Icons.Rounded.ScreenLockRotation),
     ActionEntry("dnd", R.string.action_dnd, R.string.action_dnd_desc, Icons.Rounded.DoNotDisturb),
     ActionEntry("volume", R.string.action_volume, R.string.action_volume_desc, Icons.Rounded.VolumeUp),
     ActionEntry("hotspot", R.string.action_hotspot, R.string.action_hotspot_desc, Icons.Rounded.WifiTethering),
@@ -309,14 +363,17 @@ val mediaActions = listOf(
 
 val displayActions = listOf(
     ActionEntry("auto_brightness", R.string.action_auto_brightness, R.string.action_auto_brightness_desc, Icons.Rounded.BrightnessAuto),
+    ActionEntry("auto_brightness_on", R.string.action_auto_brightness_on, R.string.action_auto_brightness_on_desc, Icons.Rounded.BrightnessAuto),
     ActionEntry("brightness_up", R.string.action_brightness_up, R.string.action_brightness_up_desc, Icons.Rounded.Brightness7),
     ActionEntry("brightness_down", R.string.action_brightness_down, R.string.action_brightness_down_desc, Icons.Rounded.Brightness4),
+    ActionEntry("font_size", R.string.action_font_size, R.string.action_font_size_desc, Icons.Rounded.TextFields),
     ActionEntry("wallpaper", R.string.action_wallpaper, R.string.action_wallpaper_desc, Icons.Rounded.Wallpaper)
 )
 
 val navigationActions = listOf(
     ActionEntry("lock_screen", R.string.action_lock_screen, R.string.action_lock_screen_desc, Icons.Rounded.Lock),
     ActionEntry("screenshot", R.string.action_screenshot, R.string.action_screenshot_desc, Icons.Rounded.Camera),
+    ActionEntry("screen_record", R.string.action_screen_record, R.string.action_screen_record_desc, Icons.Rounded.Videocam),
     ActionEntry("power_menu", R.string.action_power_menu, R.string.action_power_menu_desc, Icons.Rounded.PowerSettingsNew),
     ActionEntry("back", R.string.action_back, R.string.action_back_desc, Icons.AutoMirrored.Rounded.ArrowBack),
     ActionEntry("home", R.string.action_home, R.string.action_home_desc, Icons.Rounded.Home),
@@ -344,12 +401,14 @@ val navigationActions = listOf(
     ActionEntry("open_dialer", R.string.action_open_dialer, R.string.action_open_dialer_desc, Icons.Rounded.Dialpad),
     ActionEntry("current_app_info", R.string.action_current_app_info, R.string.action_current_app_info_desc, Icons.Rounded.Info),
     ActionEntry("open_browser", R.string.action_open_browser, R.string.action_open_browser_desc, Icons.Rounded.Public),
+    ActionEntry("open_files", R.string.action_open_files, R.string.action_open_files_desc, Icons.Rounded.Folder),
     ActionEntry("all_apps", R.string.action_all_apps, R.string.action_all_apps_desc, Icons.Rounded.Apps),
     ActionEntry("accessibility_button", R.string.action_accessibility_button, R.string.action_accessibility_button_desc, Icons.Rounded.Accessibility),
     ActionEntry("accessibility_shortcut", R.string.action_accessibility_shortcut, R.string.action_accessibility_shortcut_desc, Icons.Rounded.AccessibilityNew),
     ActionEntry("headset_hook", R.string.action_headset_hook, R.string.action_headset_hook_desc, Icons.Rounded.Headset),
     ActionEntry("assistant", R.string.action_assistant, R.string.action_assistant_desc, Icons.Rounded.Mic),
-    ActionEntry("camera", R.string.action_camera, R.string.action_camera_desc, Icons.Rounded.PhotoCamera)
+    ActionEntry("camera", R.string.action_camera, R.string.action_camera_desc, Icons.Rounded.PhotoCamera),
+    ActionEntry("camera_video", R.string.action_camera_video, R.string.action_camera_video_desc, Icons.Rounded.Videocam)
 )
 
 val settingsActions = listOf(
@@ -402,7 +461,25 @@ val automationActions = listOf(
     ActionEntry("custom_command", R.string.action_custom_command, R.string.action_custom_command_desc, Icons.Rounded.Terminal)
 )
 
-val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + automationActions + settingsActions + advancedSettingsActions
+val shellActions = listOf(
+    ActionEntry("force_stop_app", R.string.action_force_stop_app, icon = Icons.Rounded.Close),
+    ActionEntry("restart_systemui", R.string.action_restart_systemui, icon = Icons.Rounded.Refresh),
+    ActionEntry("reboot", R.string.action_reboot, icon = Icons.Rounded.RestartAlt),
+    ActionEntry("reboot_recovery", R.string.action_reboot_recovery, icon = Icons.Rounded.SettingsBackupRestore),
+    ActionEntry("reboot_bootloader", R.string.action_reboot_bootloader, icon = Icons.Rounded.Memory),
+    ActionEntry("dark_mode", R.string.action_dark_mode, icon = Icons.Rounded.DarkMode),
+    ActionEntry("grayscale", R.string.action_grayscale, icon = Icons.Rounded.Contrast),
+    ActionEntry("invert_colors", R.string.action_invert_colors, icon = Icons.Rounded.InvertColors),
+    ActionEntry("extra_dim", R.string.action_extra_dim, icon = Icons.Rounded.BrightnessLow),
+    ActionEntry("show_taps", R.string.action_show_taps, icon = Icons.Rounded.TouchApp),
+    ActionEntry("pointer_location", R.string.action_pointer_location, icon = Icons.Rounded.NearMe),
+    ActionEntry("animations_off", R.string.action_animations_off, icon = Icons.Rounded.Animation),
+    ActionEntry("stay_awake", R.string.action_stay_awake, icon = Icons.Rounded.Visibility),
+    ActionEntry("location_toggle", R.string.action_location_toggle, icon = Icons.Rounded.LocationOn),
+    ActionEntry("private_dns", R.string.action_private_dns, icon = Icons.Rounded.Dns)
+)
+
+val systemActions = quickSettingActions + mediaActions + displayActions + navigationActions + automationActions + settingsActions + advancedSettingsActions + shellActions
 
 class MainActivity : ComponentActivity() {
 
@@ -507,7 +584,7 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialO
         AnimatedContent(
             targetState = screen,
             transitionSpec = {
-                if (targetState == "picker" || targetState == "filter_picker" || targetState == "action_picker" || targetState == "shortcut_picker") {
+                if (targetState == "picker" || targetState == "filter_picker" || targetState == "hide_picker" || targetState == "hide_setup" || targetState == "action_picker" || targetState == "shortcut_picker") {
                     (slideInVertically(
                         initialOffsetY = { (it * 0.08f).toInt() },
                         animationSpec = tween(220, easing = FastOutSlowInEasing)
@@ -530,6 +607,8 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialO
             when (currentScreen) {
                 "picker" -> AppPickerScreen(prefs, gestureMode = activeGestureMode, zone = activeZone) { screen = "home" }
                 "filter_picker" -> FilterPickerScreen(prefs) { screen = "home" }
+                "hide_picker" -> HideFromAppsPickerScreen(prefs) { screen = "home" }
+                "hide_setup" -> HideFromAppsSetupScreen(prefs) { screen = "home" }
                 "action_picker" -> ActionPickerScreen(prefs, gestureMode = activeGestureMode, zone = activeZone) { screen = "home" }
                 "shortcut_picker" -> ShortcutPickerScreen(prefs, gestureMode = activeGestureMode, zone = activeZone) { screen = "home" }
                 else -> HomeScreen(
@@ -552,7 +631,9 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialO
                         activeGestureMode = mode
                         screen = "shortcut_picker"
                     },
-                    onOpenFilterPicker = { screen = "filter_picker" }
+                    onOpenFilterPicker = { screen = "filter_picker" },
+                    onOpenHidePicker = { screen = "hide_picker" },
+                    onOpenHideSetup = { screen = "hide_setup" }
                 )
             }
         }
@@ -569,7 +650,9 @@ fun HomeScreen(
     onOpenPicker: (gestureMode: Int) -> Unit,
     onOpenActionPicker: (gestureMode: Int) -> Unit,
     onOpenShortcutPicker: (gestureMode: Int) -> Unit,
-    onOpenFilterPicker: () -> Unit
+    onOpenFilterPicker: () -> Unit,
+    onOpenHidePicker: () -> Unit,
+    onOpenHideSetup: () -> Unit
 ) {
     val haptics = LocalHapticManager.current
     val view = LocalView.current
@@ -586,6 +669,8 @@ fun HomeScreen(
     var enabled by remember { mutableStateOf(prefs.serviceEnabled) }
     var disableInLandscape by remember { mutableStateOf(prefs.disableInLandscape) }
     var disableOnLockscreen by remember { mutableStateOf(prefs.disableOnLockscreen) }
+    var disableOnHome by remember { mutableStateOf(prefs.disableOnHome) }
+    var disableMenuExpanded by remember { mutableStateOf(false) }
     var autoStart by remember { mutableStateOf(prefs.autoStart) }
 
     var singleTapEnabled by remember { mutableStateOf(prefs.getSingleTapEnabled(selectedZone)) }
@@ -650,10 +735,11 @@ fun HomeScreen(
     var swipeAutoNotice by remember { mutableStateOf(prefs.getSwipeAutoNotice(selectedZone)) }
     var swipeMode by remember { mutableIntStateOf(prefs.getSwipeMode(selectedZone)) }
     var swipeDirTypes by remember { mutableStateOf(List(4) { prefs.getSwipeDirType(selectedZone, it) }) }
-    var swipeDirLabels by remember { mutableStateOf(List(4) { SystemToggles.displayLabel(context, prefs.getSwipeDirActionId(selectedZone, it), prefs.getSwipeDirActionLabel(selectedZone, it), prefs.shellMethod) }) }
+    var swipeDirLabels by remember { mutableStateOf(List(4) { swipeDirDisplayLabel(context, prefs, selectedZone, it) }) }
     var swipeEditDir by remember { mutableStateOf<Int?>(null) }
 
     var tapSpeedMs by remember { mutableIntStateOf(prefs.tapSpeedMs) }
+    var longPressMs by remember { mutableIntStateOf(prefs.longPressMs) }
     var blockedCount by remember { mutableIntStateOf(prefs.blockedPackages.size) }
 
     var x by remember { mutableIntStateOf(prefs.getPosX(selectedZone)) }
@@ -720,7 +806,7 @@ fun HomeScreen(
         swipeAutoNotice = prefs.getSwipeAutoNotice(selectedZone)
         swipeMode = prefs.getSwipeMode(selectedZone)
         swipeDirTypes = List(4) { prefs.getSwipeDirType(selectedZone, it) }
-        swipeDirLabels = List(4) { SystemToggles.displayLabel(context, prefs.getSwipeDirActionId(selectedZone, it), prefs.getSwipeDirActionLabel(selectedZone, it), prefs.shellMethod) }
+        swipeDirLabels = List(4) { swipeDirDisplayLabel(context, prefs, selectedZone, it) }
     }
 
     LaunchedEffect(showGestureSheetFor, selectedZone) {
@@ -758,6 +844,17 @@ fun HomeScreen(
         onDispose { stopObserving() }
     }
 
+    DisposableEffect(Unit) {
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                a11yOn = TapAccessibilityService.isEnabled(context)
+            }
+        }
+        val uri = Settings.Secure.getUriFor(Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        context.contentResolver.registerContentObserver(uri, false, observer)
+        onDispose { context.contentResolver.unregisterContentObserver(observer) }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -766,6 +863,7 @@ fun HomeScreen(
                 enabled = prefs.serviceEnabled
                 zoneEnabledStates = List(ZONE_COUNT) { prefs.isZoneEnabled(it) }
                 tapSpeedMs = prefs.tapSpeedMs
+                longPressMs = prefs.longPressMs
                 blockedCount = prefs.blockedPackages.size
                 refreshZoneState()
             }
@@ -870,36 +968,38 @@ fun HomeScreen(
     }
 
     fun saveGeometry() {
-        prefs.setPosX(selectedZone, x)
-        prefs.setPosY(selectedZone, y)
-        prefs.setZoneWidth(selectedZone, w)
-        prefs.setZoneHeight(selectedZone, h)
+        prefs.setGeometry(selectedZone, ZoneGeometry(x, y, w, h))
     }
 
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val isZoneControlsEnabled = zoneEnabledStates.getOrElse(selectedZone) { true }
+    val homeScroll = rememberScrollState()
+
+    val menuButton: @Composable () -> Unit = {
+        IconButton(onClick = {
+            haptics.performLightTap(view)
+            context.startActivity(Intent(context, SettingsActivity::class.java))
+        }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = stringResource(R.string.settings),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
+                title = { CollapsingTitle(stringResource(R.string.app_name), homeScroll, inset = 12.dp) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     scrolledContainerColor = Color.Transparent
                 ),
                 actions = {
-                    IconButton(onClick = {
-                        haptics.performLightTap(view)
-                        context.startActivity(Intent(context, SettingsActivity::class.java))
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = stringResource(R.string.settings),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    Box(Modifier.collapsedToolbarFade(homeScroll)) { menuButton() }
                 }
             )
         }
@@ -908,21 +1008,23 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = pad.calculateTopPadding())
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(homeScroll)
                 .padding(
                     bottom = navBarPadding + 16.dp,
-                    start = 16.dp,
-                    end = 16.dp
+                    start = if (isOneUiStyle()) 20.dp else 16.dp,
+                    end = if (isOneUiStyle()) 20.dp else 16.dp
                 ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            ExpandedAppBarTitle(stringResource(R.string.app_name), homeScroll, actions = menuButton)
 
             if (!a11yOn) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.accessibility_service_title),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
                     SegmentedCard(index = 0, count = 1) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -937,10 +1039,7 @@ fun HomeScreen(
                                     haptics.performConfirm(view)
                                     TapAccessibilityService.openSettings(context)
                                 },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.onSurface,
-                                    contentColor = MaterialTheme.colorScheme.surface
-                                )
+                                colors = tapbarPrimaryButtonColors()
                             ) {
                                 Text(stringResource(R.string.turn_on_accessibility))
                             }
@@ -953,8 +1052,9 @@ fun HomeScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.permission_needed),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
                     SegmentedCard(index = 0, count = 1) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -974,10 +1074,7 @@ fun HomeScreen(
                                         )
                                     )
                                 },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.onSurface,
-                                    contentColor = MaterialTheme.colorScheme.surface
-                                )
+                                colors = tapbarPrimaryButtonColors()
                             ) {
                                 Text(stringResource(R.string.grant_permission))
                             }
@@ -989,11 +1086,26 @@ fun HomeScreen(
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
                     stringResource(R.string.service_behavior),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = sectionHeaderStyle(),
+                    color = sectionHeaderColor(),
+                    modifier = Modifier.sectionHeaderInset()
                 )
+                val disableArrowRotation by animateFloatAsState(
+                    targetValue = if (disableMenuExpanded) 180f else 0f,
+                    animationSpec = tween(220, easing = FastOutSlowInEasing),
+                    label = "DisableArrowRotation"
+                )
+                val disableLandscapeLabel = stringResource(R.string.disable_option_landscape)
+                val disableLockscreenLabel = stringResource(R.string.disable_option_lockscreen)
+                val disableHomeLabel = stringResource(R.string.disable_option_home)
+                val disableSummary = listOfNotNull(
+                    disableLandscapeLabel.takeIf { disableInLandscape },
+                    disableLockscreenLabel.takeIf { disableOnLockscreen },
+                    disableHomeLabel.takeIf { disableOnHome }
+                ).joinToString(", ").ifEmpty { stringResource(R.string.disable_summary_none) }
+                val disableGroupCount = if (disableMenuExpanded) 6 else 3
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    SegmentedCard(index = 0, count = 4) {
+                    SegmentedCard(index = 0, count = disableGroupCount) {
                         SwitchRow(
                             label = stringResource(R.string.enable_tap_zone),
                             checked = enabled,
@@ -1010,29 +1122,7 @@ fun HomeScreen(
                             }
                         )
                     }
-                    SegmentedCard(index = 1, count = 4) {
-                        SwitchRow(
-                            label = stringResource(R.string.disable_in_landscape),
-                            checked = disableInLandscape,
-                            onChange = {
-                                disableInLandscape = it
-                                prefs.disableInLandscape = it
-                                TapZone.active?.attach()
-                            }
-                        )
-                    }
-                    SegmentedCard(index = 2, count = 4) {
-                        SwitchRow(
-                            label = stringResource(R.string.disable_on_lockscreen),
-                            checked = disableOnLockscreen,
-                            onChange = {
-                                disableOnLockscreen = it
-                                prefs.disableOnLockscreen = it
-                                TapZone.active?.attach()
-                            }
-                        )
-                    }
-                    SegmentedCard(index = 3, count = 4) {
+                    SegmentedCard(index = 1, count = disableGroupCount) {
                         SwitchRow(
                             label = stringResource(R.string.start_on_boot),
                             checked = autoStart,
@@ -1042,14 +1132,102 @@ fun HomeScreen(
                             }
                         )
                     }
+                    SegmentedCard(
+                        index = 2,
+                        count = disableGroupCount,
+                        onClick = {
+                            haptics.performExpandCollapse(view)
+                            disableMenuExpanded = !disableMenuExpanded
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 72.dp)
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.disable_menu_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Text(
+                                text = disableSummary,
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.End,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Icon(
+                                imageVector = Icons.Rounded.KeyboardArrowDown,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .graphicsLayer { rotationZ = disableArrowRotation },
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    AnimatedVisibility(visible = disableMenuExpanded) {
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            SegmentedCard(index = 3, count = disableGroupCount) {
+                                SwitchRow(
+                                    label = disableLandscapeLabel,
+                                    checked = disableInLandscape,
+                                    onChange = {
+                                        disableInLandscape = it
+                                        prefs.disableInLandscape = it
+                                        TapZone.active?.attach()
+                                    }
+                                )
+                            }
+                            SegmentedCard(index = 4, count = disableGroupCount) {
+                                SwitchRow(
+                                    label = disableLockscreenLabel,
+                                    checked = disableOnLockscreen,
+                                    onChange = {
+                                        disableOnLockscreen = it
+                                        prefs.disableOnLockscreen = it
+                                        if (it && disableOnHome) {
+                                            disableOnHome = false
+                                            prefs.disableOnHome = false
+                                        }
+                                        TapZone.active?.attach()
+                                    }
+                                )
+                            }
+                            SegmentedCard(index = 5, count = disableGroupCount) {
+                                SwitchRow(
+                                    label = disableHomeLabel,
+                                    checked = disableOnHome,
+                                    onChange = {
+                                        disableOnHome = it
+                                        prefs.disableOnHome = it
+                                        if (it && disableOnLockscreen) {
+                                            disableOnLockscreen = false
+                                            prefs.disableOnLockscreen = false
+                                        }
+                                        TapZone.active?.attach()
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
                     stringResource(R.string.tap_zones),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = sectionHeaderStyle(),
+                    color = sectionHeaderColor(),
+                    modifier = Modifier.sectionHeaderInset()
                 )
 
                 Column(
@@ -1103,8 +1281,9 @@ fun HomeScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.gesture_actions),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
 
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1188,6 +1367,7 @@ fun HomeScreen(
                             enabled = swipeEnabled,
                             target = swipeTarget,
                             advanced = swipeMode == SWIPE_MODE_ADVANCED,
+                            dirLines = swipeSummaryLines(context, swipeDirTypes, swipeDirLabels),
                             isEnabledControls = isZoneControlsEnabled,
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
@@ -1199,23 +1379,55 @@ fun HomeScreen(
                         )
                     }
 
-                    if (doubleTapEnabled || tripleTapEnabled) {
-                        Spacer(Modifier.height(4.dp))
-                        SegmentedCard(index = 0, count = 1) {
-                            DpSlider(
-                                label = stringResource(R.string.tap_speed),
-                                value = tapSpeedMs,
-                                min = 150f,
-                                max = 500f,
-                                stepInterval = 25f,
-                                enabled = isZoneControlsEnabled,
-                                onChange = {
-                                    if (isZoneControlsEnabled) {
-                                        tapSpeedMs = it
-                                        prefs.tapSpeedMs = it
-                                    }
+                    val showTapSpeed = doubleTapEnabled || tripleTapEnabled
+                    val timingCount = (if (showTapSpeed) 1 else 0) + (if (longPressEnabled) 1 else 0)
+                    if (timingCount > 0) {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            stringResource(R.string.speed_and_timing),
+                            style = sectionHeaderStyle(),
+                            color = sectionHeaderColor(),
+                            modifier = Modifier.sectionHeaderInset()
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            if (showTapSpeed) {
+                                SegmentedCard(index = 0, count = timingCount) {
+                                    DpSlider(
+                                        label = stringResource(R.string.tap_speed),
+                                        value = tapSpeedMs,
+                                        min = 150f,
+                                        max = 500f,
+                                        stepInterval = 25f,
+                                        enabled = isZoneControlsEnabled,
+                                        onChange = {
+                                            if (isZoneControlsEnabled) {
+                                                tapSpeedMs = it
+                                                prefs.tapSpeedMs = it
+                                            }
+                                        }
+                                    )
                                 }
-                            )
+                            }
+                            if (longPressEnabled) {
+                                SegmentedCard(index = timingCount - 1, count = timingCount) {
+                                    DpSlider(
+                                        label = stringResource(R.string.long_press_duration),
+                                        value = longPressMs,
+                                        min = 200f,
+                                        max = 1000f,
+                                        stepInterval = 50f,
+                                        enabled = isZoneControlsEnabled,
+                                        unit = "ms",
+                                        onChange = {
+                                            if (isZoneControlsEnabled) {
+                                                longPressMs = it
+                                                prefs.longPressMs = it
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -1223,8 +1435,9 @@ fun HomeScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         stringResource(R.string.position_and_size),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         SegmentedCard(index = 0, count = 4) {
@@ -1306,8 +1519,9 @@ fun HomeScreen(
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
                     stringResource(R.string.app_filter),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = sectionHeaderStyle(),
+                    color = sectionHeaderColor(),
+                    modifier = Modifier.sectionHeaderInset()
                 )
 
                 SegmentedCard(
@@ -1349,37 +1563,67 @@ fun HomeScreen(
                 }
             }
 
+            HideFromAppsSection(prefs, onOpenHidePicker, onOpenHideSetup)
+
             val resetDoneText = stringResource(R.string.settings_reset_done)
-            SlideToReset(
-                onReset = {
-                    prefs.resetToDefaults()
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    stringResource(R.string.reset_title),
+                    style = sectionHeaderStyle(),
+                    color = sectionHeaderColor(),
+                    modifier = Modifier.sectionHeaderInset()
+                )
+                SlideToReset(
+                    onReset = {
+                        prefs.resetToDefaults()
 
-                    val leftDp = (cutoutLeft / density.density).toInt()
-                    val rightDp = (cutoutRight / density.density).toInt()
-                    val defaultX = when {
-                        leftDp > 16 -> leftDp + 8
-                        rightDp > 16 -> 12
-                        else -> 12
+                        val leftDp = (cutoutLeft / density.density).toInt()
+                        val rightDp = (cutoutRight / density.density).toInt()
+                        val defaultX = when {
+                            leftDp > 16 -> leftDp + 8
+                            rightDp > 16 -> 12
+                            else -> 12
+                        }
+                        prefs.setPosX(0, defaultX)
+                        prefs.hasSetInitialPosition = true
+
+                        selectedZone = 0
+                        zoneEnabledStates = List(ZONE_COUNT) { prefs.isZoneEnabled(it) }
+                        disableInLandscape = prefs.disableInLandscape
+                        disableOnLockscreen = prefs.disableOnLockscreen
+                        disableOnHome = prefs.disableOnHome
+                        autoStart = prefs.autoStart
+                        tapSpeedMs = prefs.tapSpeedMs
+                        longPressMs = prefs.longPressMs
+                        blockedCount = prefs.blockedPackages.size
+                        refreshZoneState()
+
+                        TapZone.active?.attach()
+                        TapZone.active?.setSelectedZoneForPreview(0)
+
+                        onSettingsReset()
+                        Toast.makeText(context, resetDoneText, Toast.LENGTH_SHORT).show()
                     }
-                    prefs.setPosX(0, defaultX)
-                    prefs.hasSetInitialPosition = true
-
-                    selectedZone = 0
-                    zoneEnabledStates = List(ZONE_COUNT) { prefs.isZoneEnabled(it) }
-                    disableInLandscape = prefs.disableInLandscape
-                    disableOnLockscreen = prefs.disableOnLockscreen
-                    autoStart = prefs.autoStart
-                    tapSpeedMs = prefs.tapSpeedMs
-                    blockedCount = prefs.blockedPackages.size
-                    refreshZoneState()
-
-                    TapZone.active?.attach()
-                    TapZone.active?.setSelectedZoneForPreview(0)
-
-                    onSettingsReset()
-                    Toast.makeText(context, resetDoneText, Toast.LENGTH_SHORT).show()
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.reset_hint_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.reset_hint_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-            )
+            }
 
             Spacer(Modifier.height(24.dp))
         }
@@ -1518,6 +1762,10 @@ fun HomeScreen(
                         onPickAction = { dir ->
                             showGestureSheetFor = null
                             onOpenActionPicker(5 + dir)
+                        },
+                        onPickApp = { dir ->
+                            showGestureSheetFor = null
+                            onOpenPicker(5 + dir)
                         },
                         hudEnabled = swipeBrightnessHud,
                         noticeEnabled = swipeAutoNotice,
@@ -1780,10 +2028,12 @@ fun SwipeGestureCard(
     enabled: Boolean,
     target: Int,
     advanced: Boolean = false,
+    dirLines: List<String> = emptyList(),
     isEnabledControls: Boolean = true,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val showLines = enabled && advanced && dirLines.isNotEmpty()
     val subtitleText = when {
         !enabled -> stringResource(R.string.disabled)
         advanced -> stringResource(R.string.swipe_mode_advanced)
@@ -1849,15 +2099,33 @@ fun SwipeGestureCard(
 
                 Spacer(Modifier.width(14.dp))
 
-                Text(
-                    text = subtitleText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
+                if (showLines) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(1.dp)
+                    ) {
+                        dirLines.forEach { line ->
+                            Text(
+                                text = line,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                } else {
+                    Text(
+                        text = subtitleText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
     }
@@ -1917,6 +2185,7 @@ fun ActionPickerScreen(
 
     val actionGroups = remember {
         val method = prefs.shellMethod
+        val collator = java.text.Collator.getInstance(context.resources.configuration.locales[0])
         listOf(
             R.string.group_automation to automationActions,
             R.string.group_quick_settings to quickSettingActions,
@@ -1924,8 +2193,13 @@ fun ActionPickerScreen(
             R.string.group_display to displayActions,
             R.string.group_navigation to navigationActions,
             R.string.group_settings to settingsActions,
-            R.string.group_advanced to advancedSettingsActions
-        ).map { (groupTitle, actions) -> groupTitle to actions.map { SystemToggles.resolve(it, method) } }
+            R.string.group_advanced to advancedSettingsActions,
+            R.string.group_shell to shellActions
+        ).map { (groupTitle, actions) ->
+            groupTitle to actions
+                .map { SystemToggles.resolve(it, method) }
+                .sortedWith { a, b -> collator.compare(context.getString(a.titleRes), context.getString(b.titleRes)) }
+        }
     }
 
     val filteredActionGroups = remember(actionGroups, searchQuery) {
@@ -1937,7 +2211,7 @@ fun ActionPickerScreen(
             actionGroups.mapNotNull { (groupTitle, actions) ->
                 val matchingActions = actions.filter { action ->
                     val title = context.getString(action.titleRes).lowercase()
-                    val desc = context.getString(action.descRes).lowercase()
+                    val desc = if (action.descRes != 0) context.getString(action.descRes).lowercase() else ""
                     terms.all { term -> title.contains(term) || desc.contains(term) }
                 }
                 if (matchingActions.isNotEmpty()) {
@@ -2074,8 +2348,8 @@ fun ActionPickerScreen(
                             } else {
                                 Text(
                                     text = stringResource(groupTitle),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = sectionHeaderStyle(),
+                                    color = sectionHeaderColor(),
                                     modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp)
                                 )
                             }
@@ -2128,7 +2402,7 @@ fun ActionPickerScreen(
                                         saveVolumeLabel(volumeLevel)
                                     } else if (action.id == "custom_command") {
                                         saveCommandLabel(commandText)
-                                    } else {
+                                    } else if (action.id != "screen_record") {
                                         onBack()
                                     }
                                 }
@@ -2256,13 +2530,15 @@ fun PlainActionRow(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    stringResource(action.descRes),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 18.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
+                if (action.descRes != 0) {
+                    Text(
+                        stringResource(action.descRes),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 18.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
             Spacer(Modifier.width(16.dp))
             Icon(
@@ -2275,6 +2551,25 @@ fun PlainActionRow(
                     .graphicsLayer(scaleX = scale, scaleY = scale),
                 tint = MaterialTheme.colorScheme.onSurface
             )
+        }
+        if (action.id == "screen_record") {
+            val context = LocalContext.current
+            val prefs = remember { Prefs(context) }
+            var recordAudio by remember { mutableStateOf(prefs.screenRecordAudio) }
+            val audioSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+            AnimatedVisibility(visible = isSelected) {
+                Column(modifier = Modifier.padding(start = 40.dp)) {
+                    SwitchRow(
+                        label = stringResource(R.string.record_option_audio),
+                        checked = recordAudio && audioSupported,
+                        enabled = audioSupported,
+                        onChange = {
+                            recordAudio = it
+                            prefs.screenRecordAudio = it
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -2390,6 +2685,7 @@ fun AppPickerScreen(
         1 -> prefs.getDoubleTapTargetPkg(zone)
         2 -> prefs.getTripleTapTargetPkg(zone)
         3 -> prefs.getLongPressTargetPkg(zone)
+        in 5..8 -> prefs.getSwipeDirTargetPkg(zone, gestureMode - 5)
         else -> prefs.getSingleTapTargetPkg(zone) ?: (if (zone == 0) prefs.targetPackage else null)
     }
     var selected by remember { mutableStateOf(currentSelectedPkg) }
@@ -2574,6 +2870,12 @@ fun AppPickerScreen(
                                         3 -> {
                                             prefs.setLongPressTargetPkg(zone, app.packageName)
                                             prefs.setLongPressTargetLabel(zone, app.label)
+                                        }
+                                        in 5..8 -> {
+                                            val dir = gestureMode - 5
+                                            prefs.setSwipeDirTargetPkg(zone, dir, app.packageName)
+                                            prefs.setSwipeDirTargetLabel(zone, dir, app.label)
+                                            prefs.setSwipeDirType(zone, dir, SWIPE_TYPE_APP)
                                         }
                                         else -> {
                                             prefs.setSingleTapTargetPkg(zone, app.packageName)
@@ -2821,7 +3123,7 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
     }
 }
 
-private suspend fun batchLoadApps(
+suspend fun batchLoadApps(
     context: Context,
     onBatchLoaded: (List<AppEntry>) -> Unit
 ) = withContext(Dispatchers.IO) {
@@ -2931,7 +3233,7 @@ fun SwitchRow(
             style = MaterialTheme.typography.bodyLarge,
             color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Switch(
+        TapbarSwitch(
             checked = checked,
             enabled = enabled,
             onCheckedChange = { newState ->
@@ -3082,7 +3384,7 @@ fun DpSlider(
             }
         }
 
-        Slider(
+        TapbarSlider(
             value = value.toFloat(),
             enabled = enabled,
             onValueChange = { newValue ->
@@ -3098,12 +3400,7 @@ fun DpSlider(
                 }
             },
             valueRange = min..max,
-            modifier = Modifier.thumbOnly(((value - min) / (max - min)).coerceIn(0f, 1f)),
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.onSurface,
-                activeTrackColor = MaterialTheme.colorScheme.onSurface,
-                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant
-            )
+            modifier = Modifier.thumbOnly(((value - min) / (max - min)).coerceIn(0f, 1f))
         )
     }
 }

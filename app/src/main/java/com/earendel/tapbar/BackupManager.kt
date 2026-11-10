@@ -38,6 +38,7 @@ object BackupManager {
     private const val KEY_INITIAL_POSITION = "has_initial_pos"
     private const val MAX_BYTES = 1024 * 1024
     private const val MAX_STRING = 8192
+    private const val EXTRAS_MARKER = "extended_settings_included"
     private const val INT_LIMIT = 1_000_000
 
     private val excluded = setOf(
@@ -71,10 +72,13 @@ object BackupManager {
         }
         for (zone in 1..ZONE_COUNT) map["zone${zone}_enabled"] = 'b'
         map["double_tap_speed_ms"] = 'i'
+        map["long_press_ms"] = 'i'
         map["pos_x"] = 'i'
         map["pos_y"] = 'i'
         map["zone_w"] = 'i'
         map["zone_h"] = 'i'
+        map["end_x"] = 'i'
+        map["end_y"] = 'i'
         map["tap_haptic_mode"] = 'i'
         map["theme_mode"] = 'i'
         map["ui_style"] = 'i'
@@ -82,6 +86,9 @@ object BackupManager {
         map["colorful_ui"] = 'b'
         map["disable_in_landscape"] = 'b'
         map["disable_on_lockscreen"] = 'b'
+        map["disable_on_home"] = 'b'
+        map[EXTRAS_MARKER] = 'b'
+        map["shell_method"] = 'i'
         map["haptic_feedback_enabled"] = 'b'
         map["service_enabled"] = 'b'
         map["split_shade"] = 'b'
@@ -93,6 +100,24 @@ object BackupManager {
         map
     }
 
+    private val extendedZoneFields: Map<String, Char> = run {
+        val map = mutableMapOf<String, Char>()
+        map["swipe_mode"] = 'i'
+        map["swipe_brightness_hud"] = 'b'
+        map["swipe_auto_notice"] = 'b'
+        for (dir in 0..3) {
+            map["swipe_dir_${dir}_type"] = 'i'
+            map["swipe_dir_${dir}_action_id"] = 's'
+            map["swipe_dir_${dir}_action_label"] = 's'
+            map["swipe_dir_${dir}_target_pkg"] = 's'
+            map["swipe_dir_${dir}_target_label"] = 's'
+        }
+        for (gesture in 0..8) {
+            map["custom_command_$gesture"] = 's'
+        }
+        map
+    }
+
     private val zoneTypes: Map<String, Char> = run {
         val map = mutableMapOf<String, Char>()
         for (gesture in gestures) {
@@ -100,7 +125,8 @@ object BackupManager {
         }
         map["swipe_enabled"] = 'b'
         map["swipe_target"] = 'i'
-        for (base in listOf("pos_x", "pos_y", "zone_w", "zone_h")) {
+        map.putAll(extendedZoneFields)
+        for (base in listOf("pos_x", "pos_y", "zone_w", "zone_h", "end_x", "end_y")) {
             map[base] = 'i'
             map["land_$base"] = 'i'
         }
@@ -109,6 +135,7 @@ object BackupManager {
 
     private val zoneKeyRegex = Regex("^z[1-4]_(.+)$")
     private val volumeKeyRegex = Regex("^volume_level_[0-9]{1,2}$")
+    private val swipeVolumeBaseRegex = Regex("^volume_level_[5-8]$")
 
     private val generationCounter = AtomicInteger(0)
 
@@ -124,16 +151,27 @@ object BackupManager {
         return null
     }
 
+    private fun isExtendedKey(key: String): Boolean {
+        if (key == "shell_method") return true
+        val base = zoneKeyRegex.matchEntire(key)?.groupValues?.get(1) ?: return false
+        return base in extendedZoneFields || swipeVolumeBaseRegex.matches(base)
+    }
+
     private fun intInRange(key: String, value: Int): Boolean {
         if (value < -INT_LIMIT || value > INT_LIMIT) return false
         val base = zoneKeyRegex.matchEntire(key)?.groupValues?.get(1) ?: key
         return when {
             base == "theme_mode" -> value in 0..2
-            base == "ui_style" -> value in 0..1
+            base == "ui_style" -> value in 0..3
             base == "tap_haptic_mode" -> value in 0..1
             base == "swipe_target" -> value in 0..1
+            base == "swipe_mode" -> value in 0..1
+            base == "shell_method" -> value in 0..2
+            base.startsWith("swipe_dir_") && base.endsWith("_type") -> value in 0..4
             base == "double_tap_speed_ms" -> value in 100..1000
+            base == "long_press_ms" -> value in 200..1000
             base.startsWith("volume_level_") -> value in 0..100
+            base.endsWith("end_x") || base.endsWith("end_y") -> value in 0..ZoneLayout.EDGE_DP
             base.endsWith("_type") -> value in 0..2
             else -> true
         }
@@ -164,6 +202,7 @@ object BackupManager {
                 's' -> if (value is String) values.put(key, value)
             }
         }
+        values.put(EXTRAS_MARKER, true)
         val versionName = try {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: ""
         } catch (_: Throwable) {
@@ -270,12 +309,17 @@ object BackupManager {
         withContext(Dispatchers.IO + NonCancellable) {
             val sp = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val editor = sp.edit()
+            val includesExtras = backup.values[EXTRAS_MARKER] == true
             for (key in sp.all.keys) {
                 if (key in excluded) continue
                 if (key == KEY_LANGUAGE && !backup.values.containsKey(KEY_LANGUAGE)) continue
+                if (key == EXTRAS_MARKER) continue
+                if (!includesExtras && isExtendedKey(key)) continue
                 if (expectedType(key) != null || key in refreshMarkers) editor.remove(key)
             }
             for ((key, value) in backup.values) {
+                if (key == EXTRAS_MARKER) continue
+                if (!includesExtras && isExtendedKey(key)) continue
                 when (value) {
                     is Boolean -> editor.putBoolean(key, value)
                     is Int -> editor.putInt(key, value)

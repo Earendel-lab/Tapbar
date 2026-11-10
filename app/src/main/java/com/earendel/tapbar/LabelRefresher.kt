@@ -45,6 +45,11 @@ object LabelRefresher {
             appLabel(prefs.getDoubleTapTargetPkg(zone))?.let { prefs.setDoubleTapTargetLabel(zone, it) }
             appLabel(prefs.getTripleTapTargetPkg(zone))?.let { prefs.setTripleTapTargetLabel(zone, it) }
             appLabel(prefs.getLongPressTargetPkg(zone))?.let { prefs.setLongPressTargetLabel(zone, it) }
+
+            for (dir in 0 until 4) {
+                actionTitle(localized, prefs.getSwipeDirActionId(zone, dir), prefs.getVolumeLevel(zone, 5 + dir))?.let { prefs.setSwipeDirActionLabel(zone, dir, it) }
+                appLabel(prefs.getSwipeDirTargetPkg(zone, dir))?.let { prefs.setSwipeDirTargetLabel(zone, dir, it) }
+            }
         }
 
         sp.edit().putString(KEY_BASIC, tag).apply()

@@ -65,6 +65,7 @@ fun SwipeSettings(
     onEditDir: (Int?) -> Unit,
     onDirType: (Int, Int) -> Unit,
     onPickAction: (Int) -> Unit,
+    onPickApp: (Int) -> Unit,
     hudEnabled: Boolean,
     noticeEnabled: Boolean,
     onHudChange: (Boolean) -> Unit,
@@ -87,6 +88,7 @@ fun SwipeSettings(
                 onBack = { onEditDir(null) },
                 onType = { onDirType(dir, it) },
                 onPickAction = { onPickAction(dir) },
+                onPickApp = { onPickApp(dir) },
                 onHudChange = onHudChange,
                 onNoticeChange = onNoticeChange
             )
@@ -254,6 +256,8 @@ private fun SwipeDirectionList(
                 SWIPE_TYPE_BRIGHTNESS -> stringResource(R.string.brightness)
                 SWIPE_TYPE_ACTION -> labels[dir]?.takeIf { it.isNotEmpty() }
                     ?: stringResource(R.string.perform_action)
+                SWIPE_TYPE_APP -> labels[dir]?.takeIf { it.isNotEmpty() }
+                    ?: stringResource(R.string.swipe_open_app)
                 else -> stringResource(R.string.disabled)
             }
             SegmentedCard(
@@ -317,6 +321,7 @@ private fun SwipeDirectionEditor(
     onBack: () -> Unit,
     onType: (Int) -> Unit,
     onPickAction: () -> Unit,
+    onPickApp: () -> Unit,
     onHudChange: (Boolean) -> Unit,
     onNoticeChange: (Boolean) -> Unit
 ) {
@@ -368,6 +373,11 @@ private fun SwipeDirectionEditor(
             animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
             label = "SwipeDirAction"
         )
+        val appScale by animateFloatAsState(
+            targetValue = if (type == SWIPE_TYPE_APP) 1.15f else 1.0f,
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+            label = "SwipeDirApp"
+        )
         val offScale by animateFloatAsState(
             targetValue = if (type == SWIPE_TYPE_OFF) 1.15f else 1.0f,
             animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
@@ -377,7 +387,7 @@ private fun SwipeDirectionEditor(
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             SwipeOptionCard(
                 index = 0,
-                count = 4,
+                count = 5,
                 title = stringResource(R.string.volume),
                 description = stringResource(R.string.swipe_vol_desc),
                 selected = type == SWIPE_TYPE_VOLUME,
@@ -389,7 +399,7 @@ private fun SwipeDirectionEditor(
             )
             SwipeOptionCard(
                 index = 1,
-                count = 4,
+                count = 5,
                 title = stringResource(R.string.brightness),
                 description = stringResource(R.string.swipe_bright_desc),
                 selected = type == SWIPE_TYPE_BRIGHTNESS,
@@ -413,7 +423,7 @@ private fun SwipeDirectionEditor(
             )
             SwipeOptionCard(
                 index = 2,
-                count = 4,
+                count = 5,
                 title = stringResource(R.string.perform_action),
                 description = if (type == SWIPE_TYPE_ACTION) label.orEmpty() else "",
                 selected = type == SWIPE_TYPE_ACTION,
@@ -425,7 +435,19 @@ private fun SwipeDirectionEditor(
             )
             SwipeOptionCard(
                 index = 3,
-                count = 4,
+                count = 5,
+                title = stringResource(R.string.swipe_open_app),
+                description = if (type == SWIPE_TYPE_APP) label.orEmpty() else stringResource(R.string.swipe_open_app_desc),
+                selected = type == SWIPE_TYPE_APP,
+                scale = appScale,
+                onClick = {
+                    haptics.performSelection(view)
+                    onPickApp()
+                }
+            )
+            SwipeOptionCard(
+                index = 4,
+                count = 5,
                 title = stringResource(R.string.disabled),
                 description = "",
                 selected = type == SWIPE_TYPE_OFF,
@@ -595,7 +617,7 @@ private fun SwipeToggleRow(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Switch(
+        TapbarSwitch(
             checked = checked,
             onCheckedChange = {
                 haptics.performToggle(view, it)
