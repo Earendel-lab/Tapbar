@@ -37,7 +37,7 @@ object BackupManager {
     private const val KEY_LANGUAGE = "app_language"
     private const val KEY_INITIAL_POSITION = "has_initial_pos"
     private const val MAX_BYTES = 1024 * 1024
-    private const val MAX_STRING = 8192
+    const val MAX_STRING = 8192
     private const val EXTRAS_MARKER = "extended_settings_included"
     private const val INT_LIMIT = 1_000_000
 
@@ -61,6 +61,7 @@ object BackupManager {
         "action_label" to 's',
         "shortcut_uri" to 's',
         "shortcut_label" to 's',
+        "intent_spec" to 's',
         "target_pkg" to 's',
         "target_label" to 's'
     )
@@ -172,7 +173,7 @@ object BackupManager {
             base == "long_press_ms" -> value in 200..1000
             base.startsWith("volume_level_") -> value in 0..100
             base.endsWith("end_x") || base.endsWith("end_y") -> value in 0..ZoneLayout.EDGE_DP
-            base.endsWith("_type") -> value in 0..2
+            base.endsWith("_type") -> value in 0..GESTURE_TYPE_INTENT
             else -> true
         }
     }

@@ -35,6 +35,10 @@ android {
         compose = true
         aidl = true
     }
+
+    lint {
+        warning += "MissingTranslation"
+    }
 }
 
 dependencies {

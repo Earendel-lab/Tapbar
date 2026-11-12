@@ -53,6 +53,8 @@ fun getDefaultClockPackage(context: Context): Pair<String, String>? {
 
 const val ZONE_COUNT = 4
 
+private val GESTURE_KEYS = listOf("single_tap", "double_tap", "triple_tap", "long_press")
+
 class Prefs(context: Context) {
 
     private val appContext = context.applicationContext
@@ -714,6 +716,19 @@ class Prefs(context: Context) {
     fun setLongPressShortcutLabel(zone: Int, v: String?) {
         if (zone >= 1) sp.edit().putString(zk(zone, "long_press_shortcut_label"), v).apply() else longPressShortcutLabel = v
     }
+
+    private fun intentSpecKey(zone: Int, gesture: Int): String {
+        val base = "${GESTURE_KEYS.getOrElse(gesture) { GESTURE_KEYS[0] }}_intent_spec"
+        return if (zone >= 1) zk(zone, base) else base
+    }
+
+    fun getIntentSpec(zone: Int, gesture: Int): String? = sp.getString(intentSpecKey(zone, gesture), null)
+    fun setIntentSpec(zone: Int, gesture: Int, v: String?) {
+        sp.edit().putString(intentSpecKey(zone, gesture), v).apply()
+    }
+
+    fun getIntentDisplay(zone: Int, gesture: Int): String? =
+        IntentSpec.fromJson(getIntentSpec(zone, gesture))?.displayLabel
 
     val singleTapShortcutDisplay: String?
         get() {

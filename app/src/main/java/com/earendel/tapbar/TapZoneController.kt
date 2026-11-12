@@ -679,6 +679,7 @@ class TapZoneController(
         }
         when (prefs.getSingleTapType(zone)) {
             1 -> executeAction(prefs.getSingleTapActionId(zone), zone, 0)
+            GESTURE_TYPE_INTENT -> IntentSpec.run(context, prefs.getIntentSpec(zone, 0))
             2 -> launchShortcut(prefs.getSingleTapShortcutUri(zone), prefs.getSingleTapTargetPkg(zone, context) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getSingleTapTargetPkg(zone, context) ?: if (zone == 0) prefs.targetPackage else null)
         }
@@ -691,6 +692,7 @@ class TapZoneController(
         haptics.performConfirm(view)
         when (prefs.getDoubleTapType(zone)) {
             1 -> executeAction(prefs.getDoubleTapActionId(zone), zone, 1)
+            GESTURE_TYPE_INTENT -> IntentSpec.run(context, prefs.getIntentSpec(zone, 1))
             2 -> launchShortcut(prefs.getDoubleTapShortcutUri(zone), prefs.getDoubleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getDoubleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
         }
@@ -703,6 +705,7 @@ class TapZoneController(
         haptics.performConfirm(view)
         when (prefs.getTripleTapType(zone)) {
             1 -> executeAction(prefs.getTripleTapActionId(zone), zone, 2)
+            GESTURE_TYPE_INTENT -> IntentSpec.run(context, prefs.getIntentSpec(zone, 2))
             2 -> launchShortcut(prefs.getTripleTapShortcutUri(zone), prefs.getTripleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getTripleTapTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
         }
@@ -742,6 +745,7 @@ class TapZoneController(
         haptics.performConfirm(view)
         when (prefs.getLongPressType(zone)) {
             1 -> executeAction(prefs.getLongPressActionId(zone), zone, 3)
+            GESTURE_TYPE_INTENT -> IntentSpec.run(context, prefs.getIntentSpec(zone, 3))
             2 -> launchShortcut(prefs.getLongPressShortcutUri(zone), prefs.getLongPressTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
             else -> launchPackage(prefs.getLongPressTargetPkg(zone) ?: if (zone == 0) prefs.targetPackage else null)
         }
