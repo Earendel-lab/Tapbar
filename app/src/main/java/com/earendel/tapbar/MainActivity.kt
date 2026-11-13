@@ -91,6 +91,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material.icons.rounded.AccessibilityNew
 import androidx.compose.material.icons.rounded.AirplanemodeActive
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.AppShortcut
 import androidx.compose.material.icons.rounded.AppSettingsAlt
 import androidx.compose.material.icons.rounded.Apps
@@ -569,8 +570,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialOnboardingDone: Boolean = true) {
     var onboardingDone by rememberSaveable { mutableStateOf(initialOnboardingDone) }
-    var screen by remember { mutableStateOf("home") }
-    var activeGestureMode by remember { mutableIntStateOf(0) }
+    var screen by rememberSaveable { mutableStateOf("home") }
+    var activeGestureMode by rememberSaveable { mutableIntStateOf(0) }
     var activeZone by rememberSaveable { mutableIntStateOf(0) }
 
     TapbarTheme(
@@ -584,7 +585,7 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialO
         AnimatedContent(
             targetState = screen,
             transitionSpec = {
-                if (targetState == "picker" || targetState == "filter_picker" || targetState == "hide_picker" || targetState == "hide_setup" || targetState == "action_picker" || targetState == "shortcut_picker") {
+                if (targetState == "picker" || targetState == "filter_picker" || targetState == "hide_picker" || targetState == "hide_setup" || targetState == "action_picker" || targetState == "shortcut_picker" || targetState == "intent_editor") {
                     (slideInVertically(
                         initialOffsetY = { (it * 0.08f).toInt() },
                         animationSpec = tween(220, easing = FastOutSlowInEasing)
@@ -611,6 +612,7 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialO
                 "hide_setup" -> HideFromAppsSetupScreen(prefs) { screen = "home" }
                 "action_picker" -> ActionPickerScreen(prefs, gestureMode = activeGestureMode, zone = activeZone) { screen = "home" }
                 "shortcut_picker" -> ShortcutPickerScreen(prefs, gestureMode = activeGestureMode, zone = activeZone) { screen = "home" }
+                "intent_editor" -> IntentEditorScreen(prefs, gestureMode = activeGestureMode, zone = activeZone) { screen = "home" }
                 else -> HomeScreen(
                     prefs = prefs,
                     initialZone = activeZone,
@@ -631,6 +633,10 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialO
                         activeGestureMode = mode
                         screen = "shortcut_picker"
                     },
+                    onOpenIntentEditor = { mode ->
+                        activeGestureMode = mode
+                        screen = "intent_editor"
+                    },
                     onOpenFilterPicker = { screen = "filter_picker" },
                     onOpenHidePicker = { screen = "hide_picker" },
                     onOpenHideSetup = { screen = "hide_setup" }
@@ -650,6 +656,7 @@ fun HomeScreen(
     onOpenPicker: (gestureMode: Int) -> Unit,
     onOpenActionPicker: (gestureMode: Int) -> Unit,
     onOpenShortcutPicker: (gestureMode: Int) -> Unit,
+    onOpenIntentEditor: (gestureMode: Int) -> Unit,
     onOpenFilterPicker: () -> Unit,
     onOpenHidePicker: () -> Unit,
     onOpenHideSetup: () -> Unit
@@ -681,6 +688,7 @@ fun HomeScreen(
             when (singleTapType) {
                 1 -> SystemToggles.displayLabel(context, prefs.getSingleTapActionId(selectedZone), prefs.getSingleTapActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getSingleTapShortcutDisplay(selectedZone, context)
+                GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 0)
                 else -> prefs.getSingleTapTargetLabel(selectedZone, context)
             }
         )
@@ -695,6 +703,7 @@ fun HomeScreen(
             when (doubleTapType) {
                 1 -> SystemToggles.displayLabel(context, prefs.getDoubleTapActionId(selectedZone), prefs.getDoubleTapActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getDoubleTapShortcutDisplay(selectedZone)
+                GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 1)
                 else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
         )
@@ -709,6 +718,7 @@ fun HomeScreen(
             when (tripleTapType) {
                 1 -> SystemToggles.displayLabel(context, prefs.getTripleTapActionId(selectedZone), prefs.getTripleTapActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getTripleTapShortcutDisplay(selectedZone)
+                GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 2)
                 else -> prefs.getTripleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
         )
@@ -723,6 +733,7 @@ fun HomeScreen(
             when (longPressType) {
                 1 -> SystemToggles.displayLabel(context, prefs.getLongPressActionId(selectedZone), prefs.getLongPressActionLabel(selectedZone), prefs.shellMethod)
                 2 -> prefs.getLongPressShortcutDisplay(selectedZone)
+                GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 3)
                 else -> prefs.getLongPressTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
             }
         )
@@ -766,6 +777,7 @@ fun HomeScreen(
         singleTapLabel = when (singleTapType) {
             1 -> SystemToggles.displayLabel(context, prefs.getSingleTapActionId(selectedZone), prefs.getSingleTapActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getSingleTapShortcutDisplay(selectedZone, context)
+            GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 0)
             else -> prefs.getSingleTapTargetLabel(selectedZone, context)
         }
         singleTapActionId = prefs.getSingleTapActionId(selectedZone)
@@ -776,6 +788,7 @@ fun HomeScreen(
         doubleTapLabel = when (doubleTapType) {
             1 -> SystemToggles.displayLabel(context, prefs.getDoubleTapActionId(selectedZone), prefs.getDoubleTapActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getDoubleTapShortcutDisplay(selectedZone)
+            GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 1)
             else -> prefs.getDoubleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
         doubleTapActionId = prefs.getDoubleTapActionId(selectedZone)
@@ -786,6 +799,7 @@ fun HomeScreen(
         tripleTapLabel = when (tripleTapType) {
             1 -> SystemToggles.displayLabel(context, prefs.getTripleTapActionId(selectedZone), prefs.getTripleTapActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getTripleTapShortcutDisplay(selectedZone)
+            GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 2)
             else -> prefs.getTripleTapTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
         tripleTapActionId = prefs.getTripleTapActionId(selectedZone)
@@ -796,6 +810,7 @@ fun HomeScreen(
         longPressLabel = when (longPressType) {
             1 -> SystemToggles.displayLabel(context, prefs.getLongPressActionId(selectedZone), prefs.getLongPressActionLabel(selectedZone), prefs.shellMethod)
             2 -> prefs.getLongPressShortcutDisplay(selectedZone)
+            GESTURE_TYPE_INTENT -> prefs.getIntentDisplay(selectedZone, 3)
             else -> prefs.getLongPressTargetLabel(selectedZone) ?: context.getString(R.string.not_set)
         }
         longPressActionId = prefs.getLongPressActionId(selectedZone)
@@ -1296,7 +1311,7 @@ fun HomeScreen(
                                 subtitle = if (singleTapEnabled) (singleTapLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (singleTapType == 0 || singleTapType == 2),
                                 appIcon = singleTapIcon,
-                                actionIcon = singleTapAction.icon,
+                                actionIcon = if (singleTapType == GESTURE_TYPE_INTENT) Icons.AutoMirrored.Rounded.Send else singleTapAction.icon,
                                 isEnabled = isZoneControlsEnabled && singleTapEnabled,
                                 clickable = isZoneControlsEnabled,
                                 modifier = Modifier.weight(1f),
@@ -1312,7 +1327,7 @@ fun HomeScreen(
                                 subtitle = if (doubleTapEnabled) (doubleTapLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (doubleTapType == 0 || doubleTapType == 2),
                                 appIcon = doubleTapIcon,
-                                actionIcon = doubleTapAction.icon,
+                                actionIcon = if (doubleTapType == GESTURE_TYPE_INTENT) Icons.AutoMirrored.Rounded.Send else doubleTapAction.icon,
                                 isEnabled = isZoneControlsEnabled && doubleTapEnabled,
                                 clickable = isZoneControlsEnabled,
                                 modifier = Modifier.weight(1f),
@@ -1334,7 +1349,7 @@ fun HomeScreen(
                                 subtitle = if (tripleTapEnabled) (tripleTapLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (tripleTapType == 0 || tripleTapType == 2),
                                 appIcon = tripleTapIcon,
-                                actionIcon = tripleTapAction.icon,
+                                actionIcon = if (tripleTapType == GESTURE_TYPE_INTENT) Icons.AutoMirrored.Rounded.Send else tripleTapAction.icon,
                                 isEnabled = isZoneControlsEnabled && tripleTapEnabled,
                                 clickable = isZoneControlsEnabled,
                                 modifier = Modifier.weight(1f),
@@ -1350,7 +1365,7 @@ fun HomeScreen(
                                 subtitle = if (longPressEnabled) (longPressLabel ?: stringResource(R.string.not_set)) else stringResource(R.string.disabled),
                                 isAppType = (longPressType == 0 || longPressType == 2),
                                 appIcon = longPressIcon,
-                                actionIcon = longPressAction.icon,
+                                actionIcon = if (longPressType == GESTURE_TYPE_INTENT) Icons.AutoMirrored.Rounded.Send else longPressAction.icon,
                                 isEnabled = isZoneControlsEnabled && longPressEnabled,
                                 clickable = isZoneControlsEnabled,
                                 modifier = Modifier.weight(1f),
@@ -1801,11 +1816,16 @@ fun HomeScreen(
                         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
                         label = "RadioScale2"
                     )
+                    val radioScale3 by animateFloatAsState(
+                        targetValue = if (currentType == GESTURE_TYPE_INTENT) 1.15f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "RadioScale3"
+                    )
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         SegmentedCard(
                             index = 0,
-                            count = 3,
+                            count = 4,
                             onClick = {
                                 haptics.performSelection(view)
                                 when (gestureMode) {
@@ -1846,7 +1866,7 @@ fun HomeScreen(
 
                         SegmentedCard(
                             index = 1,
-                            count = 3,
+                            count = 4,
                             onClick = {
                                 haptics.performSelection(view)
                                 when (gestureMode) {
@@ -1887,7 +1907,7 @@ fun HomeScreen(
 
                         SegmentedCard(
                             index = 2,
-                            count = 3,
+                            count = 4,
                             onClick = {
                                 haptics.performSelection(view)
                                 showGestureSheetFor = null
@@ -1915,6 +1935,41 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .size(24.dp)
                                         .graphicsLayer(scaleX = radioScale2, scaleY = radioScale2),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        SegmentedCard(
+                            index = 3,
+                            count = 4,
+                            onClick = {
+                                haptics.performSelection(view)
+                                showGestureSheetFor = null
+                                onOpenIntentEditor(gestureMode)
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    stringResource(R.string.run_intent),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    painter = painterResource(
+                                        if (currentType == GESTURE_TYPE_INTENT) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .graphicsLayer(scaleX = radioScale3, scaleY = radioScale3),
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
