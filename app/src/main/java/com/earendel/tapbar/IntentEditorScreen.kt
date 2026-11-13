@@ -283,6 +283,7 @@ fun IntentEditorScreen(
                     1 -> prefs.setDoubleTapType(zone, GESTURE_TYPE_INTENT)
                     2 -> prefs.setTripleTapType(zone, GESTURE_TYPE_INTENT)
                     3 -> prefs.setLongPressType(zone, GESTURE_TYPE_INTENT)
+                    in 5..8 -> prefs.setSwipeDirType(zone, gestureMode - 5, SWIPE_TYPE_INTENT)
                     else -> prefs.setSingleTapType(zone, GESTURE_TYPE_INTENT)
                 }
                 onBack()

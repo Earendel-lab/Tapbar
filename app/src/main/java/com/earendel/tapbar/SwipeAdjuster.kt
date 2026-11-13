@@ -40,6 +40,7 @@ const val SWIPE_TYPE_VOLUME = 1
 const val SWIPE_TYPE_BRIGHTNESS = 2
 const val SWIPE_TYPE_ACTION = 3
 const val SWIPE_TYPE_APP = 4
+const val SWIPE_TYPE_INTENT = 5
 
 fun swipeTargetLabel(target: Int): String =
     if (target == SWIPE_TARGET_BRIGHTNESS) "Brightness" else "Volume"

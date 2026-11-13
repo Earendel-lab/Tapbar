@@ -30,6 +30,7 @@
     <string name="perform_action">Perform action</string>
     <string name="swipe_open_app">Open app</string>
     <string name="swipe_open_app_desc">Launches an app of your choice</string>
+    <string name="swipe_run_intent_desc">Sends an intent of your choice</string>
     <string name="swipe_summary_line">%1$s: %2$s</string>
     <string name="app_shortcut">App shortcut</string>
     <string name="run_intent">Run intent</string>

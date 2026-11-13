@@ -279,6 +279,7 @@ private fun swipeSummaryLines(context: Context, types: List<Int>, labels: List<S
             SWIPE_TYPE_BRIGHTNESS -> context.getString(R.string.brightness)
             SWIPE_TYPE_ACTION -> labels.getOrNull(dir)?.takeIf { it.isNotEmpty() } ?: context.getString(R.string.perform_action)
             SWIPE_TYPE_APP -> labels.getOrNull(dir)?.takeIf { it.isNotEmpty() } ?: context.getString(R.string.swipe_open_app)
+            SWIPE_TYPE_INTENT -> labels.getOrNull(dir)?.takeIf { it.isNotEmpty() } ?: context.getString(R.string.run_intent)
             else -> null
         } ?: continue
         val title = when (dir) {
@@ -293,10 +294,10 @@ private fun swipeSummaryLines(context: Context, types: List<Int>, labels: List<S
 }
 
 private fun swipeDirDisplayLabel(context: Context, prefs: Prefs, zone: Int, dir: Int): String? =
-    if (prefs.getSwipeDirType(zone, dir) == SWIPE_TYPE_APP) {
-        prefs.getSwipeDirTargetLabel(zone, dir) ?: prefs.getSwipeDirTargetPkg(zone, dir)
-    } else {
-        SystemToggles.displayLabel(
+    when (prefs.getSwipeDirType(zone, dir)) {
+        SWIPE_TYPE_APP -> prefs.getSwipeDirTargetLabel(zone, dir) ?: prefs.getSwipeDirTargetPkg(zone, dir)
+        SWIPE_TYPE_INTENT -> prefs.getIntentDisplay(zone, 5 + dir)
+        else -> SystemToggles.displayLabel(
             context,
             prefs.getSwipeDirActionId(zone, dir),
             prefs.getSwipeDirActionLabel(zone, dir),
@@ -1801,6 +1802,10 @@ fun HomeScreen(
                         onPickApp = { dir ->
                             showGestureSheetFor = null
                             onOpenPicker(5 + dir)
+                        },
+                        onPickIntent = { dir ->
+                            showGestureSheetFor = null
+                            onOpenIntentEditor(5 + dir)
                         },
                         hudEnabled = swipeBrightnessHud,
                         noticeEnabled = swipeAutoNotice,
