@@ -470,11 +470,11 @@ class TapZoneController(
                     engageSwipe(event, horizontal)
                     return true
                 }
-                SWIPE_TYPE_ACTION, SWIPE_TYPE_APP -> {
-                    val configured = if (prefs.getSwipeDirType(zone, dir) == SWIPE_TYPE_APP) {
-                        !prefs.getSwipeDirTargetPkg(zone, dir).isNullOrEmpty()
-                    } else {
-                        !prefs.getSwipeDirActionId(zone, dir).isNullOrEmpty()
+                SWIPE_TYPE_ACTION, SWIPE_TYPE_APP, SWIPE_TYPE_INTENT -> {
+                    val configured = when (prefs.getSwipeDirType(zone, dir)) {
+                        SWIPE_TYPE_APP -> !prefs.getSwipeDirTargetPkg(zone, dir).isNullOrEmpty()
+                        SWIPE_TYPE_INTENT -> !prefs.getIntentSpec(zone, 5 + dir).isNullOrEmpty()
+                        else -> !prefs.getSwipeDirActionId(zone, dir).isNullOrEmpty()
                     }
                     if (!configured) return false
                     actionDir = dir
@@ -743,6 +743,10 @@ class TapZoneController(
             return
         }
         haptics.performConfirm(views[zone])
+        if (prefs.getSwipeDirType(zone, dir) == SWIPE_TYPE_INTENT) {
+            IntentSpec.run(context, prefs.getIntentSpec(zone, 5 + dir))
+            return
+        }
         executeAction(prefs.getSwipeDirActionId(zone, dir), zone, 5 + dir)
     }
 

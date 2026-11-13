@@ -766,6 +766,8 @@ class Prefs(context: Context) {
     }
 
     private fun intentSpecKey(zone: Int, gesture: Int): String {
+        // Gesture modes 5..8 are the swipe directions, which keep per-zone keys like the other swipe settings.
+        if (gesture in 5..8) return zk(zone, "swipe_dir_${gesture - 5}_intent_spec")
         val base = "${GESTURE_KEYS.getOrElse(gesture) { GESTURE_KEYS[0] }}_intent_spec"
         return if (zone >= 1) zk(zone, base) else base
     }

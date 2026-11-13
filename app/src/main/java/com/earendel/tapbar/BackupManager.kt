@@ -116,6 +116,7 @@ object BackupManager {
             map["swipe_dir_${dir}_action_label"] = 's'
             map["swipe_dir_${dir}_target_pkg"] = 's'
             map["swipe_dir_${dir}_target_label"] = 's'
+            map["swipe_dir_${dir}_intent_spec"] = 's'
         }
         for (gesture in 0..8) {
             map["custom_command_$gesture"] = 's'
@@ -172,7 +173,7 @@ object BackupManager {
             base == "swipe_target" -> value in 0..1
             base == "swipe_mode" -> value in 0..1
             base == "shell_method" -> value in 0..2
-            base.startsWith("swipe_dir_") && base.endsWith("_type") -> value in 0..4
+            base.startsWith("swipe_dir_") && base.endsWith("_type") -> value in 0..SWIPE_TYPE_INTENT
             base == "double_tap_speed_ms" -> value in 100..1000
             base == "long_press_ms" -> value in 200..1000
             base.startsWith("volume_level_") -> value in 0..100
