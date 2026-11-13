@@ -76,6 +76,9 @@ import kotlinx.coroutines.withContext
 
 private val shortcutIconCache = LruCache<String, ImageBitmap>(100)
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+private val shortcutIconDispatcher = Dispatchers.IO.limitedParallelism(2)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShortcutPickerScreen(
@@ -270,7 +273,7 @@ fun ShortcutPickerScreen(
 
                         if (appIcon == null) {
                             LaunchedEffect(appItem.packageName) {
-                                appIcon = withContext(Dispatchers.IO) {
+                                appIcon = withContext(shortcutIconDispatcher) {
                                     runCatching {
                                         context.packageManager
                                             .getApplicationIcon(appItem.packageName)

@@ -45,6 +45,8 @@ object AppLabels {
             info.activityInfo?.packageName ?: ""
         }
         val activity = info.activityInfo ?: return fallback
+        val systemLocale = context.resources.configuration.locales.get(0)
+        if (systemLocale != null && systemLocale.toLanguageTag() == locale.toLanguageTag()) return fallback
         val labelRes = if (activity.labelRes != 0) {
             activity.labelRes
         } else {

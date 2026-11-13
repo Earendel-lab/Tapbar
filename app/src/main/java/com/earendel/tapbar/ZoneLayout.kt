@@ -58,6 +58,7 @@ data class StoredZone(
 object ZoneLayout {
 
     const val EDGE_DP = 48
+    const val SYSTEM_GESTURE_EDGE_DP = 40
     const val MIN_W = 10
     const val MIN_H = 16
     const val MIN_TRIM = 40

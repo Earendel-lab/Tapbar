@@ -64,6 +64,7 @@
     <string name="intent_save">Save</string>
     <string name="intent_discard">Discard</string>
     <string name="intent_discard_message">Discard your changes?</string>
+    <string name="intent_discard_desc">Any changes you made to this intent will be lost.</string>
     <string name="intent_sent">Intent sent</string>
     <string name="intent_lock_title">Restricted class</string>
     <string name="intent_lock_cd">Why this class is restricted</string>
@@ -559,4 +560,16 @@
     <string name="watcher_channel_name">Watcher</string>
     <string name="watcher_notification_title">Watching for flagged apps</string>
     <string name="style_oneui">One UI</string>
+    <string name="donation_title_top">No ads and no trackers</string>
+    <string name="donation_title_bottom">means no income.</string>
+    <string name="donation_body">That\'s why I\'m asking. I\'m Tapbar\'s &lt;b&gt;only developer&lt;/b&gt;. If just &lt;y&gt;1 in 100 of you&lt;/y&gt; bought me &lt;b&gt;a coffee&lt;/b&gt;, I could keep making it better.</string>
+    <string name="donation_donate">Donate</string>
+    <string name="donation_not_now">Maybe later</string>
+    <string name="donation_never">Do not show again</string>
+    <string name="support_title">Support</string>
+    <string name="report_bug">Report bug</string>
+    <string name="report_bug_desc">Open a bug report on GitHub</string>
+    <string name="feature_request">Feature request</string>
+    <string name="feature_request_desc">Share an idea on GitHub Discussions</string>
+    <string name="donate_card_desc">Buy me a coffee on Ko-fi</string>
 </resources>

@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
+import android.content.pm.PackageManager
 import android.util.LruCache
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -258,6 +259,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -299,9 +305,13 @@ private fun swipeDirDisplayLabel(context: Context, prefs: Prefs, zone: Int, dir:
     }
 
 var cachedApps: List<AppEntry>? = null
-private val iconCache = LruCache<String, ImageBitmap>(250)
+private val iconCache = LruCache<String, ImageBitmap>(400)
 
 fun invalidateAppCache(packageName: String? = null) {
+    synchronized(loadLock) {
+        loadGeneration++
+        inFlightLoad = null
+    }
     cachedApps = null
     if (packageName != null) iconCache.remove(packageName)
     AppShortcuts.invalidate()
@@ -309,8 +319,16 @@ fun invalidateAppCache(packageName: String? = null) {
 
 suspend fun validCachedApps(context: Context): List<AppEntry>? = withContext(Dispatchers.IO) {
     val cached = cachedApps ?: return@withContext null
-    val pm = context.packageManager
-    val valid = cached.filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+    val launchable: Set<String> = try {
+        val names = HashSet<String>()
+        context.packageManager
+            .queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)
+            .forEach { ri -> ri.activityInfo?.packageName?.let { names.add(it) } }
+        names
+    } catch (_: Throwable) {
+        return@withContext cached
+    }
+    val valid = cached.filter { app -> launchable.contains(app.packageName) }
     if (valid.size != cached.size) cachedApps = valid
     valid
 }
@@ -506,6 +524,7 @@ class MainActivity : ComponentActivity() {
             )
         )
         prefs = Prefs(this)
+        prefs.ensureDonationAnchor()
         LocaleHelper.syncFromSystem(this, prefs)
         LabelRefresher.refreshBasic(this, prefs)
         val onboardingDone = prefs.hasCompletedLanguageOnboarding
@@ -518,8 +537,8 @@ class MainActivity : ComponentActivity() {
         }
 
         val appCtx = applicationContext
-        CoroutineScope(Dispatchers.IO).launch {
-            if (cachedApps == null) {
+        if (cachedApps == null) {
+            CoroutineScope(Dispatchers.IO).launch {
                 batchLoadApps(appCtx) { _ -> }
             }
         }
@@ -643,6 +662,7 @@ fun AppRoot(prefs: Prefs, themeMode: MutableIntState, ui: UiAppearance, initialO
                 )
             }
         }
+        DonationHost(prefs = prefs, homeVisible = screen == "home")
     }
 }
 
@@ -3178,12 +3198,19 @@ fun FilterPickerScreen(prefs: Prefs, onBack: () -> Unit) {
     }
 }
 
-suspend fun batchLoadApps(
-    context: Context,
-    onBatchLoaded: (List<AppEntry>) -> Unit
-) = withContext(Dispatchers.IO) {
+private val appLoadScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+private val labelDispatcher = Dispatchers.IO.limitedParallelism(4)
+private val prefetchDispatcher = Dispatchers.IO.limitedParallelism(2)
+private val loadLock = Any()
+private var inFlightLoad: Deferred<List<AppEntry>>? = null
+@Volatile private var loadGeneration = 0
+
+private fun decodeAppIcon(pm: PackageManager, pkg: String): ImageBitmap? = runCatching {
+    pm.getApplicationIcon(pkg).toBitmap(72, 72).asImageBitmap()
+}.getOrNull()
+
+private suspend fun loadAppEntries(context: Context): List<AppEntry> = coroutineScope {
     val pm = context.packageManager
-    val prefs = Prefs(context)
     val labelLocale = AppLabels.appLocale(context)
 
     val clockPackages = try {
@@ -3200,71 +3227,64 @@ suspend fun batchLoadApps(
         emptyList()
     }
 
-    val rawList = activities.mapNotNull { ri ->
-        val pkg = ri.activityInfo?.packageName ?: return@mapNotNull null
-        if (pm.getLaunchIntentForPackage(pkg) == null) return@mapNotNull null
-        val label = AppLabels.label(context, ri, labelLocale)
-        AppEntry(pkg, label, clockPackages.contains(pkg))
-    }
-        .distinctBy { it.packageName }
-        .sortedWith(
-            compareByDescending<AppEntry> { it.isClockApp }
-                .thenBy { it.label.lowercase() }
-        )
-
-    if (prefs.targetPackage == null && rawList.isNotEmpty()) {
-        val defaultClock = rawList.firstOrNull { it.isClockApp } ?: rawList.first()
-        prefs.targetPackage = defaultClock.packageName
-        prefs.targetLabel = defaultClock.label
+    val unique = LinkedHashMap<String, android.content.pm.ResolveInfo>()
+    for (ri in activities) {
+        val pkg = ri.activityInfo?.packageName ?: continue
+        if (!unique.containsKey(pkg)) unique[pkg] = ri
     }
 
-    val initialBatchSize = DeviceCapability.initialBatchSize.coerceAtMost(rawList.size)
-    val accumulatedApps = ArrayList<AppEntry>(rawList.size)
-    accumulatedApps.addAll(rawList.take(initialBatchSize))
-
-    accumulatedApps.forEach { app ->
-        if (iconCache.get(app.packageName) == null) {
-            runCatching {
-                pm.getApplicationIcon(app.packageName)
-                    .toBitmap(72, 72)
-                    .asImageBitmap()
-            }.getOrNull()?.let { iconCache.put(app.packageName, it) }
-        }
-    }
-
-    withContext(Dispatchers.Main) {
-        onBatchLoaded(ArrayList(accumulatedApps))
-    }
-
-    var currentIndex = initialBatchSize
-    val chunkSize = DeviceCapability.chunkBatchSize
-
-    while (currentIndex < rawList.size) {
-        val nextIndex = (currentIndex + chunkSize).coerceAtMost(rawList.size)
-        val chunk = rawList.subList(currentIndex, nextIndex)
-
-        chunk.forEach { app ->
-            if (iconCache.get(app.packageName) == null) {
-                runCatching {
-                    pm.getApplicationIcon(app.packageName)
-                        .toBitmap(72, 72)
-                        .asImageBitmap()
-                }.getOrNull()?.let { iconCache.put(app.packageName, it) }
+    val infos = unique.values.toList()
+    val parts = infos.chunked(DeviceCapability.chunkBatchSize.coerceAtLeast(8))
+    val entries = parts.map { part ->
+        async(labelDispatcher) {
+            part.map { ri ->
+                val pkg = ri.activityInfo.packageName
+                AppEntry(pkg, AppLabels.label(context, ri, labelLocale), clockPackages.contains(pkg))
             }
         }
+    }.awaitAll().flatten()
 
-        accumulatedApps.addAll(chunk)
-        currentIndex = nextIndex
+    entries.sortedWith(
+        compareByDescending<AppEntry> { it.isClockApp }
+            .thenBy { it.label.lowercase() }
+    )
+}
 
-        yield()
-
-        val currentSnapshot = ArrayList(accumulatedApps)
-        withContext(Dispatchers.Main) {
-            onBatchLoaded(currentSnapshot)
-        }
+suspend fun batchLoadApps(
+    context: Context,
+    onBatchLoaded: (List<AppEntry>) -> Unit
+) {
+    val appCtx = context.applicationContext
+    val load = synchronized(loadLock) {
+        inFlightLoad?.takeIf { it.isActive } ?: appLoadScope.async(Dispatchers.IO) {
+            val startGeneration = loadGeneration
+            val list = loadAppEntries(appCtx)
+            val prefs = Prefs(appCtx)
+            if (prefs.targetPackage == null && list.isNotEmpty()) {
+                val defaultClock = list.firstOrNull { it.isClockApp } ?: list.first()
+                prefs.targetPackage = defaultClock.packageName
+                prefs.targetLabel = defaultClock.label
+            }
+            val pm = appCtx.packageManager
+            list.take(DeviceCapability.initialBatchSize).forEach { app ->
+                if (iconCache.get(app.packageName) == null) {
+                    decodeAppIcon(pm, app.packageName)?.let { iconCache.put(app.packageName, it) }
+                }
+            }
+            if (startGeneration == loadGeneration) cachedApps = list
+            appLoadScope.launch(prefetchDispatcher) {
+                list.drop(DeviceCapability.initialBatchSize).forEach { app ->
+                    if (iconCache.get(app.packageName) == null) {
+                        decodeAppIcon(pm, app.packageName)?.let { iconCache.put(app.packageName, it) }
+                    }
+                    yield()
+                }
+            }
+            list
+        }.also { inFlightLoad = it }
     }
-
-    cachedApps = accumulatedApps
+    val result = load.await()
+    withContext(Dispatchers.Main) { onBatchLoaded(result) }
 }
 
 @Composable

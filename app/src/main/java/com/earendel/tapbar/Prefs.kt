@@ -53,6 +53,10 @@ fun getDefaultClockPackage(context: Context): Pair<String, String>? {
 
 const val ZONE_COUNT = 4
 
+const val DONATION_MAX_SHOWS = 3
+const val DONATION_FIRST_DELAY_MS = 3L * 24L * 60L * 60L * 1000L
+const val DONATION_REPEAT_MS = 15L * 24L * 60L * 60L * 1000L
+
 private val GESTURE_KEYS = listOf("single_tap", "double_tap", "triple_tap", "long_press")
 
 class Prefs(context: Context) {
@@ -151,7 +155,17 @@ class Prefs(context: Context) {
     }
 
     fun resetToDefaults() {
-        val keep = setOf("service_enabled", "has_seen_privacy_notice", "app_language", "has_completed_language_onboarding", "split_shade")
+        val keep = setOf(
+            "service_enabled",
+            "has_seen_privacy_notice",
+            "app_language",
+            "has_completed_language_onboarding",
+            "split_shade",
+            "donation_anchor",
+            "donation_shown_count",
+            "donation_next_at",
+            "donation_stopped"
+        )
         val editor = sp.edit()
         for (key in sp.all.keys) {
             if (key !in keep) editor.remove(key)
@@ -272,6 +286,40 @@ class Prefs(context: Context) {
             return sp.getBoolean("has_completed_perm_onboarding", false)
         }
         set(v) = sp.edit().putBoolean("has_completed_perm_onboarding", v).apply()
+
+    fun ensureDonationAnchor() {
+        if (!sp.contains("donation_anchor")) {
+            sp.edit().putLong("donation_anchor", System.currentTimeMillis()).apply()
+        }
+    }
+
+    var donationShownCount: Int
+        get() = sp.getInt("donation_shown_count", 0)
+        set(v) = sp.edit().putInt("donation_shown_count", v).apply()
+
+    var donationNextAt: Long
+        get() = sp.getLong("donation_next_at", 0L)
+        set(v) = sp.edit().putLong("donation_next_at", v).apply()
+
+    var donationStopped: Boolean
+        get() = sp.getBoolean("donation_stopped", false)
+        set(v) = sp.edit().putBoolean("donation_stopped", v).apply()
+
+    fun donationDue(now: Long = System.currentTimeMillis()): Boolean {
+        if (donationStopped || donationShownCount >= DONATION_MAX_SHOWS) return false
+        ensureDonationAnchor()
+        val dueAt = if (donationShownCount == 0) {
+            sp.getLong("donation_anchor", now) + DONATION_FIRST_DELAY_MS
+        } else {
+            donationNextAt
+        }
+        return now >= dueAt
+    }
+
+    fun recordDonationShown(now: Long = System.currentTimeMillis()) {
+        donationShownCount += 1
+        donationNextAt = now + DONATION_REPEAT_MS
+    }
 
     var colorfulUi: Boolean
         get() = sp.getBoolean("colorful_ui", false)

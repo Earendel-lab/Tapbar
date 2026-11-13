@@ -108,6 +108,8 @@ Newer Android versions block permission toggles for sideloaded apps by default. 
 
 ⭐ If Tapbar is useful to you, **star the repo**. It helps others discover the project.
 
+☕ Tapbar has no ads and no trackers, so it runs on support. If it's useful to you, you can [buy me a coffee on Ko-fi](https://ko-fi.com/earendel_lab).
+
 <details>
 <summary><b>🤝 Contribute, report bugs, or share ideas</b></summary>
 

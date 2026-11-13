@@ -15,7 +15,12 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +29,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
@@ -33,10 +38,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -47,31 +52,24 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -88,14 +86,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -111,6 +121,14 @@ private val IntentSpecSaver = Saver<IntentSpec, String>(
     save = { it.toJson() },
     restore = { IntentSpec.fromJson(it) }
 )
+
+private fun readableIntentName(raw: String): String {
+    val last = raw.substringAfterLast('.')
+    if (last.isEmpty() || !last.all { it.isUpperCase() || it.isDigit() || it == '_' }) return last
+    val words = last.removePrefix("ACTION_").removePrefix("CATEGORY_").split('_').filter { it.isNotEmpty() }
+    if (words.isEmpty()) return last
+    return words.joinToString(" ") { it.lowercase() }.replaceFirstChar { it.uppercase() }
+}
 
 private data class ChoiceItem(
     val value: String,
@@ -167,7 +185,7 @@ private fun loadActions(context: Context, target: IntentTarget): List<ChoiceItem
         IntentTarget.BROADCAST -> listed - systemProtectedBroadcasts(context)
         else -> listed
     }
-    return actions.map { ChoiceItem(it, it.substringAfterLast('.'), it) }
+    return actions.map { ChoiceItem(it, readableIntentName(it), it) }
 }
 
 // These two are app ops: checkSelfPermission reports them denied even after the user has allowed them.
@@ -232,6 +250,8 @@ fun IntentEditorScreen(
     var draft by rememberSaveable(stateSaver = IntentSpecSaver) { mutableStateOf(initial) }
     var sheet by remember { mutableStateOf<IntentSheet?>(null) }
     var confirmDiscard by remember { mutableStateOf(false) }
+    var targetExpanded by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     fun leave() {
         haptics.performLightTap(view)
@@ -270,212 +290,249 @@ fun IntentEditorScreen(
         }
     }
 
-    BackHandler(onBack = ::leave)
+    BackHandler(enabled = sheet == null, onBack = ::leave)
 
     val imePadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.run_intent)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent
-                ),
-                navigationIcon = {
-                    IconButton(onClick = ::leave) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_back),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            )
-        }
-    ) { pad ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = pad.calculateTopPadding(), bottom = maxOf(imePadding, navBarPadding))
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                IntentField(
-                    value = draft.name,
-                    onChange = { draft = draft.copy(name = it) },
-                    label = stringResource(R.string.intent_name),
-                    capitalize = true
-                )
-
-                IntentDropdown(
-                    label = stringResource(R.string.intent_target),
-                    selected = targetLabel(draft.target),
-                    options = IntentTarget.entries.map { targetLabel(it) to it },
-                    onSelect = { picked ->
-                        if (picked != draft.target) draft = draft.copy(target = picked, flags = 0, foreground = false)
-                    }
-                )
-
-                if (draft.target == IntentTarget.SERVICE) {
-                    SegmentedCard(index = 0, count = 1) {
-                        SwitchRow(
-                            label = stringResource(R.string.intent_run_foreground),
-                            checked = draft.foreground,
-                            onChange = { draft = draft.copy(foreground = it) }
-                        )
-                    }
-                }
-
-                targetHint(draft)?.let { hint ->
-                    Text(
-                        text = stringResource(hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
-                }
-
-                SectionLabel(stringResource(R.string.intent_section_intent))
-
-                IntentField(
-                    value = draft.action,
-                    onChange = { draft = draft.copy(action = it) },
-                    label = stringResource(R.string.intent_action),
-                    onBrowse = { sheet = IntentSheet.ACTION }
-                )
-                IntentField(
-                    value = draft.data,
-                    onChange = { draft = draft.copy(data = it) },
-                    label = stringResource(R.string.intent_data)
-                )
-                IntentField(
-                    value = draft.mime,
-                    onChange = { draft = draft.copy(mime = it) },
-                    label = stringResource(R.string.intent_mime)
-                )
-                IntentField(
-                    value = draft.categories,
-                    onChange = { draft = draft.copy(categories = it) },
-                    label = stringResource(R.string.intent_categories),
-                    singleLine = false,
-                    onBrowse = { sheet = IntentSheet.CATEGORY }
-                )
-
-                SectionLabel(stringResource(R.string.intent_section_receiver))
-
-                IntentField(
-                    value = draft.pkg,
-                    onChange = { draft = draft.copy(pkg = it) },
-                    label = stringResource(R.string.intent_package),
-                    onBrowse = { sheet = IntentSheet.APP }
-                )
-                IntentField(
-                    value = draft.cls,
-                    onChange = { draft = draft.copy(cls = it) },
-                    label = stringResource(R.string.intent_class),
-                    onBrowse = {
-                        if (draft.pkg.isBlank()) {
-                            toast(context.getString(R.string.intent_error_package))
-                        } else {
-                            sheet = IntentSheet.CLASS
+    if (sheet == null) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.run_intent)) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = ::leave) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.cd_back),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 )
+            }
+        ) { pad ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = pad.calculateTopPadding(), bottom = maxOf(imePadding, navBarPadding))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    val targetCount = 1 + if (targetExpanded) IntentTarget.entries.size else 0
 
-                val availableFlags = intentFlagsFor(draft.target)
-                if (availableFlags.isNotEmpty()) {
-                    SectionLabel(stringResource(R.string.intent_flags))
-                    val selectedFlags = availableFlags.filter { draft.flags and it.value != 0 }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IntentFieldCard(
+                            value = draft.name,
+                            onChange = { draft = draft.copy(name = it) },
+                            label = stringResource(R.string.intent_name),
+                            capitalize = true
+                        )
+                        IntentDropdownBlock(
+                            index = 0,
+                            count = targetCount,
+                            label = stringResource(R.string.intent_target),
+                            selected = targetLabel(draft.target),
+                            selectedValue = draft.target,
+                            options = IntentTarget.entries.map { targetLabel(it) to it },
+                            expanded = targetExpanded,
+                            onExpandedChange = { targetExpanded = it },
+                            onSelect = { picked ->
+                                if (picked != draft.target) draft = draft.copy(target = picked, flags = 0, foreground = false)
+                            }
+                        )
+                    }
+
+                    if (draft.target == IntentTarget.SERVICE) {
+                        SegmentedCard(index = 0, count = 1) {
+                            SwitchRow(
+                                label = stringResource(R.string.intent_run_foreground),
+                                checked = draft.foreground,
+                                onChange = { draft = draft.copy(foreground = it) }
+                            )
+                        }
+                    }
+
+                    targetHint(draft)?.let { hint ->
+                        Text(
+                            text = stringResource(hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                    }
+
+                    SectionLabel(stringResource(R.string.intent_section_intent))
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IntentFieldCard(
+                            value = draft.action,
+                            onChange = { draft = draft.copy(action = it) },
+                            label = stringResource(R.string.intent_action),
+                            onBrowse = { sheet = IntentSheet.ACTION }
+                        )
+                        IntentFieldCard(
+                            value = draft.data,
+                            onChange = { draft = draft.copy(data = it) },
+                            label = stringResource(R.string.intent_data)
+                        )
+                        IntentFieldCard(
+                            value = draft.mime,
+                            onChange = { draft = draft.copy(mime = it) },
+                            label = stringResource(R.string.intent_mime)
+                        )
+                        IntentFieldCard(
+                            value = draft.categories,
+                            onChange = { draft = draft.copy(categories = it) },
+                            label = stringResource(R.string.intent_categories),
+                            singleLine = false,
+                            onBrowse = { sheet = IntentSheet.CATEGORY }
+                        )
+                    }
+
+                    SectionLabel(stringResource(R.string.intent_section_receiver))
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IntentFieldCard(
+                            value = draft.pkg,
+                            onChange = { draft = draft.copy(pkg = it) },
+                            label = stringResource(R.string.intent_package),
+                            onBrowse = { sheet = IntentSheet.APP }
+                        )
+                        IntentFieldCard(
+                            value = draft.cls,
+                            onChange = { draft = draft.copy(cls = it) },
+                            label = stringResource(R.string.intent_class),
+                            onBrowse = {
+                                if (draft.pkg.isBlank()) {
+                                    toast(context.getString(R.string.intent_error_package))
+                                } else {
+                                    sheet = IntentSheet.CLASS
+                                }
+                            }
+                        )
+                    }
+
+                    val availableFlags = intentFlagsFor(draft.target)
+                    if (availableFlags.isNotEmpty()) {
+                        SectionLabel(stringResource(R.string.intent_flags))
+                        val selectedFlags = availableFlags.filter { draft.flags and it.value != 0 }
+                        SegmentedCard(
+                            index = 0,
+                            count = 1,
+                            onClick = {
+                                haptics.performLightTap(view)
+                                sheet = IntentSheet.FLAGS
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 72.dp)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (selectedFlags.isEmpty()) {
+                                        stringResource(R.string.not_set)
+                                    } else {
+                                        selectedFlags.joinToString(", ") { it.name }
+                                    },
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Rounded.ExpandMore,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    SectionLabel(stringResource(R.string.intent_extras))
+
+                    draft.extras.forEachIndexed { index, extra ->
+                        ExtraCard(
+                            extra = extra,
+                            onChange = { updated ->
+                                draft = draft.copy(
+                                    extras = draft.extras.toMutableList().also { it[index] = updated }
+                                )
+                            },
+                            onRemove = {
+                                haptics.performLightTap(view)
+                                draft = draft.copy(
+                                    extras = draft.extras.toMutableList().also { it.removeAt(index) }
+                                )
+                            }
+                        )
+                    }
+
                     SegmentedCard(
                         index = 0,
                         count = 1,
                         onClick = {
                             haptics.performLightTap(view)
-                            sheet = IntentSheet.FLAGS
+                            draft = draft.copy(extras = draft.extras + IntentExtra())
                         }
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                                .heightIn(min = 72.dp)
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = if (selectedFlags.isEmpty()) {
-                                    stringResource(R.string.not_set)
-                                } else {
-                                    selectedFlags.joinToString(", ") { it.name }
-                                },
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
-                            )
                             Icon(
-                                imageVector = Icons.Rounded.ExpandMore,
+                                imageVector = Icons.Rounded.Add,
                                 contentDescription = null,
+                                modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Text(
+                                text = stringResource(R.string.intent_add_extra),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
                 }
 
-                SectionLabel(stringResource(R.string.intent_extras))
-
-                draft.extras.forEachIndexed { index, extra ->
-                    ExtraCard(
-                        extra = extra,
-                        onChange = { updated ->
-                            draft = draft.copy(
-                                extras = draft.extras.toMutableList().also { it[index] = updated }
-                            )
-                        },
-                        onRemove = {
-                            haptics.performLightTap(view)
-                            draft = draft.copy(
-                                extras = draft.extras.toMutableList().also { it.removeAt(index) }
-                            )
-                        }
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        haptics.performLightTap(view)
-                        draft = draft.copy(extras = draft.extras + IntentExtra())
-                    },
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.intent_add_extra))
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(onClick = ::test, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.intent_test))
-                }
-                Button(onClick = ::save, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.intent_save))
+                    OutlinedButton(onClick = ::test, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.intent_test))
+                    }
+                    Button(
+                        onClick = ::save,
+                        colors = tapbarPrimaryButtonColors(),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.intent_save))
+                    }
                 }
             }
         }
@@ -487,36 +544,37 @@ fun IntentEditorScreen(
             val actions by produceState<List<ChoiceItem>?>(null, target) {
                 value = withContext(Dispatchers.IO) { loadActions(context, target) }
             }
-            ChoiceSheet(
+            IntentPickerScreen(
                 title = stringResource(R.string.intent_action),
                 items = actions,
-                onDismiss = { sheet = null },
+                selected = setOf(draft.action),
+                onBack = { sheet = null },
                 onPick = {
                     draft = draft.copy(action = it)
                     sheet = null
                 }
             )
         }
-        IntentSheet.CATEGORY -> ChoiceSheet(
+        IntentSheet.CATEGORY -> IntentPickerScreen(
             title = stringResource(R.string.intent_categories),
-            items = remember { commonIntentCategories.map { ChoiceItem(it, it.substringAfterLast('.'), it) } },
-            onDismiss = { sheet = null },
+            items = remember { commonIntentCategories.map { ChoiceItem(it, readableIntentName(it), it) } },
+            selected = draft.categories.lines().map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+            onBack = { sheet = null },
             onPick = { picked ->
                 val existing = draft.categories.lines().map { it.trim() }.filter { it.isNotEmpty() }
-                if (picked !in existing) {
-                    draft = draft.copy(categories = (existing + picked).joinToString("\n"))
-                }
-                sheet = null
+                val updated = if (picked in existing) existing - picked else existing + picked
+                draft = draft.copy(categories = updated.joinToString("\n"))
             }
         )
         IntentSheet.APP -> {
             val apps by produceState<List<ChoiceItem>?>(null) {
                 value = withContext(Dispatchers.IO) { loadApps(context) }
             }
-            ChoiceSheet(
+            IntentPickerScreen(
                 title = stringResource(R.string.choose_app),
                 items = apps,
-                onDismiss = { sheet = null },
+                selected = setOf(draft.pkg),
+                onBack = { sheet = null },
                 onPick = { picked ->
                     if (picked != draft.pkg) draft = draft.copy(pkg = picked, cls = "")
                     sheet = null
@@ -539,9 +597,10 @@ fun IntentEditorScreen(
             val settingsLauncher = rememberLauncherForActivityResult(
                 ActivityResultContracts.StartActivityForResult()
             ) { classesVersion++ }
-            ChoiceSheet(
+            IntentPickerScreen(
                 title = stringResource(R.string.intent_class),
                 items = classes,
+                selected = setOf(draft.cls),
                 onRequestPermission = { permission ->
                     val action = permissionSettingsAction(permission)
                     if (action != null) {
@@ -550,40 +609,98 @@ fun IntentEditorScreen(
                         permissionLauncher.launch(permission)
                     }
                 },
-                onDismiss = { sheet = null },
+                onBack = { sheet = null },
                 onPick = {
                     draft = draft.copy(cls = it)
                     sheet = null
                 }
             )
         }
-        IntentSheet.FLAGS -> FlagsSheet(
-            flags = intentFlagsFor(draft.target),
-            selected = draft.flags,
-            onChange = { draft = draft.copy(flags = it) },
-            onDismiss = { sheet = null }
-        )
+        IntentSheet.FLAGS -> {
+            val flags = intentFlagsFor(draft.target)
+            IntentPickerScreen(
+                title = stringResource(R.string.intent_flags),
+                items = remember(flags) { flags.map { ChoiceItem(it.name) } },
+                selected = flags.filter { draft.flags and it.value != 0 }.map { it.name }.toSet(),
+                onBack = { sheet = null },
+                onPick = { picked ->
+                    flags.firstOrNull { it.name == picked }?.let { flag ->
+                        draft = draft.copy(flags = draft.flags xor flag.value)
+                    }
+                }
+            )
+        }
         null -> Unit
     }
 
     if (confirmDiscard) {
-        AlertDialog(
+        Dialog(
             onDismissRequest = { confirmDiscard = false },
-            text = { Text(stringResource(R.string.intent_discard_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmDiscard = false
-                    onBack()
-                }) {
-                    Text(stringResource(R.string.intent_discard))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmDiscard = false }) {
-                    Text(stringResource(R.string.cancel))
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = if (LocalImmersive.current != null) Color.Transparent else overlayContainerColor(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .immersiveSheetBackdrop()
+                        .padding(horizontal = 16.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Rounded.DeleteOutline,
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Text(
+                                text = stringResource(R.string.intent_discard_message),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.intent_discard_desc),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp, lineHeight = 21.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        RestoreDialogButton(
+                            text = stringResource(R.string.intent_discard),
+                            color = Color(0xFFD71921),
+                            index = 0,
+                            onClick = {
+                                haptics.performLightTap(view)
+                                confirmDiscard = false
+                                onBack()
+                            }
+                        )
+                        RestoreDialogButton(
+                            text = stringResource(R.string.cancel),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            index = 1,
+                            onClick = {
+                                haptics.performLightTap(view)
+                                confirmDiscard = false
+                            }
+                        )
+                    }
                 }
             }
-        )
+        }
     }
 }
 
@@ -607,14 +724,30 @@ private fun targetHint(spec: IntentSpec): Int? = when {
 private fun SectionLabel(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 4.dp, top = 8.dp)
+        style = sectionHeaderStyle(),
+        color = sectionHeaderColor(),
+        modifier = Modifier
+            .sectionHeaderInset()
+            .padding(start = 4.dp, top = 8.dp)
     )
 }
 
 @Composable
-private fun intentFieldColors() = OutlinedTextFieldDefaults.colors(
+private fun intentFieldColors() = TextFieldDefaults.colors(
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
+    errorContainerColor = Color.Transparent,
+    focusedIndicatorColor = Color.Transparent,
+    unfocusedIndicatorColor = Color.Transparent,
+    disabledIndicatorColor = Color.Transparent,
+    errorIndicatorColor = Color.Transparent
+)
+
+@Composable
+private fun intentSearchColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = Color.Transparent,
     unfocusedBorderColor = Color.Transparent,
     disabledBorderColor = Color.Transparent,
@@ -636,14 +769,18 @@ private fun IntentField(
 ) {
     val haptics = LocalHapticManager.current
     val view = LocalView.current
-    OutlinedTextField(
-        value = value,
-        onValueChange = onChange,
+    var fieldValue by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
+    if (fieldValue.text != value) fieldValue = TextFieldValue(value, TextRange(value.length))
+    TextField(
+        value = fieldValue,
+        onValueChange = {
+            fieldValue = it
+            if (it.text != value) onChange(it.text)
+        },
         label = { Text(label) },
         singleLine = singleLine,
         minLines = 1,
-        maxLines = if (singleLine) 1 else 4,
-        shape = RoundedCornerShape(GroupLargeCorner),
+        maxLines = if (singleLine) 1 else 5,
         colors = intentFieldColors(),
         // Some keyboards ignore autoCorrectEnabled and rewrite "a.b.c" as "A. b. c", so identifiers use the URI keyboard.
         keyboardOptions = if (capitalize) {
@@ -673,47 +810,153 @@ private fun IntentField(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun <T> IntentDropdown(
+private fun IntentFieldCard(
+    value: String,
+    onChange: (String) -> Unit,
+    label: String,
+    singleLine: Boolean = true,
+    capitalize: Boolean = false,
+    onBrowse: (() -> Unit)? = null
+) {
+    SegmentedCard(index = 0, count = 1) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 72.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            IntentField(
+                value = value,
+                onChange = onChange,
+                label = label,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = singleLine,
+                capitalize = capitalize,
+                onBrowse = onBrowse
+            )
+        }
+    }
+}
+
+@Composable
+private fun IntentRadioRow(text: String, isSelected: Boolean, scale: Float) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .semantics(mergeDescendants = true) {
+                selected = isSelected
+                role = Role.RadioButton
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            painter = painterResource(
+                if (isSelected) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+            ),
+            contentDescription = null,
+            modifier = Modifier
+                .size(24.dp)
+                .graphicsLayer(scaleX = scale, scaleY = scale),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun <T> IntentDropdownBlock(
+    index: Int,
+    count: Int,
     label: String,
     selected: String,
+    selectedValue: T,
     options: List<Pair<String, T>>,
-    onSelect: (T) -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onSelect: (T) -> Unit
 ) {
     val haptics = LocalHapticManager.current
     val view = LocalView.current
-    var expanded by remember { mutableStateOf(false) }
+    val arrowRotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(220, easing = FastOutSlowInEasing),
+        label = "IntentDropdownArrow"
+    )
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-        modifier = modifier
-    ) {
-        OutlinedTextField(
-            value = selected,
-            onValueChange = {},
-            readOnly = true,
-            singleLine = true,
-            label = { Text(label) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            shape = RoundedCornerShape(GroupLargeCorner),
-            colors = intentFieldColors(),
-            modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth()
-        )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { (text, value) ->
-                DropdownMenuItem(
-                    text = { Text(text) },
-                    onClick = {
-                        haptics.performSelection(view)
-                        expanded = false
-                        onSelect(value)
-                    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SegmentedCard(
+            index = index,
+            count = count,
+            onClick = {
+                haptics.performExpandCollapse(view)
+                onExpandedChange(!expanded)
+            }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 72.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
                 )
+                Text(
+                    text = selected,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Rounded.ExpandMore,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer { rotationZ = arrowRotation },
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = expanded) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                options.forEachIndexed { optionIndex, (text, value) ->
+                    val isSelected = value == selectedValue
+                    val scale by animateFloatAsState(
+                        targetValue = if (isSelected) 1.15f else 1.0f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        label = "IntentDropdownRadioScale"
+                    )
+                    SegmentedCard(
+                        index = index + 1 + optionIndex,
+                        count = count,
+                        modifier = Modifier.padding(top = 2.dp),
+                        onClick = {
+                            haptics.performSelection(view)
+                            onExpandedChange(false)
+                            onSelect(value)
+                        }
+                    ) {
+                        IntentRadioRow(text = text, isSelected = isSelected, scale = scale)
+                    }
+                }
             }
         }
     }
@@ -725,75 +968,51 @@ private fun ExtraCard(
     onChange: (IntentExtra) -> Unit,
     onRemove: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            IntentField(
-                value = extra.key,
-                onChange = { onChange(extra.copy(key = it)) },
-                label = stringResource(R.string.intent_extra_key),
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(onClick = onRemove) {
-                Icon(
-                    imageVector = Icons.Rounded.DeleteOutline,
-                    contentDescription = stringResource(R.string.intent_remove_extra),
-                    tint = MaterialTheme.colorScheme.onSurface
+    var typeExpanded by remember { mutableStateOf(false) }
+    val types = IntentExtraType.entries
+    val count = 1 + if (typeExpanded) types.size else 0
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SegmentedCard(index = 0, count = 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 72.dp)
+                    .padding(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IntentField(
+                    value = extra.key,
+                    onChange = { onChange(extra.copy(key = it)) },
+                    label = stringResource(R.string.intent_extra_key),
+                    modifier = Modifier.weight(1f)
                 )
+                Spacer(Modifier.width(4.dp))
+                IconButton(onClick = onRemove) {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteOutline,
+                        contentDescription = stringResource(R.string.intent_remove_extra),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
-        IntentDropdown(
+        IntentDropdownBlock(
+            index = 0,
+            count = count,
             label = stringResource(R.string.intent_extra_type),
             selected = extra.type.label,
-            options = IntentExtraType.entries.map { it.label to it },
+            selectedValue = extra.type,
+            options = types.map { it.label to it },
+            expanded = typeExpanded,
+            onExpandedChange = { typeExpanded = it },
             onSelect = { onChange(extra.copy(type = it)) }
         )
-        IntentField(
+        IntentFieldCard(
             value = extra.value,
             onChange = { onChange(extra.copy(value = it)) },
             label = stringResource(R.string.intent_extra_value)
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun IntentSheetFrame(
-    title: String,
-    onDismiss: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = if (LocalImmersive.current != null) Color.Transparent else overlayContainerColor(),
-        dragHandle = { if (LocalImmersive.current == null) BottomSheetDefaults.DragHandle() },
-        contentWindowInsets = {
-            if (LocalImmersive.current != null) WindowInsets(0, 0, 0, 0) else BottomSheetDefaults.windowInsets
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .immersiveSheetBackdrop()
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            if (LocalImmersive.current != null) {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    BottomSheetDefaults.DragHandle()
-                }
-            }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            content()
-        }
     }
 }
 
@@ -831,96 +1050,132 @@ private fun ClassLockButton(reason: String, onRequest: (() -> Unit)?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ChoiceSheet(
+private fun IntentPickerScreen(
     title: String,
     items: List<ChoiceItem>?,
+    selected: Set<String>,
     onPick: (String) -> Unit,
-    onDismiss: () -> Unit,
+    onBack: () -> Unit,
     onRequestPermission: (String) -> Unit = {}
 ) {
     val haptics = LocalHapticManager.current
     val view = LocalView.current
+    BackHandler(onBack = {
+        haptics.performLightTap(view)
+        onBack()
+    })
     var query by remember { mutableStateOf("") }
+    val listState = rememberLazyListState()
     val filtered = remember(items, query) {
         val q = query.trim().lowercase()
         items?.filter { it.title.lowercase().contains(q) || it.value.lowercase().contains(q) }
     }
 
-    IntentSheetFrame(title = title, onDismiss = onDismiss) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            placeholder = { Text(stringResource(R.string.cd_search)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            trailingIcon = {
-                if (query.isNotEmpty()) {
-                    IconButton(onClick = { query = "" }) {
+    LaunchedEffect(query) {
+        if (query.isNotEmpty() && !filtered.isNullOrEmpty()) {
+            listState.animateScrollToItem(0)
+        }
+    }
+
+    val imePadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+    val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val bottomPadding = maxOf(imePadding, navBarPadding) + 16.dp
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = {
+            TopAppBar(
+                title = { Text(title) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent
+                ),
+                navigationIcon = {
+                    IconButton(onClick = {
+                        haptics.performLightTap(view)
+                        onBack()
+                    }) {
                         Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.cd_clear),
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
-            },
-            singleLine = true,
-            shape = CircleShape,
-            colors = intentFieldColors(),
-            modifier = Modifier.fillMaxWidth()
-        )
+            )
+        }
+    ) { pad ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = pad.calculateTopPadding())
+        ) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                placeholder = {
+                    Text(stringResource(R.string.cd_search), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(R.string.cd_search),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = {
+                            haptics.performLightTap(view)
+                            query = ""
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(R.string.cd_clear),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = CircleShape,
+                colors = intentSearchColors(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            )
 
-        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8f)) {
             when {
-                filtered == null -> SheetMessage(stringResource(R.string.intent_loading))
-                filtered.isEmpty() -> SheetMessage(stringResource(R.string.intent_nothing_found))
+                filtered == null -> SheetMessage(stringResource(R.string.intent_loading), bottomPadding)
+                filtered.isEmpty() -> SheetMessage(stringResource(R.string.intent_nothing_found), bottomPadding)
                 else -> LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp)
+                    contentPadding = PaddingValues(
+                        top = 4.dp,
+                        bottom = bottomPadding,
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    items(filtered, key = { it.value }) { item ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
+                    itemsIndexed(
+                        items = filtered,
+                        key = { _, item -> item.value }
+                    ) { index, item ->
+                        Box(modifier = Modifier.animateItem()) {
+                            IntentChoiceRow(
+                                item = item,
+                                index = index,
+                                count = filtered.size,
+                                isSelected = item.value in selected,
+                                onRequestPermission = onRequestPermission,
+                                onClick = {
                                     haptics.performSelection(view)
                                     onPick(item.value)
                                 }
-                                .padding(horizontal = 4.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            item.iconPackage?.let { pkg ->
-                                AppIconImage(pkg)
-                                Spacer(Modifier.width(12.dp))
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = item.title,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                item.subtitle?.let {
-                                    Text(
-                                        text = it,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-                            }
-                            item.lockReason?.let { reason ->
-                                ClassLockButton(reason, item.lockPermission?.let { permission ->
-                                    { onRequestPermission(permission) }
-                                })
-                            }
+                            )
                         }
                     }
                 }
@@ -930,11 +1185,89 @@ private fun ChoiceSheet(
 }
 
 @Composable
-private fun SheetMessage(text: String) {
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
+private fun IntentChoiceRow(
+    item: ChoiceItem,
+    index: Int,
+    count: Int,
+    isSelected: Boolean,
+    onRequestPermission: (String) -> Unit,
+    onClick: () -> Unit
+) {
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 1.15f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "IntentChoiceRadioScale"
+    )
+
+    SegmentedCard(index = index, count = count, onClick = onClick) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 72.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            item.iconPackage?.let { pkg ->
+                AppIconImage(pkg)
+                Spacer(Modifier.width(16.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                item.subtitle?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 18.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            item.lockReason?.let { reason ->
+                ClassLockButton(reason, item.lockPermission?.let { permission ->
+                    { onRequestPermission(permission) }
+                })
+            }
+            Spacer(Modifier.width(16.dp))
+            Icon(
+                painter = painterResource(
+                    if (isSelected) R.drawable.ic_radio_selected else R.drawable.ic_radio_unselected
+                ),
+                contentDescription = if (isSelected) stringResource(R.string.cd_selected) else stringResource(R.string.cd_not_selected),
+                modifier = Modifier
+                    .size(24.dp)
+                    .graphicsLayer(scaleX = scale, scaleY = scale),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+private fun SheetMessage(text: String, bottomPadding: Dp) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = bottomPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         Text(text, color = MaterialTheme.colorScheme.onSurface)
     }
 }
+
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+private val intentIconDispatcher = Dispatchers.IO.limitedParallelism(2)
 
 @Composable
 private fun AppIconImage(pkg: String) {
@@ -942,7 +1275,7 @@ private fun AppIconImage(pkg: String) {
     var icon by remember(pkg) { mutableStateOf<ImageBitmap?>(intentAppIconCache.get(pkg)) }
     if (icon == null) {
         LaunchedEffect(pkg) {
-            icon = withContext(Dispatchers.IO) {
+            icon = withContext(intentIconDispatcher) {
                 runCatching {
                     context.packageManager.getApplicationIcon(pkg).toBitmap(72, 72).asImageBitmap()
                 }.getOrNull()?.also { intentAppIconCache.put(pkg, it) }
@@ -951,44 +1284,8 @@ private fun AppIconImage(pkg: String) {
     }
     val loaded = icon
     if (loaded != null) {
-        Image(bitmap = loaded, contentDescription = null, modifier = Modifier.size(36.dp))
+        Image(bitmap = loaded, contentDescription = null, modifier = Modifier.size(40.dp))
     } else {
-        Spacer(Modifier.size(36.dp))
-    }
-}
-
-@Composable
-private fun FlagsSheet(
-    flags: List<IntentFlag>,
-    selected: Int,
-    onChange: (Int) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val haptics = LocalHapticManager.current
-    val view = LocalView.current
-
-    IntentSheetFrame(title = stringResource(R.string.intent_flags), onDismiss = onDismiss) {
-        LazyColumn(contentPadding = PaddingValues(bottom = 16.dp)) {
-            items(flags, key = { it.name }) { flag ->
-                val checked = selected and flag.value != 0
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            haptics.performSelection(view)
-                            onChange(selected xor flag.value)
-                        }
-                        .padding(vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(checked = checked, onCheckedChange = null, modifier = Modifier.padding(12.dp))
-                    Text(
-                        text = flag.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
+        Spacer(Modifier.size(40.dp))
     }
 }

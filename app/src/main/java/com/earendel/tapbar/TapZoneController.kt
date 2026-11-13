@@ -335,13 +335,34 @@ class TapZoneController(
         private var screenW = 0f
         private var screenH = 0f
 
+        private var appliedExclusion: List<Rect>? = null
+
         override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
             super.onLayout(changed, left, top, right, bottom)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                try {
-                    systemGestureExclusionRects = listOf(Rect(0, 0, right - left, bottom - top))
-                } catch (_: Throwable) {
-                }
+            applyGestureExclusion()
+        }
+
+        private fun applyGestureExclusion() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+            val w = width
+            val h = height
+            if (w <= 0 || h <= 0) return
+            val rects = if (prefs.getSwipeMode(zone) == SWIPE_MODE_ADVANCED) {
+                listOf(Rect(0, 0, w, h))
+            } else {
+                val edge = dp(ZoneLayout.SYSTEM_GESTURE_EDGE_DP)
+                val location = IntArray(2)
+                getLocationOnScreen(location)
+                val screenWidth = ScreenMetrics.sizePx(context).first
+                val cutLeft = (edge - location[0]).coerceIn(0, w)
+                val cutRight = (location[0] + w - (screenWidth - edge)).coerceIn(0, w)
+                if (w - cutRight > cutLeft) listOf(Rect(cutLeft, 0, w - cutRight, h)) else emptyList()
+            }
+            if (rects == appliedExclusion) return
+            appliedExclusion = rects
+            try {
+                systemGestureExclusionRects = rects
+            } catch (_: Throwable) {
             }
         }
 
@@ -507,6 +528,7 @@ class TapZoneController(
 
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    applyGestureExclusion()
                     downX = event.rawX
                     downY = event.rawY
                     val screenSize = ScreenMetrics.sizePx(context)

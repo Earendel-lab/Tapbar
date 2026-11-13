@@ -44,7 +44,11 @@ object BackupManager {
     private val excluded = setOf(
         "has_seen_privacy_notice",
         "has_completed_language_onboarding",
-        "has_completed_perm_onboarding"
+        "has_completed_perm_onboarding",
+        "donation_anchor",
+        "donation_shown_count",
+        "donation_next_at",
+        "donation_stopped"
     )
 
     private val refreshMarkers = setOf(

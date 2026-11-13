@@ -40,6 +40,8 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CropSquare
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Backup
+import androidx.compose.material.icons.rounded.BugReport
+import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material.icons.rounded.BrightnessAuto
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
@@ -97,6 +99,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
 class SettingsActivity : ComponentActivity() {
@@ -488,6 +491,17 @@ fun SettingsRoot(prefs: Prefs, onBack: () -> Unit) {
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
+                        stringResource(R.string.support_title),
+                        style = sectionHeaderStyle(),
+                        color = sectionHeaderColor(),
+                        modifier = Modifier.sectionHeaderInset()
+                    )
+
+                    SupportSection()
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
                         stringResource(R.string.about),
                         style = sectionHeaderStyle(),
                         color = sectionHeaderColor(),
@@ -748,7 +762,10 @@ fun BackupRestoreSection(prefs: Prefs) {
     }
 
     pending?.let { backup ->
-        Dialog(onDismissRequest = { pending = null }) {
+        Dialog(
+            onDismissRequest = { pending = null },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+        ) {
             androidx.compose.material3.Surface(
                 shape = MaterialTheme.shapes.extraLarge,
                 color = if (LocalImmersive.current != null) {
@@ -756,7 +773,9 @@ fun BackupRestoreSection(prefs: Prefs) {
                 } else {
                     overlayContainerColor()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -788,7 +807,7 @@ fun BackupRestoreSection(prefs: Prefs) {
                                 R.string.restore_confirm_message,
                                 BackupManager.formatTimestamp(backup.createdAt)
                             ),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp, lineHeight = 21.sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -838,7 +857,7 @@ fun BackupRestoreSection(prefs: Prefs) {
 }
 
 @Composable
-private fun RestoreDialogButton(
+fun RestoreDialogButton(
     text: String,
     color: androidx.compose.ui.graphics.Color,
     index: Int,
@@ -858,7 +877,7 @@ private fun RestoreDialogButton(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 72.dp),
+                .heightIn(min = 64.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -1058,6 +1077,151 @@ fun ThemeRow(
                     tint = selectedIconTint()
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun SupportSection() {
+    val context = LocalContext.current
+    val haptics = LocalHapticManager.current
+    val view = LocalView.current
+
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        SupportRow(
+            icon = Icons.Rounded.BugReport,
+            title = stringResource(R.string.report_bug),
+            description = stringResource(R.string.report_bug_desc),
+            index = 0,
+            count = 3,
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, "https://github.com/Earendel-lab/Tapbar/issues/new?template=bug_report.yml")
+            }
+        )
+        SupportRow(
+            icon = Icons.Rounded.Lightbulb,
+            title = stringResource(R.string.feature_request),
+            description = stringResource(R.string.feature_request_desc),
+            index = 1,
+            count = 3,
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, "https://github.com/Earendel-lab/Tapbar/discussions/new?category=ideas")
+            }
+        )
+        DonateRow(
+            index = 2,
+            count = 3,
+            onClick = {
+                haptics.performLightTap(view)
+                openUrl(context, KOFI_URL)
+            }
+        )
+    }
+}
+
+@Composable
+fun SupportRow(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    index: Int,
+    count: Int,
+    onClick: () -> Unit
+) {
+    SegmentedCard(
+        index = index,
+        count = count,
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_up_right),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+fun DonateRow(
+    index: Int,
+    count: Int,
+    onClick: () -> Unit
+) {
+    SegmentedCard(
+        index = index,
+        count = count,
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_kofi),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = donationShimmerBase()
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                ShimmerText(
+                    text = stringResource(R.string.donation_donate),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                    baseColor = donationShimmerBase(),
+                    highlightColor = donationShimmerHighlight()
+                )
+                Text(
+                    text = stringResource(R.string.donate_card_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_up_right),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
